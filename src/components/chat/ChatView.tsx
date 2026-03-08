@@ -36,16 +36,30 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
     el.scrollTop = el.scrollHeight;
   }, [messageMap]);
 
+  // Announce streaming status to screen readers
+  useEffect(() => {
+    const statusEl = document.getElementById('stream-status');
+    if (!statusEl) return;
+    statusEl.textContent = isStreaming ? 'Model is generating a response…' : '';
+  }, [isStreaming]);
+
   const visibleMessages = messages.filter((m) => m.role === 'user' || m.role === 'assistant');
 
   if (messagesLoading) {
-    return <div className={styles.chatView}><EmptyState /></div>;
+    return <div className={styles.chatView} role="region" aria-label="Chat"><EmptyState /></div>;
   }
 
   return (
-    <div className={styles.chatView}>
+    <div className={styles.chatView} role="region" aria-label="Chat conversation">
       <ContextBar />
-      <div className={styles.messageList} ref={scrollRef}>
+      <div
+        className={styles.messageList}
+        ref={scrollRef}
+        role="log"
+        aria-label="Messages"
+        aria-live="polite"
+        aria-relevant="additions"
+      >
         <div className={styles.messageListInner}>
           {visibleMessages.length === 0 ? (
             <EmptyState />
