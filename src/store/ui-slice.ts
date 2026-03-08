@@ -59,6 +59,8 @@ export const createUISlice: StateCreator<UISlice, [['zustand/immer', never]], []
   canvasOpen: false,
   focusMode: false,
   paramDrawerOpen: false,
+  selectedModelId: 'claude-sonnet-4-20250514',
+  inferenceParams: { ...DEFAULT_PARAMETERS },
 
   setTheme: (theme) => {
     try { localStorage.setItem(STORAGE_KEYS.theme, theme); } catch { /* noop */ }
