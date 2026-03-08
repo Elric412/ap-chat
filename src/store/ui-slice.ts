@@ -83,4 +83,6 @@ export const createUISlice: StateCreator<UISlice, [['zustand/immer', never]], []
     }
   }),
   setParamDrawerOpen: (open) => set((state) => { state.paramDrawerOpen = open; }),
+  setSelectedModelId: (id) => set((state) => { state.selectedModelId = id; }),
+  setInferenceParams: (params) => set((state) => { state.inferenceParams = params; }),
 });

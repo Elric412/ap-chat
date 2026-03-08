@@ -13,11 +13,10 @@ import { resolveParameters } from '../engine/parameter-resolver';
 import { calculateCost } from '../engine/cost-calculator';
 import { MODEL_REGISTRY } from '../constants/model-registry';
 import { uuidv7 } from '../lib/uuid';
-import { putMessage, putMessages } from '../db/messages-repo';
+import { putMessages } from '../db/messages-repo';
 import type { MessageNode, ContentPart, TokenCounts, CostEstimate } from '../types/messages';
-import type { InferenceParameters } from '../types/parameters';
 import type { StreamMessage } from '../adapters/types';
-import type { NormalizedStreamEvent, TokenUsage } from '../types/adapters';
+import type { TokenUsage } from '../types/adapters';
 import { DEFAULT_PARAMETERS } from '../constants/default-parameters';
 
 function createMessageNode(
@@ -48,6 +47,10 @@ function createMessageNode(
     _deleted: false,
     ...overrides,
   };
+}
+
+function showToast(type: 'info' | 'success' | 'warning' | 'error', title: string): void {
+  useAppStore.getState().addToast({ type, title, dismissible: true, duration: 5000 });
 }
 
 interface UseStreamReturn {
@@ -82,20 +85,19 @@ export function useStream(): UseStreamReturn {
     const model = MODEL_REGISTRY.find((m) => m.id === selectedModelId);
 
     if (!model) {
-      store.addToast({ id: uuidv7(), type: 'error', message: 'No model selected', duration: 4000 });
+      showToast('error', 'No model selected');
       return;
     }
 
     const adapter = getAdapter(model.providerId);
     if (!adapter) {
-      store.addToast({ id: uuidv7(), type: 'error', message: `No adapter for ${model.providerId}`, duration: 4000 });
+      showToast('error', `No adapter for ${model.providerId}`);
       return;
     }
 
-    // Get decrypted API key
     const apiKey = await getDecryptedKey(model.providerId);
     if (!apiKey) {
-      store.addToast({ id: uuidv7(), type: 'error', message: `No API key for ${model.providerId}. Add one in Settings.`, duration: 5000 });
+      showToast('error', `No API key for ${model.providerId}. Add one in Settings.`);
       return;
     }
 
@@ -108,7 +110,6 @@ export function useStream(): UseStreamReturn {
     const actualParentId = parentId ?? rootNodeId;
     const now = Date.now();
 
-    // Create user message node
     const userContent: ContentPart[] = [{ type: 'text', text }];
     const userNode = createMessageNode({
       id: userNodeId,
@@ -119,10 +120,8 @@ export function useStream(): UseStreamReturn {
       timestamp: now,
     });
 
-    // Resolve parameters
     const params = resolveParameters(store.inferenceParams, model);
 
-    // Create assistant node (streaming status)
     const assistantNode = createMessageNode({
       id: assistantNodeId,
       conversationId,
@@ -151,13 +150,11 @@ export function useStream(): UseStreamReturn {
       if (parent) state.messageMap.set(actualParentId, parent);
     });
 
-    // Build context messages from active branch
+    // Build context from active branch
     const branchMessages = store.getActiveBranchMessages();
     const contextMessages: StreamMessage[] = branchMessages
       .filter((m) => m.role !== 'system' || m.content.length > 0)
       .map((m) => ({ role: m.role, content: m.content }));
-
-    // Add current user message
     contextMessages.push({ role: 'user', content: userContent });
 
     let accumulatedText = '';
@@ -203,13 +200,15 @@ export function useStream(): UseStreamReturn {
             break;
 
           case 'error': {
+            const errType = event.error?.type ?? 'unknown';
+            const mappedType = errType === 'provider_outage' ? 'server' as const : errType;
             const errMsg = event.error?.message ?? 'Stream error';
             useAppStore.setState((state) => {
               const node = state.messageMap.get(assistantNodeId);
               if (node) {
                 node.status = 'error';
                 node.error = {
-                  type: event.error?.type ?? 'unknown',
+                  type: mappedType,
                   message: errMsg,
                   retryable: event.error?.retryable ?? false,
                   retryAfterMs: event.error?.retryAfterMs,
@@ -217,7 +216,7 @@ export function useStream(): UseStreamReturn {
                 node._clock += 1;
               }
             });
-            store.addToast({ id: uuidv7(), type: 'error', message: errMsg, duration: 6000 });
+            showToast('error', errMsg);
             break;
           }
         }
@@ -233,7 +232,7 @@ export function useStream(): UseStreamReturn {
             node._clock += 1;
           }
         });
-        store.addToast({ id: uuidv7(), type: 'error', message: errMsg, duration: 6000 });
+        showToast('error', errMsg);
       }
     }
 
@@ -246,7 +245,6 @@ export function useStream(): UseStreamReturn {
       : { input: Math.ceil(text.length / 4), output: Math.ceil(accumulatedText.length / 4), thinking: 0, cached: 0 };
 
     const costEstimate: CostEstimate = calculateCost(tokenCounts, model.pricing);
-
     const wasAborted = abortController.signal.aborted;
 
     useAppStore.setState((state) => {
