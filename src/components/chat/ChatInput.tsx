@@ -51,6 +51,7 @@ export function ChatInput({
   const [showPresets, setShowPresets] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const presetRef = useRef<HTMLDivElement>(null);
 
   const setInferenceParams = useAppStore((s) => s.setInferenceParams);
   const setSelectedModelId = useAppStore((s) => s.setSelectedModelId);
