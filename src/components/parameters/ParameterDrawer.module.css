@@ -11,12 +11,14 @@
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform var(--duration-normal) cubic-bezier(0.32, 0.72, 0, 1);
-  box-shadow: var(--shadow-xl);
+  transition: transform var(--duration-slow) var(--ease-silk);
+  box-shadow: none;
+  will-change: transform;
 }
 
 .drawer[data-open="true"] {
   transform: translateX(0);
+  box-shadow: var(--shadow-xl);
 }
 
 .drawerHeader {
@@ -31,6 +33,7 @@
   font-size: var(--text-h4);
   font-weight: var(--weight-semibold);
   color: var(--color-text-1);
+  letter-spacing: var(--tracking-heading);
 }
 
 .closeButton {
@@ -44,13 +47,18 @@
   color: var(--color-text-2);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-snap);
 }
 
 .closeButton:hover {
   background: var(--color-surface-hover);
   color: var(--color-text-1);
-  transform: rotate(90deg);
+  transform: rotate(90deg) scale(1.1);
+}
+
+.closeButton:active {
+  transform: rotate(90deg) scale(0.9);
+  transition-duration: var(--duration-instant);
 }
 
 .drawerBody {
@@ -65,8 +73,16 @@
 .paramGroup {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-1-5);
+  animation: fadeInSubtle var(--duration-normal) var(--ease-out) both;
 }
+
+.paramGroup:nth-child(1) { animation-delay: 0ms; }
+.paramGroup:nth-child(2) { animation-delay: 40ms; }
+.paramGroup:nth-child(3) { animation-delay: 80ms; }
+.paramGroup:nth-child(4) { animation-delay: 120ms; }
+.paramGroup:nth-child(5) { animation-delay: 160ms; }
+.paramGroup:nth-child(6) { animation-delay: 200ms; }
 
 .paramLabel {
   display: flex;
@@ -82,6 +98,7 @@
   font-family: var(--font-mono);
   font-size: var(--text-code-sm);
   color: var(--color-text-1);
+  transition: color var(--duration-fast) var(--ease-silk);
 }
 
 .paramHint {
@@ -100,7 +117,7 @@
   border-radius: var(--radius-full);
   outline: none;
   cursor: pointer;
-  transition: background var(--duration-fast) var(--ease-mechanical);
+  transition: background var(--duration-fast) var(--ease-silk);
 }
 
 .slider:hover {
@@ -110,24 +127,24 @@
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   background: var(--color-secondary);
   border-radius: var(--radius-full);
   cursor: pointer;
   border: 2px solid var(--color-surface-1);
   box-shadow: var(--shadow-xs);
-  transition: transform var(--duration-fast) var(--ease-snap),
-              box-shadow var(--duration-fast) var(--ease-snap);
+  transition: transform var(--duration-fast) var(--ease-bounce),
+              box-shadow var(--duration-fast) var(--ease-silk);
 }
 
 .slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 0 0 4px var(--color-secondary-ghost);
+  transform: scale(1.3);
+  box-shadow: 0 0 0 6px hsl(172, 52%, 46%, 0.15);
 }
 
 .slider:active::-webkit-slider-thumb {
-  transform: scale(1.3);
+  transform: scale(1.4);
 }
 
 .slider:focus-visible {
@@ -149,19 +166,26 @@
   font-size: var(--text-caption);
   font-family: var(--font-sans);
   font-weight: var(--weight-medium);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-snap);
 }
 
 .tokenModeBtn:hover {
   background: var(--color-surface-hover);
+  transform: translateY(-1px);
+}
+
+.tokenModeBtn:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: var(--duration-instant);
 }
 
 .tokenModeBtn[data-active="true"] {
   background: var(--color-secondary-ghost);
   border-color: var(--color-secondary);
   color: var(--color-secondary-text);
+  box-shadow: 0 0 0 1px var(--color-secondary-muted);
 }
 
 .tokenInput {
@@ -170,12 +194,13 @@
   padding: 0 var(--space-3);
   background: var(--color-surface-3);
   border: 1px solid var(--color-border-2);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   font-family: var(--font-mono);
   font-size: var(--text-body);
   color: var(--color-text-1);
   outline: none;
-  transition: border-color var(--duration-fast) var(--ease-mechanical);
+  transition: border-color var(--duration-fast) var(--ease-silk),
+              box-shadow var(--duration-fast) var(--ease-silk);
   margin-top: var(--space-1);
 }
 
@@ -198,13 +223,13 @@
 
 .toggle {
   position: relative;
-  width: 36px;
-  height: 20px;
+  width: 40px;
+  height: 22px;
   border: none;
   border-radius: var(--radius-full);
   background: var(--color-surface-3);
   cursor: pointer;
-  transition: background var(--duration-fast) var(--ease-mechanical);
+  transition: background var(--duration-normal) var(--ease-silk);
   padding: 0;
 }
 
@@ -214,17 +239,18 @@
 
 .toggleThumb {
   position: absolute;
-  top: 2px;
-  left: 2px;
+  top: 3px;
+  left: 3px;
   width: 16px;
   height: 16px;
   border-radius: var(--radius-full);
   background: var(--color-text-1);
-  transition: transform var(--duration-fast) var(--ease-snap);
+  transition: transform var(--duration-normal) var(--ease-bounce);
+  box-shadow: var(--shadow-xs);
 }
 
 .toggle[data-on="true"] .toggleThumb {
-  transform: translateX(16px);
+  transform: translateX(18px);
 }
 
 .thinkingLevels {
@@ -234,20 +260,27 @@
 
 .levelButton {
   flex: 1;
-  padding: var(--space-1) var(--space-2);
+  padding: var(--space-1-5) var(--space-2);
   border: 1px solid var(--color-border-1);
   background: transparent;
   color: var(--color-text-2);
   font-size: var(--text-micro);
   font-family: var(--font-sans);
-  border-radius: var(--radius-sm);
+  font-weight: var(--weight-medium);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-mechanical);
+  text-transform: capitalize;
+  transition: all var(--duration-fast) var(--ease-snap);
 }
 
 .levelButton:hover {
   background: var(--color-surface-hover);
   transform: translateY(-1px);
+}
+
+.levelButton:active {
+  transform: translateY(0) scale(0.96);
+  transition-duration: var(--duration-instant);
 }
 
 .levelButton[data-active="true"] {
@@ -264,9 +297,9 @@
   color: var(--color-text-2);
   font-family: var(--font-sans);
   font-size: var(--text-body);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-snap);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -277,6 +310,12 @@
   background: var(--color-surface-hover);
   color: var(--color-text-1);
   transform: translateY(-1px);
+  border-color: var(--color-border-2);
+}
+
+.resetButton:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: var(--duration-instant);
 }
 
 .backdrop {
@@ -284,5 +323,18 @@
   inset: 0;
   z-index: calc(var(--z-drawer) - 1);
   background: hsl(0, 0%, 0%, 0.4);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .drawer {
+    width: 100%;
+    max-width: 100%;
+    border-left: none;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    top: auto;
+    max-height: 85vh;
+  }
 }

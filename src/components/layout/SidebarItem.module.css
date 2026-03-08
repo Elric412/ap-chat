@@ -17,17 +17,18 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: all var(--duration-fast) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-silk);
   margin-bottom: var(--space-0-5);
   position: relative;
   gap: var(--space-2);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .chatIcon {
   flex-shrink: 0;
   color: var(--color-text-3);
-  opacity: 0.5;
-  transition: all var(--duration-fast) var(--ease-mechanical);
+  opacity: 0.4;
+  transition: all var(--duration-normal) var(--ease-silk);
 }
 
 .sidebarItem:hover .chatIcon {
@@ -45,6 +46,12 @@
   color: var(--color-text-1);
 }
 
+.sidebarItem:active {
+  background: var(--color-surface-active);
+  transform: scale(0.98);
+  transition-duration: var(--duration-instant);
+}
+
 .sidebarItem[data-active="true"] {
   background: var(--color-surface-selected);
   color: var(--color-text-1);
@@ -59,18 +66,18 @@
   width: 3px;
   border-radius: 0 var(--radius-full) var(--radius-full) 0;
   background: var(--color-primary);
-  box-shadow: 0 0 8px var(--color-ai-cursor-glow);
-  animation: slideInLeft 0.2s var(--ease-snap) both;
+  box-shadow: 0 0 12px var(--color-ai-cursor-glow);
+  animation: indicatorIn 0.35s var(--ease-bounce) both;
 }
 
-@keyframes slideInLeft {
+@keyframes indicatorIn {
   from {
     opacity: 0;
-    transform: scaleY(0);
+    transform: scaleY(0) translateX(-2px);
   }
   to {
     opacity: 1;
-    transform: scaleY(1);
+    transform: scaleY(1) translateX(0);
   }
 }
 
@@ -93,7 +100,7 @@
   cursor: pointer;
   flex-shrink: 0;
   margin-left: var(--space-1);
-  transition: all var(--duration-fast) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-snap);
 }
 
 .sidebarItem:hover .deleteButton {
@@ -103,5 +110,22 @@
 .deleteButton:hover {
   color: var(--color-error-text);
   background: var(--color-error-ghost);
-  transform: scale(1.1);
+  transform: scale(1.15);
+}
+
+.deleteButton:active {
+  transform: scale(0.9);
+  transition-duration: var(--duration-instant);
+}
+
+/* ── Mobile — always show delete ── */
+@media (max-width: 768px) {
+  .sidebarItem {
+    padding: var(--space-2-5, 10px) var(--space-3);
+  }
+
+  .deleteButton {
+    display: flex;
+    opacity: 0.5;
+  }
 }
