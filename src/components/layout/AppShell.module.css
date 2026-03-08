@@ -133,13 +133,10 @@
     bottom: 0;
     z-index: var(--z-sidebar);
     width: min(var(--layout-sidebar-width), 85vw);
-    transform: translateX(0);
     box-shadow: var(--shadow-xl);
   }
 
   .sidebarRegion[data-hidden="true"] {
-    transform: translateX(-100%);
-    width: min(var(--layout-sidebar-width), 85vw);
     box-shadow: none;
   }
 
