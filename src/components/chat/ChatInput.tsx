@@ -239,7 +239,11 @@ export function ChatInput({
 
       {/* Attachment previews */}
       {attachments.length > 0 && (
-        <div className={styles.attachmentStrip}>
+        <div
+          className={styles.attachmentStrip}
+          role="list"
+          aria-label={`${attachments.length} file${attachments.length !== 1 ? 's' : ''} attached`}
+        >
           {attachments.map((pa) => (
             <AttachmentPreviewCard
               key={pa.attachment.id}
