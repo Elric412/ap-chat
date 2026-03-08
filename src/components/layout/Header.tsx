@@ -44,7 +44,7 @@ export function Header(): JSX.Element {
           className={styles.headerAction}
           type="button"
           aria-label="Toggle parameters"
-          onClick={() => toggleParamDrawer(!setParamDrawerOpen)}
+          onClick={() => setParamDrawerOpen(!paramDrawerOpen)}
         >
           <SlidersHorizontal size={18} aria-hidden="true" />
         </button>
