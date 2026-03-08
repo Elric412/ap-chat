@@ -70,8 +70,7 @@ export function Header(): JSX.Element {
         </button>
 
         {/* Web Search toggle */}
-        {!isMobile && (
-          <button
+        <button
             className={styles.searchToggle}
             type="button"
             aria-label={webSearchEnabled ? 'Disable web search' : 'Enable web search'}
