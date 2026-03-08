@@ -66,6 +66,7 @@ export const createUISlice: StateCreator<UISlice, [['zustand/immer', never]], []
   paramDrawerOpen: false,
   selectedModelId: 'claude-sonnet-4-20250514',
   inferenceParams: { ...DEFAULT_PARAMETERS },
+  contextConfig: { ...DEFAULT_CONTEXT_CONFIG },
 
   setTheme: (theme) => {
     try { localStorage.setItem(STORAGE_KEYS.theme, theme); } catch { /* noop */ }
@@ -90,4 +91,10 @@ export const createUISlice: StateCreator<UISlice, [['zustand/immer', never]], []
   setParamDrawerOpen: (open) => set((state) => { state.paramDrawerOpen = open; }),
   setSelectedModelId: (id) => set((state) => { state.selectedModelId = id; }),
   setInferenceParams: (params) => set((state) => { state.inferenceParams = params; }),
+  setContextConfig: (config) => set((state) => {
+    state.contextConfig = { ...state.contextConfig, ...config };
+  }),
+  setContextStrategy: (strategy) => set((state) => {
+    state.contextConfig.strategy = strategy;
+  }),
 });
