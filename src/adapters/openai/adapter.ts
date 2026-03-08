@@ -8,15 +8,38 @@
 
 import type { ProviderAdapter, StreamRequest, StreamMessage } from '../types';
 import type { NormalizedStreamEvent, ClassifiedError } from '../../types/adapters';
+import type { ProcessedAttachment } from '../../engine/attachment-processor';
+import { buildMultimodalContent } from '../../engine/attachment-processor';
 import { PROVIDER_META } from '../../constants/provider-meta';
 
-function buildMessages(messages: StreamMessage[]): Array<Record<string, unknown>> {
-  return messages.map((msg) => {
+function buildMessages(
+  messages: StreamMessage[],
+  attachments?: ProcessedAttachment[]
+): Array<Record<string, unknown>> {
+  return messages.map((msg, i) => {
     const textParts = msg.content.filter((p) => p.type === 'text');
     const text = textParts.map((p) => (p as { type: 'text'; text: string }).text).join('\n');
+    const hasNonText = msg.content.some((p) => p.type !== 'text');
 
     if (msg.role === 'tool' && msg.toolCallId) {
       return { role: 'tool', tool_call_id: msg.toolCallId, content: text };
+    }
+
+    // For the last user message, inject multimodal attachments
+    const isLastUser = msg.role === 'user' && i === messages.length - 1;
+    if (isLastUser && attachments?.length) {
+      const parts = buildMultimodalContent(text, attachments);
+      return { role: 'user', content: parts };
+    }
+
+    // If message has non-text content parts (from history), check for images
+    if (hasNonText && msg.role === 'user') {
+      const imageParts = msg.content.filter((p) => p.type === 'image');
+      if (imageParts.length > 0) {
+        // Historical multimodal — we only have references, not data URLs
+        // Fall back to text-only for now
+        return { role: msg.role, content: text };
+      }
     }
 
     return { role: msg.role, content: text };
