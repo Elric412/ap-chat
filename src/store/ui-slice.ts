@@ -64,7 +64,7 @@ export const createUISlice: StateCreator<UISlice, [['zustand/immer', never]], []
   canvasOpen: false,
   focusMode: false,
   paramDrawerOpen: false,
-  selectedModelId: 'claude-sonnet-4-20250514',
+  selectedModelId: 'claude-sonnet-4-6-20260301',
   inferenceParams: { ...DEFAULT_PARAMETERS },
   contextConfig: { ...DEFAULT_CONTEXT_CONFIG },
 
