@@ -1,7 +1,9 @@
 import type { StateCreator } from 'zustand';
 import type { ThemeMode, ResolvedTheme, DensityMode } from '../types/ui';
 import type { InferenceParameters } from '../types/parameters';
+import type { ContextConfig, ContextStrategy } from '../engine/context-engine';
 import { DEFAULT_PARAMETERS } from '../constants/default-parameters';
+import { DEFAULT_CONTEXT_CONFIG } from '../engine/context-engine';
 
 export interface UISlice {
   theme: ThemeMode;
@@ -14,6 +16,7 @@ export interface UISlice {
   paramDrawerOpen: boolean;
   selectedModelId: string;
   inferenceParams: InferenceParameters;
+  contextConfig: ContextConfig;
 
   setTheme: (theme: ThemeMode) => void;
   setResolvedTheme: (resolved: ResolvedTheme) => void;
@@ -27,6 +30,8 @@ export interface UISlice {
   setParamDrawerOpen: (open: boolean) => void;
   setSelectedModelId: (id: string) => void;
   setInferenceParams: (params: InferenceParameters) => void;
+  setContextConfig: (config: Partial<ContextConfig>) => void;
+  setContextStrategy: (strategy: ContextStrategy) => void;
 }
 
 const STORAGE_KEYS = {
