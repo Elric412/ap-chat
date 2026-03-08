@@ -1,0 +1,44 @@
+.branchNavigator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-sm);
+  padding: var(--space-0-5) var(--space-1);
+}
+
+.navButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-3);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: background var(--duration-instant) var(--ease-mechanical),
+              color var(--duration-instant) var(--ease-mechanical);
+}
+
+.navButton:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  color: var(--color-text-1);
+}
+
+.navButton:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.counter {
+  font-size: var(--text-micro);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-2);
+  letter-spacing: var(--tracking-code);
+  line-height: var(--leading-mono);
+  min-width: 24px;
+  text-align: center;
+}

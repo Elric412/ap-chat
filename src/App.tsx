@@ -30,15 +30,12 @@ function AppInner(): JSX.Element {
         sidebar={<Sidebar />}
         header={<Header />}
       >
-        {vaultStatus === 'unlocked' ? (
-          <Routes>
-            <Route path="/" element={<ChatPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="*" element={<ChatPage />} />
-          </Routes>
-        ) : (
-          <ChatPage />
-        )}
+        <Routes>
+          <Route path="/" element={<ChatPage />} />
+          <Route path="/chat/:conversationId" element={<ChatPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="*" element={<ChatPage />} />
+        </Routes>
       </AppShell>
       <VaultSetupModal />
       <VaultUnlockModal />

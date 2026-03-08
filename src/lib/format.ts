@@ -22,6 +22,14 @@ export function formatLatency(ms: number): string {
   return `${(ms / 1000).toFixed(1)}s`;
 }
 
+/** Format time as HH:MM */
+export function formatTime(date: Date): string {
+  return new Intl.DateTimeFormat('en', { hour: '2-digit', minute: '2-digit', hour12: false }).format(date);
+}
+
+/** Alias for formatTokens */
+export const formatTokenCount = formatTokens;
+
 /** Format a relative timestamp */
 export function formatRelativeTime(timestamp: number): string {
   const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });

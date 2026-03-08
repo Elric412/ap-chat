@@ -1,18 +1,51 @@
+import { useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../store';
 import { useTheme } from '../../hooks/use-theme';
 import { Sun, Moon, Plus, Settings, Lock, Unlock } from 'lucide-react';
+import { SidebarItem } from './SidebarItem';
 import styles from './Sidebar.module.css';
 
 export function Sidebar(): JSX.Element {
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
   const vaultStatus = useAppStore((s) => s.vaultStatus);
   const keyRecords = useAppStore((s) => s.keyRecords);
+  const conversations = useAppStore((s) => s.conversations);
+  const activeConversationId = useAppStore((s) => s.activeConversationId);
+  const conversationsLoaded = useAppStore((s) => s.conversationsLoaded);
+  const loadConversations = useAppStore((s) => s.loadConversations);
+  const createConversation = useAppStore((s) => s.createConversation);
+  const setActiveConversation = useAppStore((s) => s.setActiveConversation);
+  const deleteConversation = useAppStore((s) => s.deleteConversation);
   const { resolvedTheme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
   const configuredCount = keyRecords.length;
+
+  /* Load conversations on mount */
+  useEffect(() => {
+    if (!conversationsLoaded) {
+      void loadConversations();
+    }
+  }, [conversationsLoaded, loadConversations]);
+
+  const handleNewChat = useCallback(() => {
+    const conv = createConversation();
+    navigate(`/chat/${conv.id}`);
+  }, [createConversation, navigate]);
+
+  const handleSelectConversation = useCallback((id: string) => {
+    setActiveConversation(id);
+    navigate(`/chat/${id}`);
+  }, [setActiveConversation, navigate]);
+
+  const handleDeleteConversation = useCallback((id: string) => {
+    void deleteConversation(id);
+    if (activeConversationId === id) {
+      navigate('/');
+    }
+  }, [deleteConversation, activeConversationId, navigate]);
 
   return (
     <nav className={styles.sidebar} data-collapsed={sidebarCollapsed} aria-label="Sidebar">
@@ -22,13 +55,25 @@ export function Sidebar(): JSX.Element {
           className={styles.newChatButton}
           aria-label="New conversation"
           type="button"
-          onClick={() => navigate('/')}
+          onClick={handleNewChat}
         >
           <Plus size={18} aria-hidden="true" />
         </button>
       </div>
       <div className={styles.conversationList}>
-        <p className={styles.emptyList}>No conversations yet</p>
+        {conversations.length === 0 ? (
+          <p className={styles.emptyList}>No conversations yet</p>
+        ) : (
+          conversations.map((conv) => (
+            <SidebarItem
+              key={conv.id}
+              conversation={conv}
+              isActive={conv.id === activeConversationId}
+              onClick={handleSelectConversation}
+              onDelete={handleDeleteConversation}
+            />
+          ))
+        )}
       </div>
       <div className={styles.sidebarFooter}>
         <button
