@@ -308,26 +308,41 @@ export function ChatInput({
           {value.length > 0 ? `${value.length}` : ''}
         </span>
 
-        {isStreaming ? (
-          <button
-            className={styles.stopButton}
-            onClick={onAbort}
-            type="button"
-            aria-label="Stop generation"
-          >
-            <Square size={14} aria-hidden="true" />
-          </button>
-        ) : (
-          <button
-            className={styles.sendButton}
-            onClick={handleSend}
-            disabled={!canSend}
-            type="button"
-            aria-label="Send message"
-          >
-            <ArrowUp size={16} aria-hidden="true" />
-          </button>
-        )}
+        <AnimatePresence mode="wait">
+          {isStreaming ? (
+            <motion.button
+              key="stop"
+              className={styles.stopButton}
+              onClick={onAbort}
+              type="button"
+              aria-label="Stop generation"
+              initial={{ scale: 0, rotate: -90 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 90 }}
+              transition={{ duration: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
+              whileTap={{ scale: 0.85 }}
+            >
+              <Square size={14} aria-hidden="true" />
+            </motion.button>
+          ) : (
+            <motion.button
+              key="send"
+              className={styles.sendButton}
+              onClick={handleSend}
+              disabled={!canSend}
+              type="button"
+              aria-label="Send message"
+              initial={{ scale: 0, rotate: 90 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: -90 }}
+              transition={{ duration: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
+              whileTap={{ scale: 0.85 }}
+              whileHover={canSend ? { scale: 1.1 } : undefined}
+            >
+              <ArrowUp size={16} aria-hidden="true" />
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
