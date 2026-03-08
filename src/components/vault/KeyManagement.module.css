@@ -90,6 +90,16 @@
   background: var(--color-error-ghost);
 }
 
+.actionButton[data-variant="verify"]:hover {
+  color: var(--color-success-text);
+  background: var(--color-success-ghost);
+}
+
+.actionButton:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
 .addKeyForm {
   display: flex;
   flex-direction: column;
