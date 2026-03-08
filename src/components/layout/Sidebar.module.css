@@ -57,31 +57,65 @@
 .conversationList {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-2) var(--space-2);
+  padding: var(--space-2);
 }
 
-.emptyList {
-  padding: var(--space-8) var(--space-4);
-  text-align: center;
+/* ── Date grouping ── */
+.dateGroup {
+  margin-bottom: var(--space-1);
+}
+
+.dateLabel {
+  display: block;
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  font-size: var(--text-micro);
+  font-weight: var(--weight-semibold);
   color: var(--color-text-3);
-  font-size: var(--text-caption);
-  line-height: var(--leading-caption);
+  letter-spacing: var(--tracking-micro);
+  text-transform: uppercase;
 }
 
-.sidebarFooter {
-  border-top: 1px solid var(--color-border-1);
-  padding: var(--space-3) var(--space-3);
-  flex-shrink: 0;
+/* ── Empty state ── */
+.emptyList {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+}
+
+.emptyIcon {
+  color: var(--color-text-3);
+  opacity: 0.4;
+}
+
+.emptyText {
+  color: var(--color-text-3);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+}
+
+.emptyHint {
+  color: var(--color-text-3);
+  font-size: var(--text-micro);
+  opacity: 0.6;
+}
+
+/* ── Footer ── */
+.sidebarFooter {
+  border-top: 1px solid var(--color-border-1);
+  padding: var(--space-3);
+  flex-shrink: 0;
+  display: flex;
   gap: var(--space-1);
 }
 
-.themeToggle {
+.footerBtn {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  width: 100%;
+  flex: 1;
   padding: var(--space-2) var(--space-3);
   border: none;
   background: transparent;
@@ -94,14 +128,15 @@
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--duration-fast) var(--ease-mechanical);
+  justify-content: center;
 }
 
-.themeToggle:hover {
+.footerBtn:hover {
   background: var(--color-surface-hover);
   color: var(--color-text-1);
 }
 
-.themeToggle[data-active="true"] {
+.footerBtn[data-active="true"] {
   background: var(--color-surface-selected);
   color: var(--color-secondary-text);
 }
@@ -109,10 +144,19 @@
 /* Collapsed state */
 .sidebar[data-collapsed="true"] .appName,
 .sidebar[data-collapsed="true"] .emptyList,
-.sidebar[data-collapsed="true"] .themeToggle span {
+.sidebar[data-collapsed="true"] .footerBtn span,
+.sidebar[data-collapsed="true"] .dateLabel {
   display: none;
 }
 
 .sidebar[data-collapsed="true"] .sidebarHeader {
   justify-content: center;
+}
+
+.sidebar[data-collapsed="true"] .footerBtn {
+  justify-content: center;
+}
+
+.sidebar[data-collapsed="true"] .sidebarFooter {
+  flex-direction: column;
 }

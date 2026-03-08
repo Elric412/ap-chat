@@ -1,10 +1,33 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../store';
 import { useTheme } from '../../hooks/use-theme';
-import { Sun, Moon, Plus, Settings, Lock, Unlock } from 'lucide-react';
+import { Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare } from 'lucide-react';
 import { SidebarItem } from './SidebarItem';
+import type { Conversation } from '../../types/conversations';
 import styles from './Sidebar.module.css';
+
+function groupByDate(conversations: Conversation[]): { label: string; items: Conversation[] }[] {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const yesterday = today - 86400000;
+  const weekAgo = today - 7 * 86400000;
+
+  const groups: Record<string, Conversation[]> = {};
+  const order = ['Today', 'Yesterday', 'This week', 'Older'];
+
+  for (const conv of conversations) {
+    const t = conv.updatedAt;
+    let label: string;
+    if (t >= today) label = 'Today';
+    else if (t >= yesterday) label = 'Yesterday';
+    else if (t >= weekAgo) label = 'This week';
+    else label = 'Older';
+    (groups[label] ??= []).push(conv);
+  }
+
+  return order.filter((l) => groups[l]?.length).map((label) => ({ label, items: groups[label] }));
+}
 
 export function Sidebar(): JSX.Element {
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
@@ -23,7 +46,8 @@ export function Sidebar(): JSX.Element {
 
   const configuredCount = keyRecords.length;
 
-  /* Load conversations on mount */
+  const grouped = useMemo(() => groupByDate(conversations), [conversations]);
+
   useEffect(() => {
     if (!conversationsLoaded) {
       void loadConversations();
@@ -60,24 +84,35 @@ export function Sidebar(): JSX.Element {
           <Plus size={18} aria-hidden="true" />
         </button>
       </div>
+
       <div className={styles.conversationList}>
         {conversations.length === 0 ? (
-          <p className={styles.emptyList}>No conversations yet</p>
+          <div className={styles.emptyList}>
+            <MessageSquare size={20} className={styles.emptyIcon} aria-hidden="true" />
+            <p className={styles.emptyText}>No conversations yet</p>
+            <p className={styles.emptyHint}>Start a new chat to begin</p>
+          </div>
         ) : (
-          conversations.map((conv) => (
-            <SidebarItem
-              key={conv.id}
-              conversation={conv}
-              isActive={conv.id === activeConversationId}
-              onClick={handleSelectConversation}
-              onDelete={handleDeleteConversation}
-            />
+          grouped.map((group) => (
+            <div key={group.label} className={styles.dateGroup}>
+              <span className={styles.dateLabel}>{group.label}</span>
+              {group.items.map((conv) => (
+                <SidebarItem
+                  key={conv.id}
+                  conversation={conv}
+                  isActive={conv.id === activeConversationId}
+                  onClick={handleSelectConversation}
+                  onDelete={handleDeleteConversation}
+                />
+              ))}
+            </div>
           ))
         )}
       </div>
+
       <div className={styles.sidebarFooter}>
         <button
-          className={styles.themeToggle}
+          className={styles.footerBtn}
           onClick={() => navigate('/settings')}
           type="button"
           data-active={location.pathname === '/settings'}
@@ -97,7 +132,7 @@ export function Sidebar(): JSX.Element {
           </span>
         </button>
         <button
-          className={styles.themeToggle}
+          className={styles.footerBtn}
           onClick={toggleTheme}
           type="button"
           aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
@@ -106,7 +141,7 @@ export function Sidebar(): JSX.Element {
             ? <Sun size={16} aria-hidden="true" />
             : <Moon size={16} aria-hidden="true" />
           }
-          <span>{resolvedTheme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+          <span>{resolvedTheme === 'dark' ? 'Light' : 'Dark'}</span>
         </button>
       </div>
     </nav>

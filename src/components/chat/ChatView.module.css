@@ -11,21 +11,30 @@
   overflow-x: hidden;
   padding: var(--space-4) 0;
   scroll-behavior: smooth;
+  /* Overscroll effect on supported browsers */
+  overscroll-behavior-y: contain;
 }
 
 .messageListInner {
   max-width: var(--layout-chat-max-width);
   margin: 0 auto;
   padding: 0 var(--layout-chat-padding-x);
-  animation: fadeIn var(--duration-normal) var(--ease-mechanical);
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.scrollAnchor {
+  height: var(--space-4);
+  flex-shrink: 0;
 }
 
 .inputWrapper {
   flex-shrink: 0;
-  padding: var(--space-4) var(--layout-chat-padding-x) var(--space-8);
+  padding: var(--space-2) var(--layout-chat-padding-x) var(--space-6);
   display: flex;
   justify-content: center;
-  background: linear-gradient(to top, var(--color-surface-0) 60%, transparent);
+  background: linear-gradient(to top, var(--color-surface-0) 70%, transparent);
   position: relative;
 }
 

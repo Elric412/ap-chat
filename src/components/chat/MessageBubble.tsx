@@ -6,6 +6,7 @@
  * streaming cursor, and branch navigation.
  */
 
+import { useState, useCallback, type CSSProperties } from 'react';
 import type { MessageNode } from '../../types/messages';
 import { useAppStore } from '../../store';
 import { BranchNavigator } from './BranchNavigator';
@@ -15,7 +16,7 @@ import { ThinkingBlock } from './ThinkingBlock';
 import { ToolCallCard } from './ToolCallCard';
 import { WebSearchCitations } from './WebSearchCitation';
 import { formatTime, formatTokenCount, formatCost } from '../../lib/format';
-import { Code2, Pin } from 'lucide-react';
+import { Code2, Pin, Copy, Check } from 'lucide-react';
 import { putMessage } from '../../db/messages-repo';
 import styles from './MessageBubble.module.css';
 
@@ -23,10 +24,12 @@ interface MessageBubbleProps {
   message: MessageNode;
   onApproveToolCall?: (messageId: string, toolCallId: string) => void;
   onDenyToolCall?: (messageId: string, toolCallId: string) => void;
+  style?: CSSProperties;
 }
 
-export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: MessageBubbleProps): JSX.Element {
+export function MessageBubble({ message, onApproveToolCall, onDenyToolCall, style }: MessageBubbleProps): JSX.Element {
   const messageMap = useAppStore((s) => s.messageMap);
+  const [copied, setCopied] = useState(false);
 
   const textContent = message.content
     .filter((p) => p.type === 'text')
@@ -68,8 +71,25 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
     if (updated) void putMessage(updated);
   };
 
+  const handleCopy = useCallback(async () => {
+    if (!textContent) return;
+    try {
+      await navigator.clipboard.writeText(textContent);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback
+    }
+  }, [textContent]);
+
   return (
-    <div className={styles.bubble} data-role={message.role} data-status={message.status} data-pinned={isPinned}>
+    <div
+      className={styles.bubble}
+      data-role={message.role}
+      data-status={message.status}
+      data-pinned={isPinned}
+      style={style}
+    >
       <div className={styles.header}>
         <div className={styles.roleIndicator}>
           {isUser && (
@@ -82,16 +102,32 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
             {isUser ? 'You' : isAssistant ? (message.model ?? 'Assistant') : message.role}
           </span>
         </div>
-        <button
-          className={styles.pinBtn}
-          data-pinned={isPinned}
-          onClick={handleTogglePin}
-          type="button"
-          aria-label={isPinned ? 'Unpin message' : 'Pin message'}
-          title={isPinned ? 'Pinned — always included in context' : 'Pin to always include in context'}
-        >
-          <Pin size={12} />
-        </button>
+
+        <div className={styles.actions}>
+          {textContent && !isStreaming && (
+            <button
+              className={styles.actionBtn}
+              onClick={handleCopy}
+              type="button"
+              aria-label={copied ? 'Copied' : 'Copy message'}
+              title={copied ? 'Copied!' : 'Copy to clipboard'}
+              data-copied={copied}
+            >
+              {copied ? <Check size={12} /> : <Copy size={12} />}
+            </button>
+          )}
+          <button
+            className={styles.actionBtn}
+            data-pinned={isPinned}
+            onClick={handleTogglePin}
+            type="button"
+            aria-label={isPinned ? 'Unpin message' : 'Pin message'}
+            title={isPinned ? 'Pinned — always included in context' : 'Pin to always include in context'}
+          >
+            <Pin size={12} />
+          </button>
+        </div>
+
         <span className={styles.timestamp}>{timeStr}</span>
       </div>
 
@@ -112,7 +148,7 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
 
       {/* Main text content */}
       <div className={styles.content}>
-        {textContent || (!isStreaming && isAssistant ? <span style={{ color: 'var(--color-text-3)', fontStyle: 'italic' }}>Empty response</span> : null)}
+        {textContent || (!isStreaming && isAssistant ? <span className={styles.emptyResponse}>Empty response</span> : null)}
         {isStreaming && <StreamCursor visible={true} />}
       </div>
 
