@@ -74,7 +74,7 @@ export const anthropicAdapter: ProviderAdapter = {
 
   async *stream(apiKey: string, request: StreamRequest): AsyncGenerator<NormalizedStreamEvent, void, undefined> {
     const baseUrl = PROVIDER_META.anthropic.baseUrl;
-    const { system, messages } = buildMessages(request.messages);
+    const { system, messages } = buildMessages(request.messages, request.attachments);
 
     const body: Record<string, unknown> = {
       model: request.model,

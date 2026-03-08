@@ -67,7 +67,7 @@ export const googleAdapter: ProviderAdapter = {
 
   async *stream(apiKey: string, request: StreamRequest): AsyncGenerator<NormalizedStreamEvent, void, undefined> {
     const baseUrl = PROVIDER_META.google.baseUrl;
-    const { systemInstruction, contents } = buildContents(request.messages);
+    const { systemInstruction, contents } = buildContents(request.messages, request.attachments);
 
     const body: Record<string, unknown> = { contents };
 
