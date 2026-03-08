@@ -5,26 +5,29 @@
 
 .tooltipContent {
   position: absolute;
-  bottom: calc(100% + var(--space-1));
+  bottom: calc(100% + var(--space-1-5));
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(4px);
   padding: var(--space-1) var(--space-2);
-  background: var(--color-surface-4);
+  background: var(--color-surface-3);
   color: var(--color-text-1);
   font-size: var(--text-micro);
   font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-micro);
   line-height: var(--leading-caption);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-1);
+  box-shadow: var(--shadow-lg);
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
-  transition: opacity var(--duration-fast) var(--ease-mechanical);
+  transition: opacity var(--duration-fast) var(--ease-mechanical),
+              transform var(--duration-fast) var(--ease-mechanical);
   z-index: var(--z-dropdown);
 }
 
 .tooltipTrigger:hover .tooltipContent,
 .tooltipTrigger:focus-within .tooltipContent {
   opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
