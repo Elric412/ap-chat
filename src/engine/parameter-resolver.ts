@@ -3,6 +3,7 @@
  * 
  * Merges user parameters with model defaults and capability constraints.
  * Strips unsupported parameters per model capabilities.
+ * Max tokens is fully dynamic — null means no limit (model decides).
  */
 
 import type { InferenceParameters } from '../types/parameters';
@@ -29,10 +30,8 @@ export function resolveParameters(
   }
   if (!model.capabilities.supportsStreaming) merged.streamEnabled = false;
 
-  // Clamp maxOutputTokens
-  if (merged.maxOutputTokens !== null && merged.maxOutputTokens > model.maxOutputTokens) {
-    merged.maxOutputTokens = model.maxOutputTokens;
-  }
+  // maxOutputTokens: null means dynamic (no limit) — don't clamp
+  // Only preserve explicit user value; no artificial ceiling
 
   // Temperature clamping
   if (merged.temperature !== null) {

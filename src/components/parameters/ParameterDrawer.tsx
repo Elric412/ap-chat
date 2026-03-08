@@ -6,7 +6,8 @@
  */
 
 import { useCallback, useMemo } from 'react';
-import { X } from 'lucide-react';
+import { X, RotateCcw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { MODEL_REGISTRY } from '../../constants/model-registry';
 import { DEFAULT_PARAMETERS } from '../../constants/default-parameters';
@@ -36,11 +37,19 @@ export function ParameterDrawer(): JSX.Element {
 
   return (
     <>
-      <div
-        className={open ? styles.backdrop : styles.backdropHidden}
-        onClick={() => setOpen(false)}
-        aria-hidden="true"
-      />
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className={styles.backdrop}
+            onClick={() => setOpen(false)}
+            aria-hidden="true"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          />
+        )}
+      </AnimatePresence>
       <div className={styles.drawer} data-open={open} aria-label="Parameters">
         <div className={styles.drawerHeader}>
           <span className={styles.drawerTitle}>Parameters</span>
@@ -117,24 +126,49 @@ export function ParameterDrawer(): JSX.Element {
             </div>
           )}
 
-          {/* Max Output Tokens */}
+          {/* Max Output Tokens — Dynamic / No hard limit */}
           <div className={styles.paramGroup}>
             <label className={styles.paramLabel}>
               Max Tokens
               <span className={styles.paramValue}>
-                {params.maxOutputTokens ?? (model?.maxOutputTokens ?? 'auto')}
+                {params.maxOutputTokens === null ? 'Dynamic (auto)' : params.maxOutputTokens.toLocaleString()}
               </span>
             </label>
-            <input
-              className={styles.slider}
-              type="range"
-              min={256}
-              max={model?.maxOutputTokens ?? 32768}
-              step={256}
-              value={params.maxOutputTokens ?? (model?.maxOutputTokens ?? 4096)}
-              onChange={(e) => update({ maxOutputTokens: parseInt(e.target.value, 10) })}
-              aria-label="Max output tokens"
-            />
+            <div className={styles.dynamicTokenRow}>
+              <button
+                className={styles.tokenModeBtn}
+                data-active={params.maxOutputTokens === null}
+                onClick={() => update({ maxOutputTokens: null })}
+                type="button"
+              >
+                Dynamic
+              </button>
+              <button
+                className={styles.tokenModeBtn}
+                data-active={params.maxOutputTokens !== null}
+                onClick={() => update({ maxOutputTokens: model?.maxOutputTokens ?? 4096 })}
+                type="button"
+              >
+                Custom
+              </button>
+            </div>
+            {params.maxOutputTokens !== null && (
+              <input
+                className={styles.tokenInput}
+                type="number"
+                min={1}
+                step={256}
+                value={params.maxOutputTokens}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  if (!isNaN(val) && val > 0) update({ maxOutputTokens: val });
+                }}
+                aria-label="Custom max output tokens"
+              />
+            )}
+            <span className={styles.paramHint}>
+              Dynamic lets the model decide. No artificial cap applied.
+            </span>
           </div>
 
           {/* Frequency Penalty */}
@@ -181,7 +215,7 @@ export function ParameterDrawer(): JSX.Element {
             </div>
           )}
 
-          {/* Repetition Penalty (Together AI, etc.) */}
+          {/* Repetition Penalty */}
           {caps?.supportsRepetitionPenalty && (
             <div className={styles.paramGroup}>
               <label className={styles.paramLabel}>
@@ -202,6 +236,7 @@ export function ParameterDrawer(): JSX.Element {
               />
             </div>
           )}
+
           {caps?.supportsThinking && (
             <>
               <div className={styles.toggleRow}>
@@ -256,6 +291,7 @@ export function ParameterDrawer(): JSX.Element {
           </div>
 
           <button className={styles.resetButton} onClick={reset} type="button">
+            <RotateCcw size={14} aria-hidden="true" />
             Reset to Defaults
           </button>
         </div>

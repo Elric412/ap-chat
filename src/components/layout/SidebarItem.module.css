@@ -20,6 +20,24 @@
   transition: all var(--duration-fast) var(--ease-mechanical);
   margin-bottom: var(--space-0-5);
   position: relative;
+  gap: var(--space-2);
+}
+
+.chatIcon {
+  flex-shrink: 0;
+  color: var(--color-text-3);
+  opacity: 0.5;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+}
+
+.sidebarItem:hover .chatIcon {
+  opacity: 0.8;
+  color: var(--color-text-2);
+}
+
+.sidebarItem[data-active="true"] .chatIcon {
+  opacity: 1;
+  color: var(--color-primary-text);
 }
 
 .sidebarItem:hover {
@@ -42,6 +60,18 @@
   border-radius: 0 var(--radius-full) var(--radius-full) 0;
   background: var(--color-primary);
   box-shadow: 0 0 8px var(--color-ai-cursor-glow);
+  animation: slideInLeft 0.2s var(--ease-snap) both;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
 }
 
 .title {
@@ -73,4 +103,5 @@
 .deleteButton:hover {
   color: var(--color-error-text);
   background: var(--color-error-ghost);
+  transform: scale(1.1);
 }

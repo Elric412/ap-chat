@@ -1,5 +1,6 @@
 import { useCallback, type MouseEvent } from 'react';
-import { X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { X, MessageSquare } from 'lucide-react';
 import type { Conversation } from '../../types/conversations';
 import styles from './SidebarItem.module.css';
 
@@ -22,19 +23,23 @@ export function SidebarItem({
 
   const handleDelete = useCallback((e: MouseEvent) => {
     e.stopPropagation();
-    // Security: Confirm before deleting
     if (!window.confirm(`Delete "${conversation.title}"? This cannot be undone.`)) return;
     onDelete(conversation.id);
   }, [conversation.id, conversation.title, onDelete]);
 
   return (
-    <button
+    <motion.button
       className={styles.sidebarItem}
       data-active={isActive}
       onClick={handleClick}
       type="button"
       title={conversation.title}
+      whileHover={{ x: 2 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.15 }}
+      layout
     >
+      <MessageSquare size={13} className={styles.chatIcon} aria-hidden="true" />
       <span className={styles.title}>{conversation.title}</span>
       <button
         className={styles.deleteButton}
@@ -44,6 +49,6 @@ export function SidebarItem({
       >
         <X size={12} aria-hidden="true" />
       </button>
-    </button>
+    </motion.button>
   );
 }
