@@ -10,12 +10,14 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--space-4) 0;
+  scroll-behavior: smooth;
 }
 
 .messageListInner {
   max-width: var(--layout-chat-max-width);
   margin: 0 auto;
   padding: 0 var(--layout-chat-padding-x);
+  animation: fadeIn var(--duration-normal) var(--ease-mechanical);
 }
 
 .inputWrapper {
@@ -23,6 +25,7 @@
   padding: var(--space-3) var(--layout-chat-padding-x) var(--space-6);
   display: flex;
   justify-content: center;
+  background: linear-gradient(to top, var(--color-surface-0) 80%, transparent);
 }
 
 .inputInner {

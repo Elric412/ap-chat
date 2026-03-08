@@ -1,8 +1,9 @@
 .bubble {
   position: relative;
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-4);
   margin-bottom: var(--space-4);
+  animation: fadeIn var(--duration-normal) var(--ease-mechanical);
 }
 
 /* Role variants */
