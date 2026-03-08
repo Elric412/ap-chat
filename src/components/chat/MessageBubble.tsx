@@ -1,6 +1,7 @@
 import type { MessageNode } from '../../types/messages';
 import { useAppStore } from '../../store';
 import { BranchNavigator } from './BranchNavigator';
+import { StreamCursor } from './StreamCursor';
 import { formatTime, formatTokenCount, formatCost } from '../../lib/format';
 import styles from './MessageBubble.module.css';
 
@@ -21,6 +22,7 @@ export function MessageBubble({ message }: MessageBubbleProps): JSX.Element {
 
   const isAssistant = message.role === 'assistant';
   const isUser = message.role === 'user';
+  const isStreaming = message.status === 'streaming';
 
   // Check if this node has siblings (for branch navigation)
   const parentNode = message.parentId ? messageMap.get(message.parentId) : null;
@@ -29,7 +31,7 @@ export function MessageBubble({ message }: MessageBubbleProps): JSX.Element {
   const siblingCount = parentNode ? parentNode.childIds.length : 1;
 
   return (
-    <div className={styles.bubble} data-role={message.role}>
+    <div className={styles.bubble} data-role={message.role} data-status={message.status}>
       <div className={styles.header}>
         <div className={styles.roleIndicator}>
           {isUser && (
@@ -45,9 +47,22 @@ export function MessageBubble({ message }: MessageBubbleProps): JSX.Element {
         <span className={styles.timestamp}>{timeStr}</span>
       </div>
 
-      <div className={styles.content}>{textContent}</div>
+      <div className={styles.content}>
+        {textContent}
+        {isStreaming && <StreamCursor visible={true} />}
+      </div>
 
-      {isAssistant && (
+      {/* Thinking block */}
+      {isAssistant && message.thinkingContent && (
+        <details className={styles.thinkingBlock}>
+          <summary className={styles.thinkingSummary}>
+            Thinking{message.tokenCounts.thinking > 0 ? ` (${formatTokenCount(message.tokenCounts.thinking)} tokens)` : ''}
+          </summary>
+          <div className={styles.thinkingContent}>{message.thinkingContent}</div>
+        </details>
+      )}
+
+      {isAssistant && !isStreaming && (
         <div className={styles.footer}>
           {message.tokenCounts.input > 0 && (
             <>
@@ -77,7 +92,9 @@ export function MessageBubble({ message }: MessageBubbleProps): JSX.Element {
             </>
           )}
           {message.status === 'error' && (
-            <span className={styles.statusBadge} data-status="error">Error</span>
+            <span className={styles.statusBadge} data-status="error">
+              {message.error?.message ?? 'Error'}
+            </span>
           )}
           {message.status === 'aborted' && (
             <span className={styles.statusBadge} data-status="aborted">Stopped</span>
