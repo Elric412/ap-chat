@@ -47,7 +47,12 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
 
   return (
     <div className={styles.emptyState}>
-      <div className={styles.hero}>
+      <motion.div
+        className={styles.hero}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+      >
         <div className={styles.orbitalContainer}>
           <div className={styles.orbitalRing} />
           <div className={styles.orbitalRingInner} />
@@ -60,7 +65,7 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
         <p className={styles.subtitle}>
           Your keys, your models, your conversations.
         </p>
-      </div>
+      </motion.div>
 
       {!hasKeys ? (
         <button
