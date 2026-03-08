@@ -77,7 +77,12 @@ export function ChatInput({
 
   const handleSend = useCallback(() => {
     const trimmed = value.trim();
+    // Security: Limit message length to prevent memory abuse
     if ((!trimmed && attachments.length === 0) || disabled) return;
+    if (trimmed.length > 100000) {
+      useAppStore.getState().addToast({ type: 'warning', title: 'Message too long (max 100K chars)', dismissible: true });
+      return;
+    }
     onSend(trimmed, attachments.length > 0 ? attachments : undefined);
     setValue('');
     setAttachments([]);

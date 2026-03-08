@@ -32,13 +32,27 @@ export function KeyManagement(): JSX.Element {
     e.preventDefault();
     setValidationError(null);
 
-    if (!keyValue.trim()) {
+    const trimmedKey = keyValue.trim();
+
+    if (!trimmedKey) {
       setValidationError('API key cannot be empty');
       return;
     }
 
+    // Security: Limit key length to prevent abuse
+    if (trimmedKey.length > 500) {
+      setValidationError('API key is too long (max 500 characters)');
+      return;
+    }
+
+    // Security: Block keys that look like they contain scripts or injection
+    if (/<script|javascript:|on\w+=/i.test(trimmedKey)) {
+      setValidationError('Invalid characters detected in API key');
+      return;
+    }
+
     const meta = PROVIDER_META[selectedProvider];
-    if (selectedProvider !== PROVIDER_IDS.ollama && !meta.keyPattern.test(keyValue.trim())) {
+    if (selectedProvider !== PROVIDER_IDS.ollama && !meta.keyPattern.test(trimmedKey)) {
       setValidationError(`Key format does not match expected pattern for ${meta.displayName}`);
       return;
     }
