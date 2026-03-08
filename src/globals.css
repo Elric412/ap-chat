@@ -192,8 +192,8 @@ body {
   --leading-mono:    1.5;
 
   /* ── Letter Spacing ── */
-  --tracking-display: -0.03em;
-  --tracking-heading: -0.02em;
+  --tracking-display: -0.04em;
+  --tracking-heading: -0.025em;
   --tracking-body:     0em;
   --tracking-caption:  0.01em;
   --tracking-micro:    0.03em;
