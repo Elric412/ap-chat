@@ -184,8 +184,8 @@ body {
   --weight-bold:     700;
 
   /* ── Line Heights ── */
-  --leading-display: 1.1;
-  --leading-heading: 1.25;
+  --leading-display: 1.0;
+  --leading-heading: 1.2;
   --leading-body:    1.6;
   --leading-caption: 1.4;
   --leading-code:    1.65;
