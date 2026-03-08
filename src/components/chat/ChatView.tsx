@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { useAppStore } from '../../store';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
@@ -8,14 +8,15 @@ import styles from './ChatView.module.css';
 interface ChatViewProps {
   conversationId: string;
   rootNodeId: string;
+  onSend: (text: string) => void;
+  isStreaming?: boolean;
+  onAbort?: () => void;
 }
 
-export function ChatView({ conversationId, rootNodeId }: ChatViewProps): JSX.Element {
+export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAbort }: ChatViewProps): JSX.Element {
   const loadMessages = useAppStore((s) => s.loadMessages);
   const messagesLoading = useAppStore((s) => s.messagesLoading);
   const getActiveBranchMessages = useAppStore((s) => s.getActiveBranchMessages);
-  const sendMessage = useAppStore((s) => s.sendMessage);
-  const updateConversation = useAppStore((s) => s.updateConversation);
   const messageMap = useAppStore((s) => s.messageMap);
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -32,21 +33,6 @@ export function ChatView({ conversationId, rootNodeId }: ChatViewProps): JSX.Ele
     if (!el) return;
     el.scrollTop = el.scrollHeight;
   }, [messageMap]);
-
-  const handleSend = useCallback(async (text: string) => {
-    // Find the current active leaf to use as parent
-    const branchMessages = getActiveBranchMessages();
-    const lastMsg = branchMessages[branchMessages.length - 1];
-    const parentId = lastMsg?.id ?? null;
-
-    await sendMessage(conversationId, text, parentId, rootNodeId);
-
-    // Auto-title after first exchange
-    if (branchMessages.length <= 1) {
-      const title = text.length > 50 ? text.slice(0, 47) + '…' : text;
-      updateConversation(conversationId, { title });
-    }
-  }, [conversationId, rootNodeId, sendMessage, getActiveBranchMessages, updateConversation]);
 
   // Filter to only user/assistant messages (skip root system node)
   const visibleMessages = messages.filter((m) => m.role === 'user' || m.role === 'assistant');
@@ -70,7 +56,12 @@ export function ChatView({ conversationId, rootNodeId }: ChatViewProps): JSX.Ele
       </div>
       <div className={styles.inputWrapper}>
         <div className={styles.inputInner}>
-          <ChatInput onSend={handleSend} />
+          <ChatInput
+            onSend={onSend}
+            disabled={isStreaming}
+            isStreaming={isStreaming}
+            onAbort={onAbort}
+          />
         </div>
       </div>
     </div>

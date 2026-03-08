@@ -1,13 +1,15 @@
 import { useState, useRef, useCallback, type KeyboardEvent, type ChangeEvent } from 'react';
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, Square } from 'lucide-react';
 import styles from './ChatInput.module.css';
 
 interface ChatInputProps {
   onSend: (text: string) => void;
   disabled?: boolean;
+  isStreaming?: boolean;
+  onAbort?: () => void;
 }
 
-export function ChatInput({ onSend, disabled = false }: ChatInputProps): JSX.Element {
+export function ChatInput({ onSend, disabled = false, isStreaming = false, onAbort }: ChatInputProps): JSX.Element {
   const [value, setValue] = useState('');
   const [focused, setFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -58,15 +60,26 @@ export function ChatInput({ onSend, disabled = false }: ChatInputProps): JSX.Ele
         <span className={styles.charHint}>
           {value.length > 0 ? `${value.length}` : ''}
         </span>
-        <button
-          className={styles.sendButton}
-          onClick={handleSend}
-          disabled={!canSend}
-          type="button"
-          aria-label="Send message"
-        >
-          <ArrowUp size={16} aria-hidden="true" />
-        </button>
+        {isStreaming ? (
+          <button
+            className={styles.stopButton}
+            onClick={onAbort}
+            type="button"
+            aria-label="Stop generation"
+          >
+            <Square size={14} aria-hidden="true" />
+          </button>
+        ) : (
+          <button
+            className={styles.sendButton}
+            onClick={handleSend}
+            disabled={!canSend}
+            type="button"
+            aria-label="Send message"
+          >
+            <ArrowUp size={16} aria-hidden="true" />
+          </button>
+        )}
       </div>
     </div>
   );
