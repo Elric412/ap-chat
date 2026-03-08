@@ -18,7 +18,7 @@ export function ChatPage(): JSX.Element {
   const createConversation = useAppStore((s) => s.createConversation);
   const setActiveConversation = useAppStore((s) => s.setActiveConversation);
   const updateConversation = useAppStore((s) => s.updateConversation);
-  const { sendWithStream, abort, isStreaming } = useStream();
+  const { sendWithStream, abort, isStreaming: streamHookActive, approveToolCall, denyToolCall } = useStream();
   const [streaming, setStreaming] = useState(false);
 
   const conversation = conversationId
