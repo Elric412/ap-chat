@@ -2,6 +2,7 @@
  * CommandPalette — Cmd+K fuzzy-search command palette
  *
  * Actions: navigate, new chat, switch model, toggle theme, export, etc.
+ * Accessible: focus trap, roving tabindex, aria-activedescendant, live region.
  */
 
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
@@ -14,6 +15,8 @@ import { useAppStore } from '../../store';
 import { MODEL_REGISTRY } from '../../constants/model-registry';
 import { PROVIDER_META } from '../../constants/provider-meta';
 import { useTheme } from '../../hooks/use-theme';
+import { useFocusTrap } from '../../hooks/use-focus-trap';
+import { announce } from '../../hooks/use-announcer';
 import styles from './CommandPalette.module.css';
 
 export interface CommandAction {
