@@ -80,6 +80,12 @@ export async function setupVault(password: string): Promise<void> {
 
 /** Unlock the vault with the master password */
 export async function unlockVault(password: string): Promise<boolean> {
+  // Brute-force protection: exponential backoff on failed attempts
+  if (failedAttempts > 0) {
+    const delay = Math.min(BASE_DELAY_MS * 2 ** (failedAttempts - 1), MAX_DELAY_MS);
+    await new Promise((r) => setTimeout(r, delay));
+  }
+
   const db = await getDB();
   const envelope = await db.get('vault_envelope', 'primary');
 
@@ -90,8 +96,12 @@ export async function unlockVault(password: string): Promise<boolean> {
   const key = await deriveKey(password, envelope.salt);
   const isValid = await verifyPassword(key, envelope.verificationCiphertext, envelope.verificationIV);
 
-  if (!isValid) return false;
+  if (!isValid) {
+    failedAttempts++;
+    return false;
+  }
 
+  failedAttempts = 0;
   masterKey = key;
   return true;
 }
