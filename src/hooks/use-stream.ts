@@ -109,7 +109,8 @@ export function useStream(): UseStreamReturn {
     conversationId: string,
     text: string,
     parentId: string | null,
-    rootNodeId: string
+    rootNodeId: string,
+    attachments?: ProcessedAttachment[]
   ): Promise<void> => {
     const store = useAppStore.getState();
     const selectedModelId = store.selectedModelId;
