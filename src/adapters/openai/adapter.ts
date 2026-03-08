@@ -80,6 +80,14 @@ export const openaiAdapter: ProviderAdapter = {
     if (request.parameters.stopSequences.length > 0) body.stop = request.parameters.stopSequences;
     if (request.parameters.responseFormat === 'json') body.response_format = { type: 'json_object' };
 
+    // Web search — OpenAI web_search_preview tool
+    if (request.webSearchEnabled) {
+      body.tools = [
+        ...(body.tools as Array<Record<string, unknown>> ?? []),
+        { type: 'web_search_preview' },
+      ];
+    }
+
     // Thinking (o-series models)
     if (request.parameters.thinkingEnabled) {
       body.reasoning_effort = request.parameters.thinkingLevel;
