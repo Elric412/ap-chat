@@ -56,13 +56,20 @@ export function useCloudSync() {
         .filter((m) => m.conversationId === conversationId);
 
       for (const msg of messages) {
-        const { error } = await supabase.from('messages').upsert({
+        // Check if message exists
+        const { data: existing } = await supabase
+          .from('messages')
+          .select('id')
+          .eq('id', msg.id)
+          .single();
+
+        const payload = {
           id: msg.id,
           conversation_id: msg.conversationId,
           user_id: user.id,
           parent_id: msg.parentId ?? null,
           role: msg.role,
-          content: msg.content,
+          content: msg.content as unknown as Record<string, unknown>,
           model: msg.model ?? null,
           status: msg.status,
           token_input: msg.tokenCounts.input,
@@ -72,11 +79,15 @@ export function useCloudSync() {
           cost_estimate: msg.costEstimate.totalCost,
           latency_ms: msg.latency ?? null,
           thinking_content: msg.thinkingContent ?? null,
-          tool_calls: msg.toolCalls,
-          web_search_results: msg.webSearchResults,
-          metadata: msg.metadata,
+          tool_calls: msg.toolCalls as unknown as Record<string, unknown>,
+          web_search_results: msg.webSearchResults as unknown as Record<string, unknown>,
+          metadata: msg.metadata as unknown as Record<string, unknown>,
           created_at: new Date(msg.timestamp).toISOString(),
-        }, { onConflict: 'id' });
+        };
+
+        const { error } = existing
+          ? await supabase.from('messages').update(payload).eq('id', msg.id)
+          : await supabase.from('messages').insert(payload);
 
         if (error) console.error('Sync message error:', error);
       }
