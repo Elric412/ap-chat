@@ -138,6 +138,18 @@
   color: var(--color-ai-cost-text);
 }
 
+.cachedItem {
+  composes: footerItem;
+  color: var(--color-ai-cached-text);
+}
+
+.toolCalls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
 /* Status badges */
 .statusBadge {
   font-size: var(--text-micro);

@@ -11,9 +11,11 @@ interface ChatViewProps {
   onSend: (text: string) => void;
   isStreaming?: boolean;
   onAbort?: () => void;
+  onApproveToolCall?: (messageId: string, toolCallId: string) => void;
+  onDenyToolCall?: (messageId: string, toolCallId: string) => void;
 }
 
-export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAbort }: ChatViewProps): JSX.Element {
+export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAbort, onApproveToolCall, onDenyToolCall }: ChatViewProps): JSX.Element {
   const loadMessages = useAppStore((s) => s.loadMessages);
   const messagesLoading = useAppStore((s) => s.messagesLoading);
   const getActiveBranchMessages = useAppStore((s) => s.getActiveBranchMessages);
@@ -49,7 +51,12 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
             <EmptyState />
           ) : (
             visibleMessages.map((msg) => (
-              <MessageBubble key={msg.id} message={msg} />
+              <MessageBubble
+                key={msg.id}
+                message={msg}
+                onApproveToolCall={onApproveToolCall}
+                onDenyToolCall={onDenyToolCall}
+              />
             ))
           )}
         </div>

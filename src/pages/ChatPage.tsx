@@ -18,7 +18,7 @@ export function ChatPage(): JSX.Element {
   const createConversation = useAppStore((s) => s.createConversation);
   const setActiveConversation = useAppStore((s) => s.setActiveConversation);
   const updateConversation = useAppStore((s) => s.updateConversation);
-  const { sendWithStream, abort, isStreaming } = useStream();
+  const { sendWithStream, abort, isStreaming: streamHookActive, approveToolCall, denyToolCall } = useStream();
   const [streaming, setStreaming] = useState(false);
 
   const conversation = conversationId
@@ -112,7 +112,7 @@ export function ChatPage(): JSX.Element {
 
   // If we have a valid conversation, render the full chat view
   if (conversation) {
-    return <ChatViewWithRoot conversation={conversation} onSend={handleSend} isStreaming={streaming} onAbort={handleAbort} />;
+    return <ChatViewWithRoot conversation={conversation} onSend={handleSend} isStreaming={streaming} onAbort={handleAbort} onApproveToolCall={approveToolCall} onDenyToolCall={denyToolCall} />;
   }
 
   // Empty state with inline input
@@ -138,11 +138,15 @@ function ChatViewWithRoot({
   onSend,
   isStreaming,
   onAbort,
+  onApproveToolCall,
+  onDenyToolCall,
 }: {
   conversation: { id: string; rootNodeId: string };
   onSend: (text: string) => void;
   isStreaming: boolean;
   onAbort: () => void;
+  onApproveToolCall: (messageId: string, toolCallId: string) => void;
+  onDenyToolCall: (messageId: string, toolCallId: string) => void;
 }): JSX.Element {
   const loadMessages = useAppStore((s) => s.loadMessages);
 

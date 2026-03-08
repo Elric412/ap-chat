@@ -3,6 +3,7 @@
  * 
  * Handles adapter selection, key retrieval, abort control,
  * and progressive message node updates during streaming.
+ * Supports tool calls, citations, and thinking blocks.
  */
 
 import { useRef, useCallback } from 'react';
@@ -14,7 +15,7 @@ import { calculateCost } from '../engine/cost-calculator';
 import { MODEL_REGISTRY } from '../constants/model-registry';
 import { uuidv7 } from '../lib/uuid';
 import { putMessages } from '../db/messages-repo';
-import type { MessageNode, ContentPart, TokenCounts, CostEstimate } from '../types/messages';
+import type { MessageNode, ContentPart, TokenCounts, CostEstimate, ToolCall, WebSearchResult } from '../types/messages';
 import type { StreamMessage } from '../adapters/types';
 import type { TokenUsage } from '../types/adapters';
 import { DEFAULT_PARAMETERS } from '../constants/default-parameters';
@@ -62,6 +63,8 @@ interface UseStreamReturn {
   ) => Promise<void>;
   abort: () => void;
   isStreaming: boolean;
+  approveToolCall: (messageId: string, toolCallId: string) => void;
+  denyToolCall: (messageId: string, toolCallId: string) => void;
 }
 
 export function useStream(): UseStreamReturn {
@@ -72,6 +75,30 @@ export function useStream(): UseStreamReturn {
     abortRef.current?.abort();
     abortRef.current = null;
     streamingRef.current = false;
+  }, []);
+
+  const approveToolCall = useCallback((messageId: string, toolCallId: string) => {
+    useAppStore.setState((state) => {
+      const node = state.messageMap.get(messageId);
+      if (!node) return;
+      const tc = node.toolCalls.find((t) => t.id === toolCallId);
+      if (tc) {
+        tc.status = 'approved';
+        node._clock += 1;
+      }
+    });
+  }, []);
+
+  const denyToolCall = useCallback((messageId: string, toolCallId: string) => {
+    useAppStore.setState((state) => {
+      const node = state.messageMap.get(messageId);
+      if (!node) return;
+      const tc = node.toolCalls.find((t) => t.id === toolCallId);
+      if (tc) {
+        tc.status = 'denied';
+        node._clock += 1;
+      }
+    });
   }, []);
 
   const sendWithStream = useCallback(async (
@@ -160,6 +187,8 @@ export function useStream(): UseStreamReturn {
     let accumulatedText = '';
     let accumulatedThinking = '';
     let tokenUsage: TokenUsage | null = null;
+    const accumulatedToolCalls: ToolCall[] = [];
+    const accumulatedCitations: WebSearchResult[] = [];
 
     try {
       const generator = adapter.stream(apiKey, {
@@ -194,6 +223,49 @@ export function useStream(): UseStreamReturn {
               }
             });
             break;
+
+          case 'tool_call': {
+            if (event.toolCall) {
+              const tc: ToolCall = {
+                id: event.toolCall.id ?? uuidv7(),
+                toolName: event.toolCall.toolName ?? 'unknown',
+                arguments: event.toolCall.arguments ?? {},
+                status: event.toolCall.status ?? 'pending_approval',
+              };
+              accumulatedToolCalls.push(tc);
+              useAppStore.setState((state) => {
+                const node = state.messageMap.get(assistantNodeId);
+                if (node) {
+                  node.toolCalls = [...accumulatedToolCalls];
+                  node._clock += 1;
+                }
+              });
+            }
+            break;
+          }
+
+          case 'citation': {
+            if (event.citation) {
+              const isDuplicate = accumulatedCitations.some((c) => c.url === event.citation!.url);
+              if (!isDuplicate) {
+                accumulatedCitations.push({
+                  title: event.citation.title,
+                  url: event.citation.url,
+                  snippet: event.citation.snippet,
+                  source: event.citation.source,
+                  fetchedAt: event.citation.fetchedAt,
+                });
+                useAppStore.setState((state) => {
+                  const node = state.messageMap.get(assistantNodeId);
+                  if (node) {
+                    node.webSearchResults = [...accumulatedCitations];
+                    node._clock += 1;
+                  }
+                });
+              }
+            }
+            break;
+          }
 
           case 'usage':
             if (event.usage) tokenUsage = event.usage;
@@ -278,6 +350,8 @@ export function useStream(): UseStreamReturn {
   return {
     sendWithStream,
     abort,
+    approveToolCall,
+    denyToolCall,
     get isStreaming() { return streamingRef.current; },
   };
 }

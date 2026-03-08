@@ -71,7 +71,6 @@ export const anthropicAdapter: ProviderAdapter = {
         type: 'enabled',
         budget_tokens: budgetMap[request.parameters.thinkingLevel] ?? 8192,
       };
-      // When thinking is enabled, temperature must be 1
       body.temperature = 1;
     }
 
@@ -98,7 +97,12 @@ export const anthropicAdapter: ProviderAdapter = {
     const reader = response.body!.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-    let currentBlockType: 'text' | 'thinking' | null = null;
+
+    // Tool use accumulation
+    let currentToolUseId = '';
+    let currentToolUseName = '';
+    let currentToolUseArgs = '';
+    let inToolUse = false;
 
     try {
       while (true) {
@@ -113,12 +117,7 @@ export const anthropicAdapter: ProviderAdapter = {
           buffer = buffer.slice(newlineIdx + 1);
 
           if (!line || line.startsWith(':')) continue;
-
-          if (line.startsWith('event: ')) {
-            // Track event type for next data line
-            continue;
-          }
-
+          if (line.startsWith('event: ')) continue;
           if (!line.startsWith('data: ')) continue;
 
           const data = line.slice(6).trim();
@@ -129,8 +128,15 @@ export const anthropicAdapter: ProviderAdapter = {
 
           switch (eventType) {
             case 'content_block_start': {
-              const blockType = (parsed.content_block as Record<string, unknown>)?.type;
-              currentBlockType = blockType === 'thinking' ? 'thinking' : 'text';
+              const block = parsed.content_block as Record<string, unknown>;
+              const blockType = block?.type as string;
+
+              if (blockType === 'tool_use') {
+                inToolUse = true;
+                currentToolUseId = (block.id as string) ?? '';
+                currentToolUseName = (block.name as string) ?? '';
+                currentToolUseArgs = '';
+              }
               break;
             }
 
@@ -142,15 +148,35 @@ export const anthropicAdapter: ProviderAdapter = {
               if (delta?.type === 'thinking_delta' && typeof delta.thinking === 'string') {
                 yield { type: 'delta_thinking', content: delta.thinking };
               }
+              // Tool use input accumulation
+              if (delta?.type === 'input_json_delta' && typeof delta.partial_json === 'string') {
+                currentToolUseArgs += delta.partial_json;
+              }
               break;
             }
 
-            case 'content_block_stop':
-              currentBlockType = null;
+            case 'content_block_stop': {
+              if (inToolUse) {
+                let parsedArgs: Record<string, unknown> = {};
+                try { parsedArgs = JSON.parse(currentToolUseArgs); } catch { /* keep empty */ }
+                yield {
+                  type: 'tool_call',
+                  toolCall: {
+                    id: currentToolUseId,
+                    toolName: currentToolUseName,
+                    arguments: parsedArgs,
+                    status: 'pending_approval',
+                  },
+                };
+                inToolUse = false;
+                currentToolUseId = '';
+                currentToolUseName = '';
+                currentToolUseArgs = '';
+              }
               break;
+            }
 
             case 'message_delta': {
-              // Final usage
               const usageObj = parsed.usage as Record<string, number> | undefined;
               if (usageObj) {
                 yield {
@@ -168,7 +194,6 @@ export const anthropicAdapter: ProviderAdapter = {
             }
 
             case 'message_start': {
-              // Extract input token count from message start
               const msg = parsed.message as Record<string, unknown> | undefined;
               const startUsage = msg?.usage as Record<string, number> | undefined;
               if (startUsage) {
@@ -215,7 +240,6 @@ export const anthropicAdapter: ProviderAdapter = {
 
   async validateKey(apiKey: string): Promise<boolean> {
     try {
-      // Send a minimal request to check key validity
       const response = await fetch(`${PROVIDER_META.anthropic.baseUrl}/v1/messages`, {
         method: 'POST',
         headers: {
@@ -230,7 +254,6 @@ export const anthropicAdapter: ProviderAdapter = {
           messages: [{ role: 'user', content: 'Hi' }],
         }),
       });
-      // 401 = invalid key, anything else (including 200, 429) = valid key
       return response.status !== 401;
     } catch {
       return false;
