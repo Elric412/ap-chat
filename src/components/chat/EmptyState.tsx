@@ -68,34 +68,49 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
       </motion.div>
 
       {!hasKeys ? (
-        <button
+        <motion.button
           className={styles.setupCta}
           onClick={() => navigate('/settings')}
           type="button"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3, duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+          whileHover={{ scale: 1.05, y: -2 }}
+          whileTap={{ scale: 0.95 }}
         >
           <Key size={14} aria-hidden="true" />
           Add your first API key
           <ArrowRight size={14} aria-hidden="true" />
-        </button>
+        </motion.button>
       ) : (
         <div className={styles.promptGrid}>
-          {STARTER_PROMPTS.map((sp) => (
-            <button
+          {STARTER_PROMPTS.map((sp, i) => (
+            <motion.button
               key={sp.label}
               className={styles.promptCard}
               data-color={sp.color}
               onClick={() => handlePromptClick(sp.prompt)}
               type="button"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + i * 0.08, duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+              whileHover={{ y: -3, scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
             >
               <sp.icon size={16} className={styles.promptIcon} aria-hidden="true" />
               <span className={styles.promptLabel}>{sp.label}</span>
               <span className={styles.promptText}>{sp.prompt}</span>
-            </button>
+            </motion.button>
           ))}
         </div>
       )}
 
-      <div className={styles.shortcuts}>
+      <motion.div
+        className={styles.shortcuts}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6, duration: 0.4 }}
+      >
         <span className={styles.shortcutHint}>
           <Kbd>⌘</Kbd><Kbd>K</Kbd> Command palette
         </span>
@@ -105,7 +120,7 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
         <span className={styles.shortcutHint}>
           <Kbd>/</Kbd> Slash commands
         </span>
-      </div>
+      </motion.div>
     </div>
   );
 }
