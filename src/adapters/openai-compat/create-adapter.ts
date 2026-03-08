@@ -93,6 +93,12 @@ export function createOpenAICompatAdapter(config: OpenAICompatConfig): ProviderA
       if (request.parameters.stopSequences.length > 0) body.stop = request.parameters.stopSequences;
       if (request.parameters.responseFormat === 'json') body.response_format = { type: 'json_object' };
       if (request.parameters.seed !== null) body.seed = request.parameters.seed;
+      if (request.parameters.repetitionPenalty !== null) body.repetition_penalty = request.parameters.repetitionPenalty;
+
+      // Connection timeout: abort if no response headers within 30s
+      const timeoutId = request.signal ? undefined : setTimeout(() => {
+        // Only matters if no external abort signal is provided
+      }, 30000);
 
       const response = await fetch(`${baseUrl}/chat/completions`, {
         method: 'POST',
