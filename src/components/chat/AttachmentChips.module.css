@@ -1,0 +1,52 @@
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1-5);
+  margin-bottom: var(--space-2);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-0-5) var(--space-2);
+  font-size: var(--text-micro);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-micro);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-1);
+  background: var(--color-surface-3);
+  color: var(--color-text-2);
+}
+
+.chip[data-type="image"] {
+  border-color: var(--color-info-ghost);
+  background: var(--color-info-ghost);
+  color: var(--color-info-text);
+}
+
+.chip[data-type="audio"] {
+  border-color: var(--color-success-ghost);
+  background: var(--color-success-ghost);
+  color: var(--color-success-text);
+}
+
+.chip[data-type="video"] {
+  border-color: var(--color-warning-ghost);
+  background: var(--color-warning-ghost);
+  color: var(--color-warning-text);
+}
+
+.chip[data-type="file"],
+.chip[data-type="document"] {
+  border-color: var(--color-secondary-ghost);
+  background: var(--color-secondary-ghost);
+  color: var(--color-secondary-text);
+}
+
+.chipLabel {
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
