@@ -166,6 +166,25 @@ export const openaiAdapter: ProviderAdapter = {
               yield { type: 'delta_text', content: delta.content };
             }
 
+            // Annotations (web_search_preview citations)
+            const annotations = delta?.annotations as Array<Record<string, unknown>> | undefined;
+            if (annotations) {
+              for (const ann of annotations) {
+                if (ann.type === 'url_citation') {
+                  yield {
+                    type: 'citation',
+                    citation: {
+                      url: (ann.url as string) ?? '',
+                      title: (ann.title as string) ?? '',
+                      snippet: '',
+                      source: (ann.url as string) ?? '',
+                      fetchedAt: Date.now(),
+                    },
+                  };
+                }
+              }
+            }
+
             // Reasoning/thinking content (o-series)
             if (delta?.reasoning_content && typeof delta.reasoning_content === 'string') {
               yield { type: 'delta_thinking', content: delta.reasoning_content };
