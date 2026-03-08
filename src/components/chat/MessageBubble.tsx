@@ -6,7 +6,8 @@
  * streaming cursor, and branch navigation.
  */
 
-import { useState, useCallback, type CSSProperties } from 'react';
+import { useState, useCallback, forwardRef, type CSSProperties } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { MessageNode } from '../../types/messages';
 import { useAppStore } from '../../store';
 import { BranchNavigator } from './BranchNavigator';
