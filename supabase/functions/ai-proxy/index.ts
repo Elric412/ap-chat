@@ -62,6 +62,12 @@ Deno.serve(async (req) => {
 
     const userId = claimsData.claims.sub;
 
+    // Service role client for reading encrypted keys (clients no longer have SELECT on api_keys)
+    const serviceClient = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+
     // Parse request
     const body: ChatRequest = await req.json();
     const { provider, model, messages, stream = false, temperature, max_tokens, conversation_id } = body;
