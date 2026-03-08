@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useAppStore } from '../../store';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
@@ -30,10 +30,11 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
     void loadMessages(conversationId);
   }, [conversationId, loadMessages]);
 
+  // Smooth scroll to bottom on new messages
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
   }, [messageMap]);
 
   // Announce streaming status to screen readers
@@ -44,6 +45,14 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
   }, [isStreaming]);
 
   const visibleMessages = messages.filter((m) => m.role === 'user' || m.role === 'assistant');
+
+  const handleSend = useCallback((text: string, attachments?: ProcessedAttachment[]) => {
+    onSend(text, attachments);
+    // Scroll after a tick so the new message renders first
+    requestAnimationFrame(() => {
+      scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+    });
+  }, [onSend]);
 
   if (messagesLoading) {
     return <div className={styles.chatView} role="region" aria-label="Chat"><EmptyState /></div>;
@@ -62,23 +71,28 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
       >
         <div className={styles.messageListInner}>
           {visibleMessages.length === 0 ? (
-            <EmptyState />
+            <EmptyState onSend={handleSend} />
           ) : (
-            visibleMessages.map((msg) => (
-              <MessageBubble
-                key={msg.id}
-                message={msg}
-                onApproveToolCall={onApproveToolCall}
-                onDenyToolCall={onDenyToolCall}
-              />
-            ))
+            <>
+              {visibleMessages.map((msg, i) => (
+                <MessageBubble
+                  key={msg.id}
+                  message={msg}
+                  onApproveToolCall={onApproveToolCall}
+                  onDenyToolCall={onDenyToolCall}
+                  style={{ animationDelay: `${Math.min(i * 30, 150)}ms` }}
+                />
+              ))}
+              {/* Scroll anchor */}
+              <div className={styles.scrollAnchor} />
+            </>
           )}
         </div>
       </div>
       <div className={styles.inputWrapper}>
         <div className={styles.inputInner}>
           <ChatInput
-            onSend={onSend}
+            onSend={handleSend}
             disabled={isStreaming}
             isStreaming={isStreaming}
             onAbort={onAbort}
