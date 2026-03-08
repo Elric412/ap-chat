@@ -50,4 +50,157 @@
   max-width: 720px;
   margin: 0 auto;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+/* ── Sections ── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-2);
+}
+
+.sectionHeader h2 {
+  font-size: var(--text-h4);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-1);
+  letter-spacing: var(--tracking-heading);
+}
+
+.sectionTitle {
+  font-size: var(--text-h4);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-1);
+}
+
+/* ── Option Rows ── */
+.optionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-lg);
+  gap: var(--space-4);
+}
+
+.optionLabel {
+  display: block;
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-1);
+}
+
+.optionDescription {
+  display: block;
+  font-size: var(--text-caption);
+  color: var(--color-text-3);
+  margin-top: var(--space-0-5);
+}
+
+.optionDescription kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-sm);
+}
+
+.optionButton {
+  flex-shrink: 0;
+  padding: var(--space-1-5) var(--space-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+}
+
+.optionButton:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-1);
+  border-color: var(--color-border-3);
+}
+
+/* ── Stats ── */
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-body);
+}
+
+.statLabel {
+  color: var(--color-text-2);
+}
+
+.statValue {
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-mono);
+  color: var(--color-text-1);
+  font-size: var(--text-caption);
+}
+
+/* ── About ── */
+.aboutGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.aboutCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-4);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-lg);
+}
+
+.aboutValue {
+  font-size: var(--text-h2);
+  font-weight: var(--weight-bold);
+  color: var(--color-secondary-text);
+  font-family: var(--font-mono);
+}
+
+.aboutLabel {
+  font-size: var(--text-caption);
+  color: var(--color-text-3);
+  margin-top: var(--space-1);
+}
+
+.aboutText {
+  font-size: var(--text-caption);
+  color: var(--color-text-3);
+  line-height: var(--leading-body);
+}
+
+.securityNote {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-success-ghost);
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-md);
+  font-size: var(--text-caption);
+  color: var(--color-success-text);
 }

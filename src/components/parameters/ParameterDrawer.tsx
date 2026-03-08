@@ -181,7 +181,27 @@ export function ParameterDrawer(): JSX.Element {
             </div>
           )}
 
-          {/* Thinking toggle */}
+          {/* Repetition Penalty (Together AI, etc.) */}
+          {caps?.supportsRepetitionPenalty && (
+            <div className={styles.paramGroup}>
+              <label className={styles.paramLabel}>
+                Repetition Penalty
+                <span className={styles.paramValue}>
+                  {params.repetitionPenalty ?? 1}
+                </span>
+              </label>
+              <input
+                className={styles.slider}
+                type="range"
+                min={1}
+                max={2}
+                step={0.05}
+                value={params.repetitionPenalty ?? 1}
+                onChange={(e) => update({ repetitionPenalty: parseFloat(e.target.value) })}
+                aria-label="Repetition penalty"
+              />
+            </div>
+          )}
           {caps?.supportsThinking && (
             <>
               <div className={styles.toggleRow}>

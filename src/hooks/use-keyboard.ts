@@ -14,6 +14,7 @@ export function useKeyboard(): UseKeyboardReturn {
   const setParamDrawerOpen = useAppStore((s) => s.setParamDrawerOpen);
   const paramDrawerOpen = useAppStore((s) => s.paramDrawerOpen);
   const createConversation = useAppStore((s) => s.createConversation);
+  const navigate = useNavigate();
 
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
@@ -46,9 +47,7 @@ export function useKeyboard(): UseKeyboardReturn {
             break;
           case 'new-chat': {
             const conv = createConversation();
-            // Navigate via window location since we can't use navigate here easily
-            window.history.pushState({}, '', `/chat/${conv.id}`);
-            window.dispatchEvent(new PopStateEvent('popstate'));
+            navigate(`/chat/${conv.id}`);
             break;
           }
           case 'toggle-params':
@@ -62,7 +61,7 @@ export function useKeyboard(): UseKeyboardReturn {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggleFocusMode, toggleSidebar, createConversation, setParamDrawerOpen, paramDrawerOpen]);
+  }, [toggleFocusMode, toggleSidebar, createConversation, setParamDrawerOpen, paramDrawerOpen, navigate]);
 
   return { commandPaletteOpen, setCommandPaletteOpen };
 }

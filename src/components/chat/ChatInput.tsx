@@ -6,7 +6,7 @@
  * slash command menu, and preset selector.
  */
 
-import { useState, useRef, useCallback, type KeyboardEvent, type ChangeEvent, type DragEvent } from 'react';
+import { useState, useRef, useCallback, useEffect, type KeyboardEvent, type ChangeEvent, type DragEvent } from 'react';
 import { ArrowUp, Square, Paperclip, X, FileText, Music, Film, File, Upload, Zap } from 'lucide-react';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import {
@@ -51,6 +51,7 @@ export function ChatInput({
   const [showPresets, setShowPresets] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const presetRef = useRef<HTMLDivElement>(null);
 
   const setInferenceParams = useAppStore((s) => s.setInferenceParams);
   const setSelectedModelId = useAppStore((s) => s.setSelectedModelId);
@@ -133,6 +134,18 @@ export function ChatInput({
     });
   }, [inferenceParams, setInferenceParams, setSelectedModelId]);
 
+  // Close preset menu on click outside
+  useEffect(() => {
+    if (!showPresets) return;
+    const handler = (e: MouseEvent) => {
+      if (presetRef.current && !presetRef.current.contains(e.target as Node)) {
+        setShowPresets(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showPresets]);
+
   /** Process and add files */
   const addFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
@@ -204,7 +217,7 @@ export function ChatInput({
 
       {/* Preset dropdown */}
       {showPresets && (
-        <div className={styles.presetMenu}>
+        <div className={styles.presetMenu} ref={presetRef}>
           {presets.map((p) => (
             <button
               key={p.id}
