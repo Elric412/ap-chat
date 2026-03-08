@@ -1,13 +1,13 @@
 /**
  * ChatInput
  * 
- * Multi-line text input with file attachment support.
- * Features drag-and-drop, file picker, attachment previews
- * with thumbnails, type badges, and remove buttons.
+ * Multi-line text input with file attachment support and slash commands.
+ * Features drag-and-drop, file picker, attachment previews,
+ * slash command menu, and preset selector.
  */
 
 import { useState, useRef, useCallback, type KeyboardEvent, type ChangeEvent, type DragEvent } from 'react';
-import { ArrowUp, Square, Paperclip, X, FileText, Music, Film, File, Upload } from 'lucide-react';
+import { ArrowUp, Square, Paperclip, X, FileText, Music, Film, File, Upload, Zap } from 'lucide-react';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import {
   processFiles,
@@ -15,6 +15,9 @@ import {
   classifyMime,
   FILE_INPUT_ACCEPT,
 } from '../../engine/attachment-processor';
+import { SlashCommandMenu } from '../command/SlashCommandMenu';
+import { getAllPresets } from '../../constants/presets';
+import { useAppStore } from '../../store';
 import styles from './ChatInput.module.css';
 
 interface ChatInputProps {
@@ -43,14 +46,32 @@ export function ChatInput({
   const [focused, setFocused] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [attachments, setAttachments] = useState<ProcessedAttachment[]>([]);
+  const [showSlashMenu, setShowSlashMenu] = useState(false);
+  const [slashQuery, setSlashQuery] = useState('');
+  const [showPresets, setShowPresets] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const setInferenceParams = useAppStore((s) => s.setInferenceParams);
+  const setSelectedModelId = useAppStore((s) => s.setSelectedModelId);
+  const inferenceParams = useAppStore((s) => s.inferenceParams);
+
   const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(e.target.value);
+    const newValue = e.target.value;
+    setValue(newValue);
     const el = e.target;
     el.style.height = 'auto';
     el.style.height = `${el.scrollHeight}px`;
+
+    // Slash command detection
+    const lines = newValue.split('\n');
+    const lastLine = lines[lines.length - 1];
+    if (lastLine.startsWith('/') && !lastLine.includes(' ') && lines.length === 1) {
+      setShowSlashMenu(true);
+      setSlashQuery(lastLine);
+    } else {
+      setShowSlashMenu(false);
+    }
   }, []);
 
   const handleSend = useCallback(() => {
@@ -59,51 +80,79 @@ export function ChatInput({
     onSend(trimmed, attachments.length > 0 ? attachments : undefined);
     setValue('');
     setAttachments([]);
+    setShowSlashMenu(false);
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
   }, [value, disabled, onSend, attachments]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
+    // Don't intercept when slash menu is open (it handles its own keys)
+    if (showSlashMenu && (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Tab' || e.key === 'Enter')) {
+      return; // Let SlashCommandMenu handle it
+    }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
-  }, [handleSend]);
+  }, [handleSend, showSlashMenu]);
+
+  const handleSlashSelect = useCallback((template: string) => {
+    setValue(template);
+    setShowSlashMenu(false);
+    requestAnimationFrame(() => {
+      const el = textareaRef.current;
+      if (el) {
+        el.style.height = 'auto';
+        el.style.height = `${el.scrollHeight}px`;
+        el.focus();
+        el.setSelectionRange(template.length, template.length);
+      }
+    });
+  }, []);
+
+  const handlePresetApply = useCallback((presetId: string) => {
+    const presets = getAllPresets();
+    const preset = presets.find((p) => p.id === presetId);
+    if (!preset) return;
+
+    // Apply parameters
+    setInferenceParams({ ...inferenceParams, ...preset.parameters });
+
+    // Apply model if specified
+    if (preset.modelId) {
+      setSelectedModelId(preset.modelId);
+    }
+
+    setShowPresets(false);
+    useAppStore.getState().addToast({
+      type: 'info',
+      title: `Preset "${preset.name}" applied`,
+      dismissible: true,
+      duration: 3000,
+    });
+  }, [inferenceParams, setInferenceParams, setSelectedModelId]);
 
   /** Process and add files */
   const addFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
-    // Cap at 10 total
     const remaining = 10 - attachments.length;
     const toProcess = files.slice(0, remaining);
-
     const { processed, errors } = await processFiles(toProcess, conversationId);
-
-    if (errors.length > 0) {
-      // Could show toast, but keep it simple for now
-      console.warn('Attachment errors:', errors);
-    }
-
-    if (processed.length > 0) {
-      setAttachments((prev) => [...prev, ...processed]);
-    }
+    if (errors.length > 0) console.warn('Attachment errors:', errors);
+    if (processed.length > 0) setAttachments((prev) => [...prev, ...processed]);
   }, [attachments.length, conversationId]);
 
-  /** Remove an attachment by id */
   const removeAttachment = useCallback((id: string) => {
     setAttachments((prev) => prev.filter((a) => a.attachment.id !== id));
   }, []);
 
-  /** File input handler */
   const handleFileSelect = useCallback(async (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     await addFiles(files);
-    // Reset input so same file can be re-selected
     if (fileInputRef.current) fileInputRef.current.value = '';
   }, [addFiles]);
 
-  /** Drag-and-drop handlers */
   const handleDragOver = useCallback((e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -126,6 +175,8 @@ export function ChatInput({
 
   const canSend = (value.trim().length > 0 || attachments.length > 0) && !disabled;
 
+  const presets = getAllPresets();
+
   return (
     <div
       className={styles.inputContainer}
@@ -140,6 +191,31 @@ export function ChatInput({
         <div className={styles.dropOverlay}>
           <Upload size={20} />
           Drop files here
+        </div>
+      )}
+
+      {/* Slash command menu */}
+      <SlashCommandMenu
+        query={slashQuery}
+        visible={showSlashMenu}
+        onSelect={handleSlashSelect}
+        onClose={() => setShowSlashMenu(false)}
+      />
+
+      {/* Preset dropdown */}
+      {showPresets && (
+        <div className={styles.presetMenu}>
+          {presets.map((p) => (
+            <button
+              key={p.id}
+              className={styles.presetItem}
+              onClick={() => handlePresetApply(p.id)}
+              type="button"
+            >
+              <span className={styles.presetName}>{p.name}</span>
+              <span className={styles.presetDesc}>{p.description}</span>
+            </button>
+          ))}
         </div>
       )}
 
@@ -164,7 +240,7 @@ export function ChatInput({
         onKeyDown={handleKeyDown}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        placeholder={attachments.length > 0 ? 'Add a message…' : 'Type a message…'}
+        placeholder={attachments.length > 0 ? 'Add a message…' : 'Type a message… (/ for commands)'}
         rows={1}
         disabled={disabled}
         aria-label="Message input"
@@ -184,6 +260,17 @@ export function ChatInput({
         {attachments.length > 0 && (
           <span className={styles.attachCount}>{attachments.length}</span>
         )}
+
+        {/* Presets button */}
+        <button
+          className={styles.attachBtn}
+          onClick={() => setShowPresets(!showPresets)}
+          type="button"
+          aria-label="Apply preset"
+          title="Presets"
+        >
+          <Zap size={16} aria-hidden="true" />
+        </button>
 
         <input
           ref={fileInputRef}
