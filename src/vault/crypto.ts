@@ -64,9 +64,9 @@ export async function encrypt(
   const iv = generateIV();
 
   const ciphertext = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv },
+    { name: 'AES-GCM', iv: iv as unknown as ArrayBuffer },
     key,
-    encoder.encode(plaintext)
+    encoder.encode(plaintext) as ArrayBuffer
   );
 
   return {
