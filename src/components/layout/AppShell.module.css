@@ -10,15 +10,14 @@
   position: relative;
 }
 
-/* Ambient gradient mesh */
+/* Ambient gradient mesh — subtle, warm-tinted */
 .shell::before {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 10% 90%, hsl(24, 82%, 52%, 0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 90% 20%, hsl(172, 52%, 46%, 0.03) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 50% 50%, hsl(262, 40%, 50%, 0.02) 0%, transparent 60%);
+    radial-gradient(ellipse 70% 50% at 10% 90%, hsl(24, 82%, 52%, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 90% 15%, hsl(172, 52%, 46%, 0.02) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
 }
@@ -74,9 +73,9 @@
 .sidebarOverlay {
   position: fixed;
   inset: 0;
-  background: hsl(0 0% 0% / 0.5);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: hsl(0, 0%, 0%, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: calc(var(--z-sidebar) - 1);
 }
 

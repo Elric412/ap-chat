@@ -11,7 +11,7 @@
   font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-caption);
   line-height: var(--leading-caption);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   text-align: left;
   white-space: nowrap;
@@ -27,12 +27,12 @@
 .chatIcon {
   flex-shrink: 0;
   color: var(--color-text-3);
-  opacity: 0.4;
+  opacity: 0.3;
   transition: all var(--duration-normal) var(--ease-silk);
 }
 
 .sidebarItem:hover .chatIcon {
-  opacity: 0.8;
+  opacity: 0.7;
   color: var(--color-text-2);
 }
 
@@ -66,7 +66,7 @@
   width: 3px;
   border-radius: 0 var(--radius-full) var(--radius-full) 0;
   background: var(--color-primary);
-  box-shadow: 0 0 12px var(--color-ai-cursor-glow);
+  box-shadow: 0 0 10px hsl(24, 82%, 52%, 0.2);
   animation: indicatorIn 0.35s var(--ease-bounce) both;
 }
 
@@ -99,20 +99,16 @@
 .editInput {
   flex: 1;
   min-width: 0;
-  padding: var(--space-0-5) var(--space-1-5);
-  border: 1px solid var(--color-border-2);
-  border-radius: var(--radius-sm);
+  padding: var(--space-0-5) var(--space-2);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
   background: var(--color-surface-0);
   color: var(--color-text-1);
   font-family: var(--font-sans);
   font-size: var(--text-caption);
   font-weight: var(--weight-medium);
   outline: none;
-  transition: border-color var(--duration-fast) var(--ease-silk);
-}
-
-.editInput:focus {
-  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px hsl(24, 82%, 52%, 0.1);
 }
 
 .confirmBtn {
@@ -175,6 +171,6 @@
 
   .deleteButton {
     display: flex;
-    opacity: 0.5;
+    opacity: 0.4;
   }
 }

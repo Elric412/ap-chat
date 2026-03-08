@@ -50,7 +50,7 @@
 }
 
 .bubble[data-role="assistant"]:hover::before {
-  opacity: 0.7;
+  opacity: 0.5;
   transform: scaleY(1);
 }
 
@@ -75,11 +75,12 @@
   justify-content: center;
   width: 22px;
   height: 22px;
-  border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--color-primary), hsl(24, 82%, 40%));
   color: var(--color-text-on-primary);
-  font-size: var(--text-micro);
+  font-size: 10px;
   font-weight: var(--weight-bold);
+  font-family: var(--font-display);
   letter-spacing: var(--tracking-micro);
   line-height: 1;
   flex-shrink: 0;
@@ -96,7 +97,7 @@
 
 .roleLabel {
   font-size: var(--text-caption);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-semibold);
   color: var(--color-text-2);
   letter-spacing: var(--tracking-caption);
   line-height: var(--leading-caption);
@@ -135,7 +136,7 @@
 .actionBtn:hover {
   color: var(--color-text-1);
   background: var(--state-hover-overlay);
-  transform: scale(1.2);
+  transform: scale(1.15);
 }
 
 .actionBtn:active {
@@ -145,7 +146,6 @@
 
 .actionBtn[data-copied="true"] {
   color: var(--color-success-text);
-  animation: scaleInBounce var(--duration-normal) var(--ease-snap) both;
 }
 
 .actionBtn[data-pinned="true"] {
@@ -156,22 +156,22 @@
 /* Pinned message indicator */
 .bubble[data-pinned="true"] {
   border-left: 2px solid var(--color-warning);
-  animation: glowPulse 3s var(--ease-breath) infinite;
 }
 
 .timestamp {
-  font-size: var(--text-caption);
+  font-size: var(--text-micro);
   font-weight: var(--weight-medium);
   color: var(--color-text-3);
-  letter-spacing: var(--tracking-caption);
+  letter-spacing: var(--tracking-micro);
   line-height: var(--leading-caption);
   margin-left: auto;
-  opacity: 0.6;
+  opacity: 0;
+  font-variant-numeric: tabular-nums;
   transition: opacity var(--duration-fast) var(--ease-silk);
 }
 
 .bubble:hover .timestamp {
-  opacity: 1;
+  opacity: 0.6;
 }
 
 /* Content */
@@ -193,6 +193,7 @@
 .emptyResponse {
   color: var(--color-text-3);
   font-style: italic;
+  opacity: 0.6;
 }
 
 /* Footer */
@@ -203,8 +204,7 @@
   gap: var(--space-1-5);
   margin-top: var(--space-3);
   padding-top: var(--space-2);
-  border-top: 1px solid var(--color-border-1);
-  animation: fadeInSubtle var(--duration-normal) var(--ease-silk) both;
+  border-top: 1px solid hsl(0, 0%, 100%, 0.04);
 }
 
 .footerItem {
@@ -214,11 +214,12 @@
   line-height: var(--leading-mono);
   letter-spacing: var(--tracking-code);
   color: var(--color-text-3);
+  font-variant-numeric: tabular-nums;
 }
 
 .footerSeparator {
   color: var(--color-text-3);
-  opacity: 0.35;
+  opacity: 0.2;
   font-size: var(--text-code-sm);
 }
 
@@ -242,11 +243,10 @@
 /* Status badges */
 .statusBadge {
   font-size: var(--text-micro);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-micro);
   padding: var(--space-0-5) var(--space-2);
   border-radius: var(--radius-full);
-  animation: scaleInBounce var(--duration-normal) var(--ease-snap) both;
 }
 
 .statusBadge[data-status="error"] {
@@ -291,7 +291,7 @@
   letter-spacing: var(--tracking-micro);
   color: var(--color-secondary-text);
   background: var(--color-secondary-ghost);
-  border: 1px solid var(--color-secondary-muted);
+  border: 1px solid hsl(172, 52%, 46%, 0.1);
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: all var(--duration-fast) var(--ease-snap);
@@ -299,9 +299,9 @@
 
 .artifactChip:hover {
   background: var(--color-secondary-ghost-hover);
-  border-color: var(--color-secondary);
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 4px 16px var(--color-secondary-ghost);
+  border-color: hsl(172, 52%, 46%, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px hsl(172, 52%, 46%, 0.06);
 }
 
 .artifactChip:active {
@@ -322,7 +322,7 @@
   }
 
   .timestamp {
-    opacity: 1;
+    opacity: 0.5;
     font-size: var(--text-micro);
   }
 }
