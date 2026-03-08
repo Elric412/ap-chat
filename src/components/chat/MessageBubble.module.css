@@ -122,12 +122,17 @@
   background: transparent;
   color: var(--color-text-3);
   cursor: pointer;
-  transition: all var(--duration-instant) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-mechanical);
 }
 
 .actionBtn:hover {
   color: var(--color-text-1);
   background: var(--state-hover-overlay);
+  transform: scale(1.15);
+}
+
+.actionBtn:active {
+  transform: scale(0.9);
 }
 
 .actionBtn[data-copied="true"] {
