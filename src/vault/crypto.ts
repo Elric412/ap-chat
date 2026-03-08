@@ -33,7 +33,7 @@ export async function deriveKey(password: string, salt: Uint8Array): Promise<Cry
 
   const baseKey = await crypto.subtle.importKey(
     'raw',
-    passwordBuffer as ArrayBuffer,
+    passwordBuffer.buffer as ArrayBuffer,
     'PBKDF2',
     false,
     ['deriveBits', 'deriveKey']
