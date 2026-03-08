@@ -143,7 +143,7 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
             initial={{ opacity: 0, scale: 0.6, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.6, y: 16 }}
-            transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
+            transition={{ duration: 0.3, ease: EASE_SNAP }}
             whileHover={{ scale: 1.15, boxShadow: '0 8px 32px hsl(230, 20%, 2%, 0.5)' }}
             whileTap={{ scale: 0.88 }}
           >
