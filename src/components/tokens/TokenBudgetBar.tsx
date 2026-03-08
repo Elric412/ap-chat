@@ -14,7 +14,7 @@ interface TokenBudgetBarProps {
 }
 
 export function TokenBudgetBar({ used, max }: TokenBudgetBarProps): JSX.Element {
-  const pct = useMemo(() => Math.min((used / max) * 100, 100), [used, max]);
+  const pct = useMemo(() => max > 0 ? Math.min((used / max) * 100, 100) : 0, [used, max]);
   const isWarning = pct > 75;
   const isDanger = pct > 90;
 

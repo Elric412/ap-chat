@@ -13,6 +13,7 @@ import { VaultUnlockModal } from './components/vault/VaultUnlockModal';
 import { ToastStack } from './components/shared/ToastStack';
 import { ParameterDrawer } from './components/parameters/ParameterDrawer';
 import { CommandPalette } from './components/command/CommandPalette';
+import { ErrorBoundary } from './components/shared/ErrorBoundary';
 import { exportAsMarkdown, exportAsJson, downloadFile } from './engine/export-engine';
 
 function AppInner(): JSX.Element {
@@ -40,6 +41,10 @@ function AppInner(): JSX.Element {
       }
 
       const messages = store.getActiveBranchMessages();
+      if (messages.length === 0) {
+        store.addToast({ type: 'warning', title: 'No messages to export', dismissible: true });
+        return;
+      }
 
       if (detail.format === 'markdown') {
         const md = exportAsMarkdown(conv, messages);
@@ -85,9 +90,11 @@ function AppInner(): JSX.Element {
 
 export function App(): JSX.Element {
   return (
-    <BrowserRouter>
-      <AppInner />
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AppInner />
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

@@ -61,7 +61,7 @@ export const cohereAdapter: ProviderAdapter = {
     if (request.parameters.presencePenalty !== null) body.presence_penalty = request.parameters.presencePenalty;
     if (request.parameters.seed !== null) body.seed = request.parameters.seed;
 
-    const response = await fetch(`${baseUrl}/chat`, {
+    const response = await fetch(`${baseUrl}/v2/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
