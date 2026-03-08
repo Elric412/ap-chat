@@ -35,24 +35,41 @@ export function AppShell({ sidebar, header, children }: AppShellProps): JSX.Elem
 
   return (
     <div className={styles.shell} data-focus-mode={focusMode} data-canvas={canvasOpen}>
-      <div
+      {/* Skip navigation link for keyboard/screen reader users */}
+      <a href="#main-content" className={styles.skipLink}>
+        Skip to main content
+      </a>
+
+      <aside
         className={styles.sidebarRegion}
         data-collapsed={sidebarCollapsed}
         data-hidden={sidebarHidden}
+        aria-label="Conversation sidebar"
       >
         {sidebar}
-      </div>
-      <div className={styles.mainRegion}>
+      </aside>
+
+      <div className={styles.mainRegion} role="main" id="main-content">
         {!focusMode && header}
         <div className={styles.contentArea}>
           {children}
         </div>
       </div>
+
       {canvasOpen && (
-        <div className={styles.canvasRegion}>
+        <aside className={styles.canvasRegion} aria-label="Artifact canvas">
           <CanvasPanel />
-        </div>
+        </aside>
       )}
+
+      {/* Live region for streaming status announcements */}
+      <div
+        className={styles.srOnly}
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        id="stream-status"
+      />
     </div>
   );
 }
