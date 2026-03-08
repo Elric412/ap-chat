@@ -126,7 +126,7 @@ export function Header(): JSX.Element {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
-                transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
+                transition={{ duration: 0.25, ease: EASE_SNAP }}
               />
             )}
           </AnimatePresence>
