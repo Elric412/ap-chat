@@ -1,0 +1,15 @@
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  background: var(--color-ai-cursor);
+  border-radius: var(--radius-xs);
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  animation: cursorPulse 1.2s var(--ease-mechanical) infinite;
+  box-shadow: 0 0 6px var(--color-ai-cursor-glow);
+}
+
+.cursorHidden {
+  display: none;
+}

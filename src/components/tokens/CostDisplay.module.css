@@ -1,0 +1,14 @@
+.cost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-code-sm);
+  color: var(--color-ai-cost-text);
+}
+
+.costLabel {
+  color: var(--color-text-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-micro);
+}
