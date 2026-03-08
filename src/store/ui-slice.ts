@@ -70,6 +70,7 @@ export const createUISlice: StateCreator<UISlice, [['zustand/immer', never]], []
   selectedModelId: 'claude-sonnet-4-6-20260301',
   inferenceParams: { ...DEFAULT_PARAMETERS },
   contextConfig: { ...DEFAULT_CONTEXT_CONFIG },
+  webSearchEnabled: false,
 
   setTheme: (theme) => {
     try { localStorage.setItem(STORAGE_KEYS.theme, theme); } catch { /* noop */ }
