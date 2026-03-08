@@ -197,21 +197,32 @@ export function ChatInput({
   const presets = getAllPresets();
 
   return (
-    <div
+    <motion.div
       className={styles.inputContainer}
       data-focused={focused}
       data-dragover={dragOver}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
     >
       {/* Drop overlay */}
-      {dragOver && (
-        <div className={styles.dropOverlay}>
-          <Upload size={20} />
-          Drop files here
-        </div>
-      )}
+      <AnimatePresence>
+        {dragOver && (
+          <motion.div
+            className={styles.dropOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <Upload size={20} />
+            Drop files here
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Slash command menu */}
       <SlashCommandMenu
