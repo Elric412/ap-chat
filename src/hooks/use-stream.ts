@@ -13,6 +13,7 @@ import { useAppStore } from '../store';
 import { getAdapter } from '../adapters/registry';
 import { getDecryptedKey } from '../vault/vault-manager';
 import { resolveParameters } from '../engine/parameter-resolver';
+import { buildContextWindow } from '../engine/context-engine';
 import { calculateCost } from '../engine/cost-calculator';
 import { detectArtifacts } from '../engine/artifact-detector';
 import { MODEL_REGISTRY } from '../constants/model-registry';
