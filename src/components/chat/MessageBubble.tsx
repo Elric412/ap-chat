@@ -6,7 +6,8 @@
  * streaming cursor, and branch navigation.
  */
 
-import { useState, useCallback, type CSSProperties } from 'react';
+import { useState, useCallback, forwardRef, type CSSProperties } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { MessageNode } from '../../types/messages';
 import { useAppStore } from '../../store';
 import { BranchNavigator } from './BranchNavigator';
@@ -83,12 +84,16 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall, styl
   }, [textContent]);
 
   return (
-    <div
+    <motion.div
       className={styles.bubble}
       data-role={message.role}
       data-status={message.status}
       data-pinned={isPinned}
       style={style}
+      initial={{ opacity: 0, y: 12, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+      layout
     >
       <div className={styles.header}>
         <div className={styles.roleIndicator}>
@@ -254,6 +259,6 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall, styl
           />
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

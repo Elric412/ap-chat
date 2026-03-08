@@ -6,7 +6,8 @@
  * slash command menu, and preset selector.
  */
 
-import { useState, useRef, useCallback, useEffect, type KeyboardEvent, type ChangeEvent, type DragEvent } from 'react';
+import { useState, useRef, useCallback, useEffect, forwardRef, type KeyboardEvent, type ChangeEvent, type DragEvent } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp, Square, Paperclip, X, FileText, Music, Film, File, Upload, Zap } from 'lucide-react';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import {
@@ -196,21 +197,32 @@ export function ChatInput({
   const presets = getAllPresets();
 
   return (
-    <div
+    <motion.div
       className={styles.inputContainer}
       data-focused={focused}
       data-dragover={dragOver}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
     >
       {/* Drop overlay */}
-      {dragOver && (
-        <div className={styles.dropOverlay}>
-          <Upload size={20} />
-          Drop files here
-        </div>
-      )}
+      <AnimatePresence>
+        {dragOver && (
+          <motion.div
+            className={styles.dropOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <Upload size={20} />
+            Drop files here
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Slash command menu */}
       <SlashCommandMenu
@@ -307,28 +319,43 @@ export function ChatInput({
           {value.length > 0 ? `${value.length}` : ''}
         </span>
 
-        {isStreaming ? (
-          <button
-            className={styles.stopButton}
-            onClick={onAbort}
-            type="button"
-            aria-label="Stop generation"
-          >
-            <Square size={14} aria-hidden="true" />
-          </button>
-        ) : (
-          <button
-            className={styles.sendButton}
-            onClick={handleSend}
-            disabled={!canSend}
-            type="button"
-            aria-label="Send message"
-          >
-            <ArrowUp size={16} aria-hidden="true" />
-          </button>
-        )}
+        <AnimatePresence mode="wait">
+          {isStreaming ? (
+            <motion.button
+              key="stop"
+              className={styles.stopButton}
+              onClick={onAbort}
+              type="button"
+              aria-label="Stop generation"
+              initial={{ scale: 0, rotate: -90 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 90 }}
+              transition={{ duration: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
+              whileTap={{ scale: 0.85 }}
+            >
+              <Square size={14} aria-hidden="true" />
+            </motion.button>
+          ) : (
+            <motion.button
+              key="send"
+              className={styles.sendButton}
+              onClick={handleSend}
+              disabled={!canSend}
+              type="button"
+              aria-label="Send message"
+              initial={{ scale: 0, rotate: 90 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: -90 }}
+              transition={{ duration: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
+              whileTap={{ scale: 0.85 }}
+              whileHover={canSend ? { scale: 1.1 } : undefined}
+            >
+              <ArrowUp size={16} aria-hidden="true" />
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
