@@ -7,16 +7,18 @@
 
 import type { ProviderAdapter, StreamRequest, StreamMessage } from '../types';
 import type { NormalizedStreamEvent, ClassifiedError } from '../../types/adapters';
+import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import { PROVIDER_META } from '../../constants/provider-meta';
 
-function buildContents(messages: StreamMessage[]): {
+function buildContents(messages: StreamMessage[], attachments?: ProcessedAttachment[]): {
   systemInstruction?: Record<string, unknown>;
   contents: Array<Record<string, unknown>>;
 } {
   let systemInstruction: Record<string, unknown> | undefined;
   const contents: Array<Record<string, unknown>> = [];
 
-  for (const msg of messages) {
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i];
     const textParts = msg.content.filter((p) => p.type === 'text');
     const text = textParts.map((p) => (p as { type: 'text'; text: string }).text).join('\n');
 
@@ -26,7 +28,24 @@ function buildContents(messages: StreamMessage[]): {
     }
 
     const role = msg.role === 'assistant' ? 'model' : 'user';
-    contents.push({ role, parts: [{ text }] });
+
+    // Last user message with attachments → multimodal
+    const isLastUser = msg.role === 'user' && i === messages.length - 1;
+    if (isLastUser && attachments?.length) {
+      const parts: Array<Record<string, unknown>> = [];
+      for (const pa of attachments) {
+        if (pa.attachment.type === 'image') {
+          const base64 = pa.dataUrl.split(',')[1] ?? '';
+          parts.push({
+            inline_data: { mime_type: pa.attachment.mimeType, data: base64 },
+          });
+        }
+      }
+      parts.push({ text });
+      contents.push({ role, parts });
+    } else {
+      contents.push({ role, parts: [{ text }] });
+    }
   }
 
   return { systemInstruction, contents };
@@ -48,7 +67,7 @@ export const googleAdapter: ProviderAdapter = {
 
   async *stream(apiKey: string, request: StreamRequest): AsyncGenerator<NormalizedStreamEvent, void, undefined> {
     const baseUrl = PROVIDER_META.google.baseUrl;
-    const { systemInstruction, contents } = buildContents(request.messages);
+    const { systemInstruction, contents } = buildContents(request.messages, request.attachments);
 
     const body: Record<string, unknown> = { contents };
 

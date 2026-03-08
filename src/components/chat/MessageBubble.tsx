@@ -9,6 +9,7 @@
 import type { MessageNode } from '../../types/messages';
 import { useAppStore } from '../../store';
 import { BranchNavigator } from './BranchNavigator';
+import { AttachmentChips } from './AttachmentChips';
 import { StreamCursor } from './StreamCursor';
 import { ThinkingBlock } from './ThinkingBlock';
 import { ToolCallCard } from './ToolCallCard';
@@ -78,6 +79,11 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
           isStreaming={isStreaming && textContent.length === 0}
           startTime={message.timestamp}
         />
+      )}
+
+      {/* Attachment indicators (user messages) */}
+      {isUser && message.attachmentIds.length > 0 && (
+        <AttachmentChips attachmentIds={message.attachmentIds} content={message.content} />
       )}
 
       {/* Main text content */}

@@ -7,16 +7,18 @@
 
 import type { ProviderAdapter, StreamRequest, StreamMessage } from '../types';
 import type { NormalizedStreamEvent, ClassifiedError } from '../../types/adapters';
+import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import { PROVIDER_META } from '../../constants/provider-meta';
 
-function buildMessages(messages: StreamMessage[]): {
+function buildMessages(messages: StreamMessage[], attachments?: ProcessedAttachment[]): {
   system?: string;
   messages: Array<Record<string, unknown>>;
 } {
   let systemPrompt: string | undefined;
   const apiMessages: Array<Record<string, unknown>> = [];
 
-  for (const msg of messages) {
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i];
     const textParts = msg.content.filter((p) => p.type === 'text');
     const text = textParts.map((p) => (p as { type: 'text'; text: string }).text).join('\n');
 
@@ -25,7 +27,30 @@ function buildMessages(messages: StreamMessage[]): {
       continue;
     }
 
-    apiMessages.push({ role: msg.role, content: text });
+    // Last user message with attachments → multimodal
+    const isLastUser = msg.role === 'user' && i === messages.length - 1;
+    if (isLastUser && attachments?.length) {
+      const contentParts: Array<Record<string, unknown>> = [];
+      for (const pa of attachments) {
+        if (pa.attachment.type === 'image') {
+          const base64 = pa.dataUrl.split(',')[1] ?? '';
+          contentParts.push({
+            type: 'image',
+            source: { type: 'base64', media_type: pa.attachment.mimeType, data: base64 },
+          });
+        } else if (pa.attachment.type === 'document' && pa.attachment.mimeType === 'application/pdf') {
+          const base64 = pa.dataUrl.split(',')[1] ?? '';
+          contentParts.push({
+            type: 'document',
+            source: { type: 'base64', media_type: 'application/pdf', data: base64 },
+          });
+        }
+      }
+      contentParts.push({ type: 'text', text });
+      apiMessages.push({ role: 'user', content: contentParts });
+    } else {
+      apiMessages.push({ role: msg.role, content: text });
+    }
   }
 
   return { system: systemPrompt, messages: apiMessages };
@@ -49,7 +74,7 @@ export const anthropicAdapter: ProviderAdapter = {
 
   async *stream(apiKey: string, request: StreamRequest): AsyncGenerator<NormalizedStreamEvent, void, undefined> {
     const baseUrl = PROVIDER_META.anthropic.baseUrl;
-    const { system, messages } = buildMessages(request.messages);
+    const { system, messages } = buildMessages(request.messages, request.attachments);
 
     const body: Record<string, unknown> = {
       model: request.model,

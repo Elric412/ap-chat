@@ -7,6 +7,8 @@
  */
 
 import { useRef, useCallback } from 'react';
+import type { ProcessedAttachment } from '../engine/attachment-processor';
+import { attachmentToContentPart, buildMultimodalContent } from '../engine/attachment-processor';
 import { useAppStore } from '../store';
 import { getAdapter } from '../adapters/registry';
 import { getDecryptedKey } from '../vault/vault-manager';
@@ -60,7 +62,8 @@ interface UseStreamReturn {
     conversationId: string,
     text: string,
     parentId: string | null,
-    rootNodeId: string
+    rootNodeId: string,
+    attachments?: ProcessedAttachment[]
   ) => Promise<void>;
   abort: () => void;
   isStreaming: boolean;
@@ -106,7 +109,8 @@ export function useStream(): UseStreamReturn {
     conversationId: string,
     text: string,
     parentId: string | null,
-    rootNodeId: string
+    rootNodeId: string,
+    attachments?: ProcessedAttachment[]
   ): Promise<void> => {
     const store = useAppStore.getState();
     const selectedModelId = store.selectedModelId;
@@ -138,13 +142,23 @@ export function useStream(): UseStreamReturn {
     const actualParentId = parentId ?? rootNodeId;
     const now = Date.now();
 
+    // Build user content with attachments
     const userContent: ContentPart[] = [{ type: 'text', text }];
+    const attachmentIds: string[] = [];
+    if (attachments?.length) {
+      for (const pa of attachments) {
+        userContent.push(attachmentToContentPart(pa));
+        attachmentIds.push(pa.attachment.id);
+      }
+    }
+
     const userNode = createMessageNode({
       id: userNodeId,
       conversationId,
       parentId: actualParentId,
       role: 'user',
       content: userContent,
+      attachmentIds,
       timestamp: now,
     });
 
@@ -197,6 +211,7 @@ export function useStream(): UseStreamReturn {
         messages: contextMessages,
         parameters: params,
         signal: abortController.signal,
+        attachments,
       });
 
       for await (const event of generator) {

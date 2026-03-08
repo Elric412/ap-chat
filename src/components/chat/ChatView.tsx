@@ -1,14 +1,15 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAppStore } from '../../store';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
 import { EmptyState } from './EmptyState';
+import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import styles from './ChatView.module.css';
 
 interface ChatViewProps {
   conversationId: string;
   rootNodeId: string;
-  onSend: (text: string) => void;
+  onSend: (text: string, attachments?: ProcessedAttachment[]) => void;
   isStreaming?: boolean;
   onAbort?: () => void;
   onApproveToolCall?: (messageId: string, toolCallId: string) => void;
@@ -24,19 +25,16 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
   const scrollRef = useRef<HTMLDivElement>(null);
   const messages = getActiveBranchMessages();
 
-  /* Load messages when conversation changes */
   useEffect(() => {
     void loadMessages(conversationId);
   }, [conversationId, loadMessages]);
 
-  /* Auto-scroll on new messages */
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     el.scrollTop = el.scrollHeight;
   }, [messageMap]);
 
-  // Filter to only user/assistant messages (skip root system node)
   const visibleMessages = messages.filter((m) => m.role === 'user' || m.role === 'assistant');
 
   if (messagesLoading) {
@@ -68,6 +66,7 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
             disabled={isStreaming}
             isStreaming={isStreaming}
             onAbort={onAbort}
+            conversationId={conversationId}
           />
         </div>
       </div>

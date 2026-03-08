@@ -6,10 +6,165 @@
   box-shadow: var(--shadow-sm);
   transition: border-color var(--duration-fast) var(--ease-mechanical),
               box-shadow var(--duration-fast) var(--ease-mechanical);
+  position: relative;
 }
 
 .inputContainer[data-focused="true"] {
   border-color: var(--color-border-focus);
+}
+
+.inputContainer[data-dragover="true"] {
+  border-color: var(--color-secondary);
+  box-shadow: var(--shadow-sm), 0 0 0 2px var(--color-secondary-ghost);
+}
+
+/* Drop overlay */
+.dropOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  background: var(--color-secondary-ghost);
+  border-radius: var(--radius-lg);
+  z-index: var(--z-raised);
+  pointer-events: none;
+  color: var(--color-secondary-text);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+}
+
+/* Attachment previews strip */
+.attachmentStrip {
+  display: flex;
+  gap: var(--space-2);
+  padding-bottom: var(--space-2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.attachmentStrip::-webkit-scrollbar {
+  display: none;
+}
+
+.attachmentPreview {
+  position: relative;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-border-1);
+  background: var(--color-surface-3);
+  transition: border-color var(--duration-instant) var(--ease-mechanical);
+}
+
+.attachmentPreview:hover {
+  border-color: var(--color-border-2);
+}
+
+.attachmentThumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  display: block;
+}
+
+.attachmentFile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-0-5);
+  width: 80px;
+  height: 64px;
+  padding: var(--space-1);
+}
+
+.attachmentFileIcon {
+  color: var(--color-text-3);
+}
+
+.attachmentFileName {
+  font-size: 9px;
+  font-weight: var(--weight-medium);
+  color: var(--color-text-2);
+  letter-spacing: var(--tracking-micro);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 72px;
+}
+
+.attachmentSize {
+  font-size: 8px;
+  font-family: var(--font-mono);
+  color: var(--color-text-3);
+}
+
+.attachmentRemove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-0);
+  color: var(--color-text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--duration-instant) var(--ease-mechanical);
+  box-shadow: var(--shadow-xs);
+}
+
+.attachmentPreview:hover .attachmentRemove {
+  opacity: 1;
+}
+
+.attachmentRemove:hover {
+  color: var(--color-error-text);
+  background: var(--color-error-ghost);
+}
+
+.attachmentTypeBadge {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  font-size: 8px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-micro);
+  padding: 1px 4px;
+  border-radius: var(--radius-xs);
+  text-transform: uppercase;
+}
+
+.attachmentTypeBadge[data-type="image"] {
+  background: var(--color-info-ghost);
+  color: var(--color-info-text);
+}
+
+.attachmentTypeBadge[data-type="audio"] {
+  background: var(--color-success-ghost);
+  color: var(--color-success-text);
+}
+
+.attachmentTypeBadge[data-type="video"] {
+  background: var(--color-warning-ghost);
+  color: var(--color-warning-text);
+}
+
+.attachmentTypeBadge[data-type="document"] {
+  background: var(--color-secondary-ghost);
+  color: var(--color-secondary-text);
+}
+
+.attachmentTypeBadge[data-type="file"] {
+  background: var(--color-surface-4);
+  color: var(--color-text-3);
 }
 
 .textarea {
@@ -36,10 +191,47 @@
 .actionBar {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: var(--space-2);
   margin-top: var(--space-2);
   height: 36px;
+}
+
+.attachBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-3);
+  cursor: pointer;
+  transition: background var(--duration-instant) var(--ease-mechanical),
+              color var(--duration-instant) var(--ease-mechanical);
+}
+
+.attachBtn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-1);
+}
+
+.attachCount {
+  font-size: var(--text-micro);
+  font-family: var(--font-mono);
+  color: var(--color-secondary-text);
+  font-weight: var(--weight-medium);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.charHint {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--color-text-3);
+  letter-spacing: var(--tracking-micro);
 }
 
 .sendButton {
@@ -70,13 +262,6 @@
   cursor: not-allowed;
 }
 
-.charHint {
-  font-family: var(--font-mono);
-  font-size: var(--text-micro);
-  color: var(--color-text-3);
-  letter-spacing: var(--tracking-micro);
-}
-
 .stopButton {
   display: flex;
   align-items: center;
@@ -93,4 +278,9 @@
 
 .stopButton:hover {
   background: var(--color-error-text);
+}
+
+/* Hidden file input */
+.fileInput {
+  display: none;
 }
