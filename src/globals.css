@@ -38,9 +38,9 @@ body {
   color-scheme: dark;
 
   /* ── Fonts ── */
-  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
-  --font-display: 'Playfair Display', Georgia, serif;
+  --font-display: 'Space Grotesk', 'Outfit', sans-serif;
 
   /* ── Surfaces ── */
   --color-surface-0: hsl(230, 15%, 6%);
