@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../store';
 import { useTheme } from '../../hooks/use-theme';
-import { Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare } from 'lucide-react';
+import { useAuth } from '../../hooks/use-auth';
+import { Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare, LogIn, LogOut, User } from 'lucide-react';
 import { SidebarItem } from './SidebarItem';
 import type { Conversation } from '../../types/conversations';
 import styles from './Sidebar.module.css';
@@ -41,6 +42,7 @@ export function Sidebar(): JSX.Element {
   const setActiveConversation = useAppStore((s) => s.setActiveConversation);
   const deleteConversation = useAppStore((s) => s.deleteConversation);
   const { resolvedTheme, toggleTheme } = useTheme();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -111,6 +113,28 @@ export function Sidebar(): JSX.Element {
       </div>
 
       <div className={styles.sidebarFooter}>
+        {user ? (
+          <button
+            className={styles.footerBtn}
+            onClick={() => void signOut()}
+            type="button"
+            aria-label="Sign out"
+            title={user.email ?? 'Signed in'}
+          >
+            <User size={16} aria-hidden="true" />
+            <span>{user.email?.split('@')[0] ?? 'Account'}</span>
+          </button>
+        ) : (
+          <button
+            className={styles.footerBtn}
+            onClick={() => navigate('/auth')}
+            type="button"
+            aria-label="Sign in"
+          >
+            <LogIn size={16} aria-hidden="true" />
+            <span>Sign In</span>
+          </button>
+        )}
         <button
           className={styles.footerBtn}
           onClick={() => navigate('/settings')}

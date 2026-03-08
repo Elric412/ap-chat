@@ -1,13 +1,15 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useTheme } from './hooks/use-theme';
 import { useKeyboard } from './hooks/use-keyboard';
 import { useAppStore } from './store';
+import { AuthProvider } from './hooks/use-auth';
 import { AppShell } from './components/layout/AppShell';
 import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { ChatPage } from './pages/ChatPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { AuthPage } from './pages/AuthPage';
 import { VaultSetupModal } from './components/vault/VaultSetupModal';
 import { VaultUnlockModal } from './components/vault/VaultUnlockModal';
 import { ToastStack } from './components/shared/ToastStack';
@@ -73,6 +75,7 @@ function AppInner(): JSX.Element {
           <Route path="/" element={<ChatPage />} />
           <Route path="/chat/:conversationId" element={<ChatPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/auth" element={<AuthPage />} />
           <Route path="*" element={<ChatPage />} />
         </Routes>
       </AppShell>
@@ -91,9 +94,11 @@ function AppInner(): JSX.Element {
 export function App(): JSX.Element {
   return (
     <ErrorBoundary>
-      <BrowserRouter>
-        <AppInner />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppInner />
+        </BrowserRouter>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }
