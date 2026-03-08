@@ -12,6 +12,7 @@ import { getAdapter } from '../adapters/registry';
 import { getDecryptedKey } from '../vault/vault-manager';
 import { resolveParameters } from '../engine/parameter-resolver';
 import { calculateCost } from '../engine/cost-calculator';
+import { detectArtifacts } from '../engine/artifact-detector';
 import { MODEL_REGISTRY } from '../constants/model-registry';
 import { uuidv7 } from '../lib/uuid';
 import { putMessages } from '../db/messages-repo';
@@ -319,6 +320,26 @@ export function useStream(): UseStreamReturn {
     const costEstimate: CostEstimate = calculateCost(tokenCounts, model.pricing);
     const wasAborted = abortController.signal.aborted;
 
+    // Detect artifacts in final text
+    const detected = detectArtifacts(accumulatedText);
+    const artifactIds: string[] = [];
+    if (detected.length > 0) {
+      const store2 = useAppStore.getState();
+      for (const d of detected) {
+        const artId = store2.addArtifact({
+          conversationId,
+          messageNodeId: assistantNodeId,
+          type: d.type,
+          title: d.title,
+          language: d.language,
+          content: d.content,
+        });
+        artifactIds.push(artId);
+      }
+      // Auto-open canvas
+      useAppStore.setState((state) => { state.canvasOpen = true; });
+    }
+
     useAppStore.setState((state) => {
       const node = state.messageMap.get(assistantNodeId);
       if (node) {
@@ -328,6 +349,7 @@ export function useStream(): UseStreamReturn {
         node.latency = latency;
         node.tokenCounts = tokenCounts;
         node.costEstimate = costEstimate;
+        node.artifactRefs = artifactIds;
         node._clock += 1;
       }
     });

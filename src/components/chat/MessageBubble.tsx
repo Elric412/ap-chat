@@ -14,6 +14,7 @@ import { ThinkingBlock } from './ThinkingBlock';
 import { ToolCallCard } from './ToolCallCard';
 import { WebSearchCitations } from './WebSearchCitation';
 import { formatTime, formatTokenCount, formatCost } from '../../lib/format';
+import { Code2 } from 'lucide-react';
 import styles from './MessageBubble.module.css';
 
 interface MessageBubbleProps {
@@ -45,6 +46,12 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
 
   const hasToolCalls = message.toolCalls.length > 0;
   const hasCitations = message.webSearchResults.length > 0;
+  const hasArtifacts = message.artifactRefs.length > 0;
+
+  const handleViewArtifact = (artifactId: string) => {
+    useAppStore.getState().setActiveArtifact(artifactId);
+    useAppStore.getState().setCanvasOpen(true);
+  };
 
   return (
     <div className={styles.bubble} data-role={message.role} data-status={message.status}>
@@ -96,6 +103,23 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
       {/* Web search citations */}
       {hasCitations && (
         <WebSearchCitations results={message.webSearchResults} />
+      )}
+
+      {/* Artifact chips */}
+      {hasArtifacts && (
+        <div className={styles.artifactChips}>
+          {message.artifactRefs.map((refId) => (
+            <button
+              key={refId}
+              className={styles.artifactChip}
+              onClick={() => handleViewArtifact(refId)}
+              type="button"
+            >
+              <Code2 size={12} aria-hidden="true" />
+              View artifact
+            </button>
+          ))}
+        </div>
       )}
 
       {/* Footer with token/cost metadata */}

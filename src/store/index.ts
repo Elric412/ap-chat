@@ -11,8 +11,10 @@ import type { SessionsSlice } from './sessions-slice';
 import { createSessionsSlice } from './sessions-slice';
 import type { MessagesSlice } from './messages-slice';
 import { createMessagesSlice } from './messages-slice';
+import type { ArtifactsSlice } from './artifacts-slice';
+import { createArtifactsSlice } from './artifacts-slice';
 
-export interface AppState extends UISlice, VaultSlice, ToastSlice, SessionsSlice, MessagesSlice {}
+export interface AppState extends UISlice, VaultSlice, ToastSlice, SessionsSlice, MessagesSlice, ArtifactsSlice {}
 
 export const useAppStore = create<AppState>()(
   devtools(
@@ -22,6 +24,7 @@ export const useAppStore = create<AppState>()(
       ...createToastSlice(...args),
       ...createSessionsSlice(...args),
       ...createMessagesSlice(...args),
+      ...createArtifactsSlice(...args),
     })),
     { name: 'byok-chat-store', enabled: import.meta.env.DEV }
   )

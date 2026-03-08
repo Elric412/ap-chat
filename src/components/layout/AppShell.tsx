@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect } from 'react';
 import { useAppStore } from '../../store';
 import { useMediaQuery } from '../../hooks/use-media-query';
+import { CanvasPanel } from '../canvas/CanvasPanel';
 import styles from './AppShell.module.css';
 
 interface AppShellProps {
@@ -13,6 +14,7 @@ export function AppShell({ sidebar, header, children }: AppShellProps): JSX.Elem
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
   const focusMode = useAppStore((s) => s.focusMode);
+  const canvasOpen = useAppStore((s) => s.canvasOpen);
   const setSidebarCollapsed = useAppStore((s) => s.setSidebarCollapsed);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
 
@@ -32,7 +34,7 @@ export function AppShell({ sidebar, header, children }: AppShellProps): JSX.Elem
   const sidebarHidden = !sidebarOpen || focusMode;
 
   return (
-    <div className={styles.shell} data-focus-mode={focusMode}>
+    <div className={styles.shell} data-focus-mode={focusMode} data-canvas={canvasOpen}>
       <div
         className={styles.sidebarRegion}
         data-collapsed={sidebarCollapsed}
@@ -46,6 +48,11 @@ export function AppShell({ sidebar, header, children }: AppShellProps): JSX.Elem
           {children}
         </div>
       </div>
+      {canvasOpen && (
+        <div className={styles.canvasRegion}>
+          <CanvasPanel />
+        </div>
+      )}
     </div>
   );
 }

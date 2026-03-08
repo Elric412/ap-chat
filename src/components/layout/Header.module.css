@@ -67,6 +67,11 @@
   color: var(--color-text-1);
 }
 
+.headerAction[data-active="true"] {
+  color: var(--color-secondary-text);
+  background: var(--color-secondary-ghost);
+}
+
 .statusText {
   font-size: var(--text-caption);
   font-weight: var(--weight-medium);

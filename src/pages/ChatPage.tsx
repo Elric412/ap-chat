@@ -199,6 +199,8 @@ function ChatViewWithRoot({
       onSend={onSend}
       isStreaming={isStreaming}
       onAbort={onAbort}
+      onApproveToolCall={onApproveToolCall}
+      onDenyToolCall={onDenyToolCall}
     />
   );
 }
