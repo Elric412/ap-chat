@@ -2,12 +2,14 @@ import type { StateCreator } from 'zustand';
 import type { VaultStatus, EncryptedKeyRecord } from '../types/vault';
 import type { ProviderId } from '../types/models';
 import * as vaultManager from '../vault/vault-manager';
+import { getAdapter } from '../adapters/registry';
 
 export interface VaultSlice {
   vaultStatus: VaultStatus;
   keyRecords: EncryptedKeyRecord[];
   vaultLoading: boolean;
   vaultError: string | null;
+  verifyingKey: ProviderId | null;
 
   initVault: () => Promise<void>;
   setupVault: (password: string) => Promise<void>;
@@ -16,6 +18,7 @@ export interface VaultSlice {
   addKey: (providerId: ProviderId, rawKey: string) => Promise<EncryptedKeyRecord>;
   removeKey: (providerId: ProviderId) => Promise<void>;
   refreshKeyRecords: () => Promise<void>;
+  verifyKey: (providerId: ProviderId) => Promise<'healthy' | 'invalid'>;
 }
 
 export const createVaultSlice: StateCreator<VaultSlice, [['zustand/immer', never]], [], VaultSlice> = (set, get) => ({
@@ -23,6 +26,7 @@ export const createVaultSlice: StateCreator<VaultSlice, [['zustand/immer', never
   keyRecords: [],
   vaultLoading: false,
   vaultError: null,
+  verifyingKey: null,
 
   initVault: async () => {
     set((state) => { state.vaultLoading = true; });
@@ -115,5 +119,31 @@ export const createVaultSlice: StateCreator<VaultSlice, [['zustand/immer', never
   refreshKeyRecords: async () => {
     const records = await vaultManager.getAllKeyRecords();
     set((state) => { state.keyRecords = records; });
+  },
+
+  verifyKey: async (providerId) => {
+    set((state) => { state.verifyingKey = providerId; });
+    try {
+      const decryptedKey = await vaultManager.getDecryptedKey(providerId);
+      if (!decryptedKey) {
+        await vaultManager.updateKeyHealth(providerId, 'invalid');
+        await get().refreshKeyRecords();
+        return 'invalid';
+      }
+
+      const adapter = getAdapter(providerId);
+      const isValid = await adapter.validateKey(decryptedKey);
+      const status = isValid ? 'healthy' : 'invalid';
+
+      await vaultManager.updateKeyHealth(providerId, status);
+      await get().refreshKeyRecords();
+      return status;
+    } catch {
+      await vaultManager.updateKeyHealth(providerId, 'invalid');
+      await get().refreshKeyRecords();
+      return 'invalid';
+    } finally {
+      set((state) => { state.verifyingKey = null; });
+    }
   },
 });
