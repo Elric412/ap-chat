@@ -123,8 +123,8 @@ export const openaiAdapter: ProviderAdapter = {
           // Usage in final chunk
           const usage = parsed.usage as Record<string, number> | undefined;
           if (usage) {
-            const completionDetails = usage.completion_tokens_details as Record<string, number> | undefined;
-            const promptDetails = usage.prompt_tokens_details as Record<string, number> | undefined;
+            const completionDetails = (usage as Record<string, unknown>).completion_tokens_details as Record<string, number> | undefined;
+            const promptDetails = (usage as Record<string, unknown>).prompt_tokens_details as Record<string, number> | undefined;
             yield {
               type: 'usage',
               usage: {
