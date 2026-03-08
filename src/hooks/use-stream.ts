@@ -62,7 +62,8 @@ interface UseStreamReturn {
     conversationId: string,
     text: string,
     parentId: string | null,
-    rootNodeId: string
+    rootNodeId: string,
+    attachments?: ProcessedAttachment[]
   ) => Promise<void>;
   abort: () => void;
   isStreaming: boolean;
