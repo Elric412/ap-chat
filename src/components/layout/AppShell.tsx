@@ -2,6 +2,7 @@ import { type ReactNode, useEffect } from 'react';
 import { useAppStore } from '../../store';
 import { useMediaQuery } from '../../hooks/use-media-query';
 import { CanvasPanel } from '../canvas/CanvasPanel';
+import { NetworkBanner } from '../shared/NetworkBanner';
 import styles from './AppShell.module.css';
 
 interface AppShellProps {
