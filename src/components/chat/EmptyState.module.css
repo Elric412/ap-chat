@@ -248,3 +248,49 @@
   color: var(--color-text-3);
   letter-spacing: var(--tracking-caption);
 }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .emptyState {
+    padding: var(--space-8) var(--space-4);
+    gap: var(--space-6);
+    min-height: 50vh;
+  }
+
+  .title {
+    font-size: var(--text-h2);
+  }
+
+  .orbitalContainer {
+    width: 72px;
+    height: 72px;
+  }
+
+  .iconContainer {
+    width: 38px;
+    height: 38px;
+  }
+
+  .orbitalRingInner {
+    inset: 12px;
+  }
+
+  .promptGrid {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+
+  .promptCard {
+    padding: var(--space-3);
+  }
+
+  .shortcuts {
+    display: none;
+  }
+
+  .setupCta {
+    width: 100%;
+    justify-content: center;
+    padding: var(--space-3) var(--space-4);
+  }
+}

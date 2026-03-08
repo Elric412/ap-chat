@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { useTheme } from '../../hooks/use-theme';
 import { useAuth } from '../../hooks/use-auth';
-import { Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare, LogIn, LogOut, User } from 'lucide-react';
+import { Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare, LogIn, User, Search, X, Menu } from 'lucide-react';
 import { SidebarItem } from './SidebarItem';
 import type { Conversation } from '../../types/conversations';
 import styles from './Sidebar.module.css';
@@ -13,9 +14,10 @@ function groupByDate(conversations: Conversation[]): { label: string; items: Con
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const yesterday = today - 86400000;
   const weekAgo = today - 7 * 86400000;
+  const monthAgo = today - 30 * 86400000;
 
   const groups: Record<string, Conversation[]> = {};
-  const order = ['Today', 'Yesterday', 'This week', 'Older'];
+  const order = ['Today', 'Yesterday', 'This week', 'This month', 'Older'];
 
   for (const conv of conversations) {
     const t = conv.updatedAt;
@@ -23,6 +25,7 @@ function groupByDate(conversations: Conversation[]): { label: string; items: Con
     if (t >= today) label = 'Today';
     else if (t >= yesterday) label = 'Yesterday';
     else if (t >= weekAgo) label = 'This week';
+    else if (t >= monthAgo) label = 'This month';
     else label = 'Older';
     (groups[label] ??= []).push(conv);
   }
@@ -46,9 +49,18 @@ export function Sidebar(): JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+
   const configuredCount = keyRecords.length;
 
-  const grouped = useMemo(() => groupByDate(conversations), [conversations]);
+  const filteredConversations = useMemo(() => {
+    if (!searchQuery.trim()) return conversations;
+    const q = searchQuery.toLowerCase();
+    return conversations.filter((c) => c.title.toLowerCase().includes(q));
+  }, [conversations, searchQuery]);
+
+  const grouped = useMemo(() => groupByDate(filteredConversations), [filteredConversations]);
 
   useEffect(() => {
     if (!conversationsLoaded) {
@@ -77,22 +89,70 @@ export function Sidebar(): JSX.Element {
     <nav className={styles.sidebar} data-collapsed={sidebarCollapsed} aria-label="Sidebar">
       <div className={styles.sidebarHeader}>
         <span className={styles.appName}>BYOK Chat</span>
-        <button
-          className={styles.newChatButton}
-          aria-label="New conversation"
-          type="button"
-          onClick={handleNewChat}
-        >
-          <Plus size={18} aria-hidden="true" />
-        </button>
+        <div className={styles.headerActions}>
+          <button
+            className={styles.iconBtn}
+            aria-label="Search conversations"
+            type="button"
+            onClick={() => setSearchOpen(!searchOpen)}
+          >
+            <Search size={16} aria-hidden="true" />
+          </button>
+          <button
+            className={styles.newChatButton}
+            aria-label="New conversation"
+            type="button"
+            onClick={handleNewChat}
+          >
+            <Plus size={18} aria-hidden="true" />
+          </button>
+        </div>
       </div>
 
+      {/* Search bar */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            className={styles.searchBar}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className={styles.searchInputWrap}>
+              <Search size={14} className={styles.searchIcon} aria-hidden="true" />
+              <input
+                className={styles.searchInput}
+                type="text"
+                placeholder="Search chats…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+                aria-label="Search conversations"
+              />
+              {searchQuery && (
+                <button
+                  className={styles.searchClear}
+                  onClick={() => setSearchQuery('')}
+                  type="button"
+                  aria-label="Clear search"
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className={styles.conversationList}>
-        {conversations.length === 0 ? (
+        {filteredConversations.length === 0 ? (
           <div className={styles.emptyList}>
             <MessageSquare size={20} className={styles.emptyIcon} aria-hidden="true" />
-            <p className={styles.emptyText}>No conversations yet</p>
-            <p className={styles.emptyHint}>Start a new chat to begin</p>
+            <p className={styles.emptyText}>
+              {searchQuery ? 'No matching chats' : 'No conversations yet'}
+            </p>
+            {!searchQuery && <p className={styles.emptyHint}>Start a new chat to begin</p>}
           </div>
         ) : (
           grouped.map((group) => (
@@ -111,6 +171,13 @@ export function Sidebar(): JSX.Element {
           ))
         )}
       </div>
+
+      {/* Conversation count */}
+      {conversations.length > 0 && (
+        <div className={styles.convCount}>
+          <span>{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</span>
+        </div>
+      )}
 
       <div className={styles.sidebarFooter}>
         {user ? (

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useAutoSave } from './hooks/use-auto-save';
 import { useTheme } from './hooks/use-theme';
 import { useKeyboard } from './hooks/use-keyboard';
 import { useAppStore } from './store';
@@ -21,6 +22,7 @@ import { exportAsMarkdown, exportAsJson, downloadFile } from './engine/export-en
 function AppInner(): JSX.Element {
   useTheme();
   const { commandPaletteOpen, setCommandPaletteOpen } = useKeyboard();
+  useAutoSave();
 
   const initVault = useAppStore((s) => s.initVault);
 

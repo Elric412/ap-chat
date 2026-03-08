@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect } from 'react';
+import { type ReactNode, useEffect, useCallback } from 'react';
 import { useAppStore } from '../../store';
 import { useMediaQuery } from '../../hooks/use-media-query';
 import { CanvasPanel } from '../canvas/CanvasPanel';
@@ -32,6 +32,12 @@ export function AppShell({ sidebar, header, children }: AppShellProps): JSX.Elem
     setSidebarCollapsed(isTablet && !isMobile);
   }, [isMobile, isTablet, setSidebarOpen, setSidebarCollapsed]);
 
+  const handleOverlayClick = useCallback(() => {
+    if (isMobile && sidebarOpen) {
+      setSidebarOpen(false);
+    }
+  }, [isMobile, sidebarOpen, setSidebarOpen]);
+
   const sidebarHidden = !sidebarOpen || focusMode;
 
   return (
@@ -41,10 +47,20 @@ export function AppShell({ sidebar, header, children }: AppShellProps): JSX.Elem
         Skip to main content
       </a>
 
+      {/* Mobile sidebar overlay */}
+      {isMobile && sidebarOpen && (
+        <div
+          className={styles.sidebarOverlay}
+          onClick={handleOverlayClick}
+          aria-hidden="true"
+        />
+      )}
+
       <aside
         className={styles.sidebarRegion}
         data-collapsed={sidebarCollapsed}
         data-hidden={sidebarHidden}
+        data-mobile={isMobile}
         aria-label="Conversation sidebar"
       >
         {sidebar}
