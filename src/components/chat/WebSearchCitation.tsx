@@ -110,9 +110,9 @@ interface WebSearchCitationsProps {
 }
 
 export function WebSearchCitations({ results }: WebSearchCitationsProps): JSX.Element | null {
-  if (results.length === 0) return null;
-
   const [collapsed, setCollapsed] = useState(false);
+
+  if (results.length === 0) return null;
 
   return (
     <motion.div
