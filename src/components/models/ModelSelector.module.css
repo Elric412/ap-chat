@@ -28,7 +28,6 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  animation: slideDown var(--duration-normal) var(--ease-snap) both;
 }
 
 .searchWrapper {
