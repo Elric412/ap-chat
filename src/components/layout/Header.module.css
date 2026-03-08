@@ -237,4 +237,12 @@
     width: 34px;
     height: 34px;
   }
+
+  .searchToggle {
+    padding: var(--space-1);
+  }
+
+  .searchLabel {
+    display: none;
+  }
 }

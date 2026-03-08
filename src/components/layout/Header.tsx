@@ -90,7 +90,6 @@ export function Header(): JSX.Element {
               <span className={styles.searchDot} aria-hidden="true" />
             )}
           </button>
-        )}
 
         {/* Auto-save indicator */}
         <span className={styles.saveStatus} data-status={autoSaveStatus} title={`Auto-save: ${autoSaveStatus}`}>

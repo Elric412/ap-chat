@@ -12,9 +12,9 @@
 }
 
 .inputContainer[data-focused="true"] {
-  border-color: var(--color-border-focus);
-  box-shadow: var(--glow-input), var(--glow-secondary);
-  transform: translateY(-2px);
+  border-color: var(--color-border-2);
+  box-shadow: var(--glow-input);
+  transform: translateY(-1px);
 }
 
 .inputContainer[data-dragover="true"] {
