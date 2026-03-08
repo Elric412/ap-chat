@@ -6,7 +6,6 @@
   align-items: flex-start;
   justify-content: center;
   padding-top: calc(var(--layout-header-height) + var(--space-2));
-  animation: fadeIn var(--duration-fast) var(--ease-out) both;
 }
 
 .backdrop {
