@@ -79,8 +79,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get user's API key for this provider
-    const { data: keyRecord, error: keyError } = await supabase
+    // Get user's API key for this provider using service role (clients have no SELECT on api_keys)
+    const { data: keyRecord, error: keyError } = await serviceClient
       .from('api_keys')
       .select('encrypted_key')
       .eq('user_id', userId)
@@ -95,8 +95,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // The encrypted_key is stored as-is for now (in production, use server-side encryption)
-    // For BYOK, the user provides the key and we store it encrypted at rest by Supabase
+    // Key is read server-side only; clients cannot SELECT from api_keys
     const apiKey = keyRecord.encrypted_key;
     const endpoint = PROVIDER_ENDPOINTS[provider];
 
