@@ -57,7 +57,9 @@ export function WebSearchCitations({ results }: WebSearchCitationsProps): JSX.El
   return (
     <div className={styles.citationList} role="list" aria-label="Search citations">
       <div className={styles.citationHeader}>
-        <Globe size={14} aria-hidden="true" />
+        <span className={styles.citationHeaderIcon}>
+          <Globe size={11} aria-hidden="true" />
+        </span>
         <span>Sources ({results.length})</span>
       </div>
       {results.map((result, i) => (

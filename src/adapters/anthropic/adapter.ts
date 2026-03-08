@@ -83,6 +83,14 @@ export const anthropicAdapter: ProviderAdapter = {
       stream: true,
     };
 
+    // Web search — Anthropic web search tool (beta)
+    if (request.webSearchEnabled) {
+      body.tools = [
+        ...(body.tools as Array<Record<string, unknown>> ?? []),
+        { type: 'web_search_20250305', name: 'web_search', max_uses: 5 },
+      ];
+    }
+
     if (system) body.system = system;
     if (request.parameters.temperature !== null) body.temperature = request.parameters.temperature;
     if (request.parameters.topP !== null) body.top_p = request.parameters.topP;
