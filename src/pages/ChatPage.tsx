@@ -138,11 +138,15 @@ function ChatViewWithRoot({
   onSend,
   isStreaming,
   onAbort,
+  onApproveToolCall,
+  onDenyToolCall,
 }: {
   conversation: { id: string; rootNodeId: string };
   onSend: (text: string) => void;
   isStreaming: boolean;
   onAbort: () => void;
+  onApproveToolCall: (messageId: string, toolCallId: string) => void;
+  onDenyToolCall: (messageId: string, toolCallId: string) => void;
 }): JSX.Element {
   const loadMessages = useAppStore((s) => s.loadMessages);
 
