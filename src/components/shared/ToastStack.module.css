@@ -1,0 +1,14 @@
+.stack {
+  position: fixed;
+  bottom: var(--layout-toast-offset);
+  right: var(--layout-toast-offset);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--layout-toast-gap);
+  pointer-events: none;
+}
+
+.stack > * {
+  pointer-events: auto;
+}
