@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding: var(--space-2) var(--space-2);
+  padding: var(--space-2) var(--space-3);
   border: none;
   background: transparent;
   color: var(--color-text-2);
@@ -19,6 +19,7 @@
   text-overflow: ellipsis;
   transition: all var(--duration-fast) var(--ease-mechanical);
   margin-bottom: var(--space-0-5);
+  position: relative;
 }
 
 .sidebarItem:hover {
@@ -29,7 +30,18 @@
 .sidebarItem[data-active="true"] {
   background: var(--color-surface-selected);
   color: var(--color-text-1);
-  border-left: 2px solid var(--color-secondary);
+}
+
+.sidebarItem[data-active="true"]::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
+  background: var(--color-primary);
+  box-shadow: 0 0 8px var(--color-ai-cursor-glow);
 }
 
 .title {

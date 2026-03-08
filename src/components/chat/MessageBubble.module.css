@@ -1,14 +1,16 @@
 .bubble {
   position: relative;
-  border-radius: var(--radius-lg);
-  padding: var(--space-4) var(--space-4);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4) var(--space-5);
   margin-bottom: var(--space-4);
   animation: fadeIn var(--duration-normal) var(--ease-mechanical);
+  transition: background var(--duration-fast) var(--ease-mechanical);
 }
 
 /* Role variants */
 .bubble[data-role="user"] {
   background: var(--color-surface-user);
+  border: 1px solid hsl(0, 0%, 100%, 0.04);
 }
 
 .bubble[data-role="assistant"] {
@@ -17,7 +19,7 @@
 
 .bubble[data-role="system"] {
   background: var(--color-surface-system);
-  border-left: 1px dashed var(--color-border-1);
+  border-left: 2px dashed var(--color-border-1);
 }
 
 .bubble[data-role="tool"] {
@@ -30,12 +32,17 @@
   content: '';
   position: absolute;
   left: 0;
-  top: var(--space-3);
-  bottom: var(--space-3);
+  top: var(--space-4);
+  bottom: var(--space-4);
   width: 2px;
-  background: var(--color-text-3);
+  background: linear-gradient(to bottom, var(--color-primary), var(--color-secondary));
   border-radius: var(--radius-full);
-  opacity: 0.4;
+  opacity: 0.5;
+  transition: opacity var(--duration-fast) var(--ease-mechanical);
+}
+
+.bubble[data-role="assistant"]:hover::before {
+  opacity: 0.8;
 }
 
 /* Header */
@@ -57,13 +64,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: var(--radius-full);
-  background: var(--color-secondary);
-  color: var(--color-text-inverse);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: var(--color-text-on-primary);
   font-size: var(--text-micro);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-micro);
   line-height: 1;
   flex-shrink: 0;
@@ -194,8 +201,8 @@
   font-size: var(--text-micro);
   font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-micro);
-  padding: var(--space-0-5) var(--space-1);
-  border-radius: var(--radius-xs);
+  padding: var(--space-0-5) var(--space-2);
+  border-radius: var(--radius-full);
 }
 
 .statusBadge[data-status="error"] {
@@ -217,7 +224,7 @@
 .thinkingBlock {
   margin-top: var(--space-2);
   border: 1px solid var(--color-ai-thinking-muted);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: var(--color-ai-thinking-surface);
   overflow: hidden;
 }
@@ -257,8 +264,9 @@
 
 /* Streaming state */
 .bubble[data-status="streaming"]::before {
-  background: var(--color-ai-cursor);
+  background: linear-gradient(to bottom, var(--color-ai-cursor), var(--color-secondary));
   animation: cursorPulse 1.2s var(--ease-mechanical) infinite;
+  opacity: 1;
 }
 
 /* Artifact chips */
@@ -283,11 +291,11 @@
   border: 1px solid var(--color-secondary-muted);
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: background var(--duration-instant) var(--ease-mechanical),
-              border-color var(--duration-instant) var(--ease-mechanical);
+  transition: all var(--duration-instant) var(--ease-mechanical);
 }
 
 .artifactChip:hover {
   background: var(--color-secondary-ghost-hover);
   border-color: var(--color-secondary);
+  transform: translateY(-1px);
 }

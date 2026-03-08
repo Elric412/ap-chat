@@ -6,6 +6,20 @@
   width: 100vw;
   overflow: hidden;
   background: var(--color-surface-0);
+  position: relative;
+}
+
+/* Ambient gradient mesh */
+.shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 90%, hsl(24, 82%, 52%, 0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 20%, hsl(172, 52%, 46%, 0.03) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, hsl(262, 40%, 50%, 0.02) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .shell[data-focus-mode="true"] {
@@ -60,6 +74,8 @@
   transition: width var(--duration-normal) var(--ease-mechanical);
   overflow: hidden;
   flex-shrink: 0;
+  position: relative;
+  z-index: var(--z-sidebar);
 }
 
 .sidebarRegion[data-collapsed="true"] {
@@ -76,6 +92,7 @@
   min-width: 0;
   position: relative;
   overflow: hidden;
+  z-index: var(--z-base);
 }
 
 .contentArea {
@@ -88,6 +105,7 @@
 .canvasRegion {
   overflow: hidden;
   flex-shrink: 0;
+  z-index: var(--z-raised);
 }
 
 /* Responsive */

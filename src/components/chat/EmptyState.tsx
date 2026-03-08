@@ -11,9 +11,14 @@ export function EmptyState(): JSX.Element {
 
   return (
     <div className={styles.emptyState}>
-      <div className={styles.iconContainer}>
-        <MessageSquare size={28} aria-hidden="true" />
+      <div className={styles.orbitalContainer}>
+        <div className={styles.orbitalRing} />
+        <div className={styles.orbitalRingInner} />
+        <div className={styles.iconContainer}>
+          <MessageSquare size={24} aria-hidden="true" />
+        </div>
       </div>
+
       <h1 className={styles.title}>BYOK Chat</h1>
       <p className={styles.subtitle}>
         Multi-model AI chat with your own API keys. Select a model and start a conversation.
@@ -26,7 +31,7 @@ export function EmptyState(): JSX.Element {
           type="button"
         >
           <Key size={14} aria-hidden="true" />
-          Add your first API key to get started
+          Add your first API key
           <ArrowRight size={14} aria-hidden="true" />
         </button>
       )}
