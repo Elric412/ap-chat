@@ -1,0 +1,40 @@
+.banner {
+  overflow: hidden;
+  flex-shrink: 0;
+  z-index: var(--z-toast);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-1-5) var(--space-4);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-caption);
+}
+
+.banner[data-quality="offline"] .inner {
+  background: var(--color-error-ghost);
+  color: var(--color-error-text);
+}
+
+.banner[data-quality="poor"] .inner {
+  background: var(--color-warning-ghost);
+  color: var(--color-warning-text);
+}
+
+.label {
+  white-space: nowrap;
+}
+
+.reconnecting {
+  display: inline-flex;
+  align-items: center;
+}
+
+.hint {
+  opacity: 0.7;
+  font-size: var(--text-micro);
+}
