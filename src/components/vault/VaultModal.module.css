@@ -1,0 +1,185 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: hsl(0, 0%, 0%, 0.5);
+  z-index: var(--z-backdrop);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 18vh;
+}
+
+[data-theme="light"] .backdrop {
+  background: hsl(0, 0%, 0%, 0.2);
+}
+
+.panel {
+  background: var(--color-surface-4);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  max-width: 400px;
+  width: 90vw;
+  padding: var(--space-8);
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.lockIcon {
+  color: var(--color-text-2);
+  transition: transform var(--duration-normal) var(--ease-mechanical);
+}
+
+.lockIcon[data-unlocked="true"] {
+  transform: translateY(-3px) rotate(-15deg);
+  color: var(--color-success-text);
+}
+
+.title {
+  font-size: var(--text-h3);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-heading);
+  letter-spacing: var(--tracking-heading);
+  color: var(--color-text-1);
+  text-align: center;
+}
+
+.description {
+  font-size: var(--text-body);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-body);
+  color: var(--color-text-2);
+  text-align: center;
+}
+
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.inputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.passwordInput {
+  width: 100%;
+  height: 48px;
+  padding: 0 var(--space-12) 0 var(--space-4);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-md);
+  font-size: var(--text-body-lg);
+  font-family: var(--font-sans);
+  color: var(--color-text-1);
+  transition: border-color var(--duration-instant) var(--ease-mechanical);
+}
+
+.passwordInput::placeholder {
+  color: var(--color-text-3);
+}
+
+.passwordInput:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: var(--state-focus-ring);
+}
+
+.passwordInput[data-error="true"] {
+  border-color: var(--color-error);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+.passwordInput[data-error="true"] {
+  animation: shake 400ms var(--ease-mechanical);
+}
+
+.inputActions {
+  position: absolute;
+  right: var(--space-2);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: var(--space-1);
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color var(--duration-instant) var(--ease-mechanical);
+}
+
+.iconButton:hover {
+  color: var(--color-text-2);
+}
+
+.errorMessage {
+  font-size: var(--text-caption);
+  color: var(--color-error-text);
+  text-align: center;
+}
+
+.footerLink {
+  font-size: var(--text-caption);
+  color: var(--color-text-3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: color var(--duration-instant) var(--ease-mechanical);
+}
+
+.footerLink:hover {
+  color: var(--color-text-2);
+}
+
+.submitButton {
+  width: 100%;
+  height: 44px;
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-label);
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-sans);
+  letter-spacing: var(--tracking-label);
+  cursor: pointer;
+  transition: background var(--duration-instant) var(--ease-mechanical);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.submitButton:hover {
+  background: var(--color-primary-hover);
+}
+
+.submitButton:active {
+  background: var(--color-primary-active);
+}
+
+.submitButton:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
