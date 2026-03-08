@@ -214,13 +214,15 @@ function MermaidRenderer({ content }: { content: string }) {
 }
 
 function SVGRenderer({ content }: { content: string }) {
+  // Security: Render SVG in a sandboxed iframe to prevent XSS from LLM-generated content
+  const srcDoc = `<!DOCTYPE html><html><body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#fff">${content}</body></html>`;
   return (
-    <div className={styles.renderView}>
-      <div
-        className={styles.renderContent}
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
-    </div>
+    <iframe
+      className={styles.previewFrame}
+      srcDoc={srcDoc}
+      sandbox="allow-scripts"
+      title="SVG preview"
+    />
   );
 }
 
