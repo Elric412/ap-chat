@@ -113,6 +113,28 @@ export function Sidebar(): JSX.Element {
       </div>
 
       <div className={styles.sidebarFooter}>
+        {user ? (
+          <button
+            className={styles.footerBtn}
+            onClick={() => void signOut()}
+            type="button"
+            aria-label="Sign out"
+            title={user.email ?? 'Signed in'}
+          >
+            <User size={16} aria-hidden="true" />
+            <span>{user.email?.split('@')[0] ?? 'Account'}</span>
+          </button>
+        ) : (
+          <button
+            className={styles.footerBtn}
+            onClick={() => navigate('/auth')}
+            type="button"
+            aria-label="Sign in"
+          >
+            <LogIn size={16} aria-hidden="true" />
+            <span>Sign In</span>
+          </button>
+        )}
         <button
           className={styles.footerBtn}
           onClick={() => navigate('/settings')}
