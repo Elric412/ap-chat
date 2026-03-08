@@ -250,7 +250,11 @@ export function ChatInput({
         </div>
       )}
 
+      <label htmlFor="chat-input" className="sr-only">
+        Type your message
+      </label>
       <textarea
+        id="chat-input"
         ref={textareaRef}
         className={styles.textarea}
         value={value}
@@ -262,7 +266,12 @@ export function ChatInput({
         rows={1}
         disabled={disabled}
         aria-label="Message input"
+        aria-describedby="chat-input-hint"
+        aria-invalid={value.length > 100000}
       />
+      <span id="chat-input-hint" className="sr-only">
+        Press Enter to send, Shift+Enter for new line. Type / for slash commands.
+      </span>
 
       <div className={styles.actionBar}>
         {/* Attach button */}
