@@ -4,7 +4,10 @@ import { useAppStore } from '../store';
 import { ChatView } from '../components/chat/ChatView';
 import { EmptyState } from '../components/chat/EmptyState';
 import { ChatInput } from '../components/chat/ChatInput';
+import { ComparisonView } from '../components/comparison/ComparisonView';
+import { ComparisonSetup } from '../components/comparison/ComparisonSetup';
 import { useStream } from '../hooks/use-stream';
+import { useComparisonStream } from '../hooks/use-comparison-stream';
 import { putMessage } from '../db/messages-repo';
 import { putAttachments } from '../db/attachments-repo';
 import type { MessageNode } from '../types/messages';
@@ -51,8 +54,13 @@ export function ChatPage(): JSX.Element {
   const createConversation = useAppStore((s) => s.createConversation);
   const setActiveConversation = useAppStore((s) => s.setActiveConversation);
   const updateConversation = useAppStore((s) => s.updateConversation);
+  const comparisonMode = useAppStore((s) => s.comparisonMode);
+  const activeComparison = useAppStore((s) => s.activeComparison);
+  const comparisonModelIds = useAppStore((s) => s.comparisonModelIds);
   const { sendWithStream, abort, approveToolCall, denyToolCall } = useStream();
+  const { startParallelStreams, abortAll } = useComparisonStream();
   const [streaming, setStreaming] = useState(false);
+  const [setupOpen, setSetupOpen] = useState(false);
 
   const conversation = conversationId
     ? conversations.find((c) => c.id === conversationId)
@@ -62,82 +70,129 @@ export function ChatPage(): JSX.Element {
     if (conversationId) setActiveConversation(conversationId);
   }, [conversationId, setActiveConversation]);
 
-  /** Persist attachments to IndexedDB */
+  // Show setup modal when comparison mode is activated
+  useEffect(() => {
+    if (comparisonMode && comparisonModelIds.length < 2 && !activeComparison) {
+      setSetupOpen(true);
+    }
+  }, [comparisonMode, comparisonModelIds.length, activeComparison]);
+
   const persistAttachments = useCallback(async (attachments?: ProcessedAttachment[]) => {
     if (!attachments?.length) return;
     await putAttachments(attachments.map((pa) => pa.attachment));
   }, []);
 
-  /** Handle sending in an existing conversation */
+  /** Handle sending — routes to comparison or normal stream */
   const handleSend = useCallback(async (text: string, attachments?: ProcessedAttachment[]) => {
     if (!conversation) return;
     setStreaming(true);
     await persistAttachments(attachments);
 
-    const store = useAppStore.getState();
-    const branchMessages = store.getActiveBranchMessages();
-    const lastMsg = branchMessages[branchMessages.length - 1];
-    const parentId = lastMsg?.id ?? null;
+    if (comparisonMode && comparisonModelIds.length >= 2) {
+      // Parallel inference mode
+      await startParallelStreams(conversation.id, text);
+    } else {
+      // Normal single-model mode
+      const store = useAppStore.getState();
+      const branchMessages = store.getActiveBranchMessages();
+      const lastMsg = branchMessages[branchMessages.length - 1];
+      const parentId = lastMsg?.id ?? null;
+      await sendWithStream(conversation.id, text, parentId, conversation.rootNodeId, attachments);
 
-    await sendWithStream(conversation.id, text, parentId, conversation.rootNodeId, attachments);
-
-    if (branchMessages.length <= 1) {
-      const title = text.length > 50 ? text.slice(0, 47) + '…' : text;
-      updateConversation(conversation.id, { title });
+      if (branchMessages.length <= 1) {
+        const title = text.length > 50 ? text.slice(0, 47) + '…' : text;
+        updateConversation(conversation.id, { title });
+      }
     }
     setStreaming(false);
-  }, [conversation, sendWithStream, updateConversation, persistAttachments]);
+  }, [conversation, sendWithStream, updateConversation, persistAttachments, comparisonMode, comparisonModelIds, startParallelStreams]);
 
-  /** Handle first message — creates conversation */
   const handleFirstMessage = useCallback(async (text: string, attachments?: ProcessedAttachment[]) => {
     const conv = createConversation();
     setStreaming(true);
     await persistAttachments(attachments);
-
     await putMessage(createRootNode(conv.id, conv.rootNodeId));
     navigate(`/chat/${conv.id}`, { replace: true });
 
     setTimeout(async () => {
       const store = useAppStore.getState();
       await store.loadMessages(conv.id);
-      await sendWithStream(conv.id, text, conv.rootNodeId, conv.rootNodeId, attachments);
+
+      if (comparisonMode && comparisonModelIds.length >= 2) {
+        await startParallelStreams(conv.id, text);
+      } else {
+        await sendWithStream(conv.id, text, conv.rootNodeId, conv.rootNodeId, attachments);
+      }
+
       const title = text.length > 50 ? text.slice(0, 47) + '…' : text;
       store.updateConversation(conv.id, { title });
       setStreaming(false);
     }, 50);
-  }, [createConversation, navigate, sendWithStream, persistAttachments]);
+  }, [createConversation, navigate, sendWithStream, persistAttachments, comparisonMode, comparisonModelIds, startParallelStreams]);
 
   const handleAbort = useCallback(() => {
     abort();
+    abortAll();
     setStreaming(false);
-  }, [abort]);
+  }, [abort, abortAll]);
+
+  const handleComparisonStart = useCallback(() => {
+    setSetupOpen(false);
+  }, []);
+
+  // Show comparison view if active
+  if (activeComparison) {
+    return (
+      <div className={styles.chatView}>
+        <ComparisonView />
+        <div className={styles.inputWrapper}>
+          <div className={styles.inputInner}>
+            <ChatInput
+              onSend={conversation ? handleSend : handleFirstMessage}
+              disabled={streaming}
+              isStreaming={streaming}
+              onAbort={handleAbort}
+              conversationId={conversationId}
+            />
+          </div>
+        </div>
+        <ComparisonSetup open={setupOpen} onClose={() => setSetupOpen(false)} onStart={handleComparisonStart} />
+      </div>
+    );
+  }
 
   if (conversation) {
     return (
-      <ChatViewWithRoot
-        conversation={conversation}
-        onSend={handleSend}
-        isStreaming={streaming}
-        onAbort={handleAbort}
-        onApproveToolCall={approveToolCall}
-        onDenyToolCall={denyToolCall}
-      />
+      <>
+        <ChatViewWithRoot
+          conversation={conversation}
+          onSend={handleSend}
+          isStreaming={streaming}
+          onAbort={handleAbort}
+          onApproveToolCall={approveToolCall}
+          onDenyToolCall={denyToolCall}
+        />
+        <ComparisonSetup open={setupOpen} onClose={() => setSetupOpen(false)} onStart={handleComparisonStart} />
+      </>
     );
   }
 
   return (
-    <div className={styles.chatView}>
-      <div className={styles.messageList}>
-        <div className={styles.messageListInner}>
-          <EmptyState />
+    <>
+      <div className={styles.chatView}>
+        <div className={styles.messageList}>
+          <div className={styles.messageListInner}>
+            <EmptyState />
+          </div>
+        </div>
+        <div className={styles.inputWrapper}>
+          <div className={styles.inputInner}>
+            <ChatInput onSend={handleFirstMessage} isStreaming={streaming} onAbort={handleAbort} />
+          </div>
         </div>
       </div>
-      <div className={styles.inputWrapper}>
-        <div className={styles.inputInner}>
-          <ChatInput onSend={handleFirstMessage} isStreaming={streaming} onAbort={handleAbort} />
-        </div>
-      </div>
-    </div>
+      <ComparisonSetup open={setupOpen} onClose={() => setSetupOpen(false)} onStart={handleComparisonStart} />
+    </>
   );
 }
 
