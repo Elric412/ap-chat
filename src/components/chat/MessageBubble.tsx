@@ -82,17 +82,13 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall, styl
     }
   }, [textContent]);
 
-  const roleDescription = isUser ? 'Your message' : isAssistant ? `Response from ${message.model ?? 'assistant'}` : `${message.role} message`;
-
   return (
-    <article
+    <div
       className={styles.bubble}
       data-role={message.role}
       data-status={message.status}
       data-pinned={isPinned}
       style={style}
-      aria-label={`${roleDescription} at ${timeStr}`}
-      tabIndex={0}
     >
       <div className={styles.header}>
         <div className={styles.roleIndicator}>
@@ -258,6 +254,6 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall, styl
           />
         </div>
       )}
-    </article>
+    </div>
   );
 }

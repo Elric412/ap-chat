@@ -87,7 +87,7 @@ export function Sidebar(): JSX.Element {
         </button>
       </div>
 
-      <div className={styles.conversationList} role="navigation" aria-label="Conversations">
+      <div className={styles.conversationList}>
         {conversations.length === 0 ? (
           <div className={styles.emptyList}>
             <MessageSquare size={20} className={styles.emptyIcon} aria-hidden="true" />
@@ -96,8 +96,8 @@ export function Sidebar(): JSX.Element {
           </div>
         ) : (
           grouped.map((group) => (
-            <div key={group.label} className={styles.dateGroup} role="group" aria-label={group.label}>
-              <span className={styles.dateLabel} aria-hidden="true">{group.label}</span>
+            <div key={group.label} className={styles.dateGroup}>
+              <span className={styles.dateLabel}>{group.label}</span>
               {group.items.map((conv) => (
                 <SidebarItem
                   key={conv.id}

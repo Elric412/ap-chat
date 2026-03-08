@@ -2,7 +2,6 @@
  * CommandPalette — Cmd+K fuzzy-search command palette
  *
  * Actions: navigate, new chat, switch model, toggle theme, export, etc.
- * Accessible: focus trap, roving tabindex, aria-activedescendant, live region.
  */
 
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
@@ -15,8 +14,6 @@ import { useAppStore } from '../../store';
 import { MODEL_REGISTRY } from '../../constants/model-registry';
 import { PROVIDER_META } from '../../constants/provider-meta';
 import { useTheme } from '../../hooks/use-theme';
-import { useFocusTrap } from '../../hooks/use-focus-trap';
-import { announce } from '../../hooks/use-announcer';
 import styles from './CommandPalette.module.css';
 
 export interface CommandAction {
@@ -200,7 +197,6 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps): JSX.Elem
       setQuery('');
       setSelectedIndex(0);
       requestAnimationFrame(() => inputRef.current?.focus());
-      announce('Command palette opened. Type to search commands.');
     }
   }, [open]);
 
@@ -246,20 +242,13 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps): JSX.Elem
   }
 
   let flatIndex = -1;
-  const activeItemId = filtered[selectedIndex] ? `cmd-${filtered[selectedIndex].id}` : undefined;
 
   return (
-    <div className={styles.overlay} role="presentation">
+    <div className={styles.overlay}>
       <div className={styles.backdrop} onClick={onClose} aria-hidden="true" />
-      <div
-        className={styles.palette}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Command palette"
-        onKeyDown={handleKeyDown}
-      >
+      <div className={styles.palette} role="dialog" aria-label="Command palette" onKeyDown={handleKeyDown}>
         <div className={styles.searchRow}>
-          <Search size={16} className={styles.searchIcon} aria-hidden="true" />
+          <Search size={16} className={styles.searchIcon} />
           <input
             ref={inputRef}
             className={styles.searchInput}
@@ -268,49 +257,34 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps): JSX.Elem
             onChange={(e) => { setQuery(e.target.value); setSelectedIndex(0); }}
             placeholder="Type a command…"
             aria-label="Search commands"
-            aria-activedescendant={activeItemId}
-            aria-controls="cmd-results"
-            aria-expanded="true"
-            aria-describedby="cmd-hint"
-            role="combobox"
-            autoComplete="off"
           />
-          <span id="cmd-hint" className="sr-only">
-            Use arrow keys to navigate results, Enter to execute.
-          </span>
         </div>
-        <div className={styles.resultList} ref={listRef} id="cmd-results" role="listbox" aria-label="Command results">
+        <div className={styles.resultList} ref={listRef}>
           {filtered.length === 0 && (
-            <div className={styles.emptyResult} role="status" aria-live="polite">No matching commands</div>
+            <div className={styles.emptyResult}>No matching commands</div>
           )}
           {Array.from(grouped.entries()).map(([category, items]) => (
-            <div key={category} role="group" aria-label={category}>
-              <div className={styles.categoryLabel} aria-hidden="true">{category}</div>
+            <div key={category}>
+              <div className={styles.categoryLabel}>{category}</div>
               {items.map((item) => {
                 flatIndex++;
                 const idx = flatIndex;
                 return (
                   <button
                     key={item.id}
-                    id={`cmd-${item.id}`}
                     className={styles.resultItem}
                     data-selected={idx === selectedIndex}
                     onClick={() => { item.action(); onClose(); }}
                     onMouseEnter={() => setSelectedIndex(idx)}
                     type="button"
-                    role="option"
-                    aria-selected={idx === selectedIndex}
                   >
-                    <span className={styles.resultIcon} aria-hidden="true">{item.icon}</span>
+                    <span className={styles.resultIcon}>{item.icon}</span>
                     <span className={styles.resultLabel}>{item.label}</span>
                   </button>
                 );
               })}
             </div>
           ))}
-        </div>
-        <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
-          {filtered.length} result{filtered.length !== 1 ? 's' : ''} available
         </div>
       </div>
     </div>

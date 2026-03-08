@@ -51,11 +51,11 @@ export function AuthPage() {
           </p>
         </div>
 
-        <form className={styles.form} onSubmit={handleSubmit} aria-label={mode === 'signin' ? 'Sign in' : 'Create account'}>
+        <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <label className={styles.label} htmlFor="email">Email</label>
             <div className={styles.inputWrapper}>
-              <Mail size={16} className={styles.inputIcon} aria-hidden="true" />
+              <Mail size={16} className={styles.inputIcon} />
               <input
                 id="email"
                 type="email"
@@ -65,8 +65,6 @@ export function AuthPage() {
                 placeholder="you@example.com"
                 required
                 autoComplete="email"
-                aria-required="true"
-                aria-invalid={!!error}
               />
             </div>
           </div>
@@ -74,7 +72,7 @@ export function AuthPage() {
           <div className={styles.inputGroup}>
             <label className={styles.label} htmlFor="password">Password</label>
             <div className={styles.inputWrapper}>
-              <Lock size={16} className={styles.inputIcon} aria-hidden="true" />
+              <Lock size={16} className={styles.inputIcon} />
               <input
                 id="password"
                 type="password"
@@ -85,25 +83,20 @@ export function AuthPage() {
                 required
                 minLength={8}
                 autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-                aria-required="true"
-                aria-describedby={mode === 'signup' ? 'password-hint' : undefined}
               />
             </div>
-            {mode === 'signup' && (
-              <span id="password-hint" className="sr-only">Password must be at least 8 characters</span>
-            )}
           </div>
 
-          {error && <p className={styles.error} role="alert" aria-live="assertive">{error}</p>}
-          {success && <p className={styles.success} role="status" aria-live="polite">{success}</p>}
+          {error && <p className={styles.error}>{error}</p>}
+          {success && <p className={styles.success}>{success}</p>}
 
-          <button className={styles.submitBtn} type="submit" disabled={loading} aria-busy={loading}>
+          <button className={styles.submitBtn} type="submit" disabled={loading}>
             {loading ? (
-              <Loader2 size={18} className={styles.spinner} aria-label="Loading" />
+              <Loader2 size={18} className={styles.spinner} />
             ) : (
               <>
                 {mode === 'signin' ? 'Sign In' : 'Sign Up'}
-                <ArrowRight size={16} aria-hidden="true" />
+                <ArrowRight size={16} />
               </>
             )}
           </button>
