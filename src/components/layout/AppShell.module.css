@@ -78,12 +78,6 @@
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: calc(var(--z-sidebar) - 1);
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 .sidebarRegion {
@@ -139,13 +133,10 @@
     bottom: 0;
     z-index: var(--z-sidebar);
     width: min(var(--layout-sidebar-width), 85vw);
-    transform: translateX(0);
     box-shadow: var(--shadow-xl);
   }
 
   .sidebarRegion[data-hidden="true"] {
-    transform: translateX(-100%);
-    width: min(var(--layout-sidebar-width), 85vw);
     box-shadow: none;
   }
 

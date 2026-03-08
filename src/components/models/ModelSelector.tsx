@@ -6,6 +6,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { MODEL_REGISTRY } from '../../constants/model-registry';
 import { PROVIDER_META } from '../../constants/provider-meta';
@@ -17,12 +18,63 @@ interface ModelSelectorProps {
   onClose: () => void;
 }
 
+type Ease4 = [number, number, number, number];
+const EASE_SILK: Ease4 = [0.19, 1, 0.22, 1];
+const EASE_OUT: Ease4 = [0.16, 1, 0.3, 1];
+const EASE_SNAP: Ease4 = [0.34, 1.56, 0.64, 1];
+const EASE_MECH: Ease4 = [0.22, 0.68, 0.28, 1.0];
+
+const backdropVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.2, ease: EASE_SILK } },
+  exit: { opacity: 0, transition: { duration: 0.15 } },
+};
+
+const panelVariants = {
+  hidden: { opacity: 0, y: -16, scale: 0.96 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.35, ease: EASE_SNAP },
+  },
+  exit: {
+    opacity: 0,
+    y: -8,
+    scale: 0.97,
+    transition: { duration: 0.2, ease: EASE_MECH },
+  },
+};
+
+const mobilePanelVariants = {
+  hidden: { opacity: 0, y: 100 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: EASE_OUT },
+  },
+  exit: {
+    opacity: 0,
+    y: 60,
+    transition: { duration: 0.25, ease: EASE_MECH },
+  },
+};
+
+const groupVariants = {
+  hidden: { opacity: 0 },
+  visible: (i: number) => ({
+    opacity: 1,
+    transition: { delay: i * 0.05, duration: 0.3, ease: EASE_OUT },
+  }),
+};
+
 export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Element | null {
   const selectedModelId = useAppStore((s) => s.selectedModelId);
   const setSelectedModelId = useAppStore((s) => s.setSelectedModelId);
   const keyRecords = useAppStore((s) => s.keyRecords);
   const [search, setSearch] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
 
   const providerHasKey = useMemo(() => {
     const set = new Set<ProviderId>();
@@ -75,71 +127,112 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
     onClose();
   }, [setSelectedModelId, onClose]);
 
-  if (!open) return null;
-
   return (
-    <div className={styles.overlay}>
-      <div className={styles.backdrop} onClick={onClose} aria-hidden="true" />
-      <div className={styles.panel} role="listbox" aria-label="Model selector">
-        <div className={styles.searchWrapper}>
-          <input
-            ref={searchRef}
-            className={styles.searchInput}
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search models…"
-            aria-label="Search models"
+    <AnimatePresence>
+      {open && (
+        <div className={styles.overlay}>
+          <motion.div
+            className={styles.backdrop}
+            onClick={onClose}
+            aria-hidden="true"
+            variants={backdropVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
           />
-        </div>
-        <div className={styles.list}>
-          {grouped.size === 0 && (
-            <div className={styles.emptySearch}>No models match your search</div>
-          )}
-          {Array.from(grouped.entries()).map(([providerId, models]) => {
-            const meta = PROVIDER_META[providerId];
-            const hasKey = providerHasKey.has(providerId);
-            return (
-              <div key={providerId} className={styles.providerGroup}>
-                <div className={styles.providerLabel}>
-                  <span
-                    className={styles.providerDot}
-                    style={{ background: `var(${meta.colorVar})` }}
-                    aria-hidden="true"
-                  />
-                  {meta.displayName}
-                  {!hasKey && <span className={styles.noKey}>No key</span>}
-                </div>
-                {models.map((model) => (
-                  <button
-                    key={model.id}
-                    className={styles.modelItem}
-                    data-selected={model.id === selectedModelId}
-                    onClick={() => handleSelect(model.id)}
-                    role="option"
-                    aria-selected={model.id === selectedModelId}
-                    type="button"
+          <motion.div
+            className={styles.panel}
+            role="listbox"
+            aria-label="Model selector"
+            variants={isMobile ? mobilePanelVariants : panelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <div className={styles.searchWrapper}>
+              <input
+                ref={searchRef}
+                className={styles.searchInput}
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search models…"
+                aria-label="Search models"
+              />
+            </div>
+            <div className={styles.list}>
+              {grouped.size === 0 && (
+                <motion.div
+                  className={styles.emptySearch}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, ease: EASE_OUT }}
+                >
+                  No models match your search
+                </motion.div>
+              )}
+              {Array.from(grouped.entries()).map(([providerId, models], groupIdx) => {
+                const meta = PROVIDER_META[providerId];
+                const hasKey = providerHasKey.has(providerId);
+                return (
+                  <motion.div
+                    key={providerId}
+                    className={styles.providerGroup}
+                    custom={groupIdx}
+                    variants={groupVariants}
+                    initial="hidden"
+                    animate="visible"
                   >
-                    <div className={styles.modelInfo}>
-                      <div className={styles.modelName}>{model.displayName}</div>
-                      <div className={styles.modelMeta}>
-                        <span>{Math.round(model.contextWindow / 1000)}K ctx</span>
-                        <span>${model.pricing.inputPerMillionTokens}/M in</span>
-                      </div>
+                    <div className={styles.providerLabel}>
+                      <span
+                        className={styles.providerDot}
+                        style={{ background: `var(${meta.colorVar})` }}
+                        aria-hidden="true"
+                      />
+                      {meta.displayName}
+                      {!hasKey && <span className={styles.noKey}>No key</span>}
                     </div>
-                    <div className={styles.capDots} aria-label="Capabilities">
-                      <span className={styles.capDot} data-active={model.capabilities.supportsVision} title="Vision" />
-                      <span className={styles.capDot} data-active={model.capabilities.supportsThinking} title="Thinking" />
-                      <span className={styles.capDot} data-active={model.capabilities.supportsToolUse} title="Tools" />
-                      <span className={styles.capDot} data-active={model.capabilities.supportsWebSearch} title="Search" />
-                    </div>
-                  </button>
-                ))}
-              </div>
-            );
-          })}
+                    {models.map((model, modelIdx) => (
+                      <motion.button
+                        key={model.id}
+                        className={styles.modelItem}
+                        data-selected={model.id === selectedModelId}
+                        onClick={() => handleSelect(model.id)}
+                        role="option"
+                        aria-selected={model.id === selectedModelId}
+                        type="button"
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                          delay: groupIdx * 0.05 + modelIdx * 0.03,
+                          duration: 0.3,
+                          ease: EASE_OUT,
+                        }}
+                        whileHover={{ x: 3, transition: { duration: 0.15, ease: EASE_SNAP } }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <div className={styles.modelInfo}>
+                          <div className={styles.modelName}>{model.displayName}</div>
+                          <div className={styles.modelMeta}>
+                            <span>{Math.round(model.contextWindow / 1000)}K ctx</span>
+                            <span>${model.pricing.inputPerMillionTokens}/M in</span>
+                          </div>
+                        </div>
+                        <div className={styles.capDots} aria-label="Capabilities">
+                          <span className={styles.capDot} data-active={model.capabilities.supportsVision} title="Vision" />
+                          <span className={styles.capDot} data-active={model.capabilities.supportsThinking} title="Thinking" />
+                          <span className={styles.capDot} data-active={model.capabilities.supportsToolUse} title="Tools" />
+                          <span className={styles.capDot} data-active={model.capabilities.supportsWebSearch} title="Search" />
+                        </div>
+                      </motion.button>
+                    ))}
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }

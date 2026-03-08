@@ -72,6 +72,10 @@
 }
 
 .content {
+  overflow: hidden;
+}
+
+.contentInner {
   padding: var(--space-2) var(--space-3);
   font-size: var(--text-caption);
   font-family: var(--font-sans);
