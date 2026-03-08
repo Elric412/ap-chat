@@ -211,6 +211,7 @@ export function useStream(): UseStreamReturn {
         messages: contextMessages,
         parameters: params,
         signal: abortController.signal,
+        attachments,
       });
 
       for await (const event of generator) {

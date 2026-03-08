@@ -16,6 +16,8 @@ export interface StreamRequest {
   messages: StreamMessage[];
   parameters: InferenceParameters;
   signal?: AbortSignal;
+  /** Processed attachments for the current user message (multimodal) */
+  attachments?: import('../engine/attachment-processor').ProcessedAttachment[];
 }
 
 export interface StreamMessage {
