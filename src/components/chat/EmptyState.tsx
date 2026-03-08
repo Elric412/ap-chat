@@ -27,7 +27,7 @@ const STARTER_PROMPTS = [
   {
     icon: PenTool,
     label: 'Write',
-    prompt: 'Draft a professional email declining a meeting politely',
+    prompt: 'Draft a professional email declining a meeting',
     color: 'info' as const,
   },
 ];
