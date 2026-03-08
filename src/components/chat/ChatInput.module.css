@@ -76,3 +76,21 @@
   color: var(--color-text-3);
   letter-spacing: var(--tracking-micro);
 }
+
+.stopButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-error);
+  color: var(--color-text-on-primary);
+  cursor: pointer;
+  transition: background var(--duration-instant) var(--ease-mechanical);
+}
+
+.stopButton:hover {
+  background: var(--color-error-text);
+}
