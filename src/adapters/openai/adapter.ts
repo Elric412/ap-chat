@@ -80,6 +80,14 @@ export const openaiAdapter: ProviderAdapter = {
     if (request.parameters.stopSequences.length > 0) body.stop = request.parameters.stopSequences;
     if (request.parameters.responseFormat === 'json') body.response_format = { type: 'json_object' };
 
+    // Web search — OpenAI web_search_preview tool
+    if (request.webSearchEnabled) {
+      body.tools = [
+        ...(body.tools as Array<Record<string, unknown>> ?? []),
+        { type: 'web_search_preview' },
+      ];
+    }
+
     // Thinking (o-series models)
     if (request.parameters.thinkingEnabled) {
       body.reasoning_effort = request.parameters.thinkingLevel;
@@ -156,6 +164,25 @@ export const openaiAdapter: ProviderAdapter = {
             // Text content
             if (delta?.content && typeof delta.content === 'string') {
               yield { type: 'delta_text', content: delta.content };
+            }
+
+            // Annotations (web_search_preview citations)
+            const annotations = delta?.annotations as Array<Record<string, unknown>> | undefined;
+            if (annotations) {
+              for (const ann of annotations) {
+                if (ann.type === 'url_citation') {
+                  yield {
+                    type: 'citation',
+                    citation: {
+                      url: (ann.url as string) ?? '',
+                      title: (ann.title as string) ?? '',
+                      snippet: '',
+                      source: (ann.url as string) ?? '',
+                      fetchedAt: Date.now(),
+                    },
+                  };
+                }
+              }
             }
 
             // Reasoning/thinking content (o-series)

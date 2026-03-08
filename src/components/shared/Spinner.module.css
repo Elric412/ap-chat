@@ -16,7 +16,7 @@
   border-radius: var(--radius-full);
   border: 2px solid transparent;
   border-top-color: var(--color-primary);
-  animation: radarSweep 1.4s var(--ease-mechanical-in-out) infinite;
+  animation: radarSweep 1s var(--ease-mechanical-in-out) infinite;
 }
 
 .dot {
@@ -28,4 +28,5 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  box-shadow: 0 0 4px var(--color-ai-cursor-glow);
 }

@@ -73,6 +73,14 @@ export const googleAdapter: ProviderAdapter = {
 
     if (systemInstruction) body.systemInstruction = systemInstruction;
 
+    // Web search — Google Search grounding
+    if (request.webSearchEnabled) {
+      body.tools = [
+        ...(body.tools as Array<Record<string, unknown>> ?? []),
+        { googleSearch: {} },
+      ];
+    }
+
     const generationConfig: Record<string, unknown> = {};
     if (request.parameters.temperature !== null) generationConfig.temperature = request.parameters.temperature;
     if (request.parameters.topP !== null) generationConfig.topP = request.parameters.topP;

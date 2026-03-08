@@ -234,12 +234,15 @@ export function useStream(): UseStreamReturn {
     const accumulatedCitations: WebSearchResult[] = [];
 
     try {
+      const webSearchEnabled = useAppStore.getState().webSearchEnabled;
+
       const generator = adapter.stream(apiKey, {
         model: model.id,
         messages: contextMessages,
         parameters: params,
         signal: abortController.signal,
         attachments,
+        webSearchEnabled,
       });
 
       for await (const event of generator) {

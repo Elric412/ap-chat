@@ -18,6 +18,8 @@ export interface StreamRequest {
   signal?: AbortSignal;
   /** Processed attachments for the current user message (multimodal) */
   attachments?: import('../engine/attachment-processor').ProcessedAttachment[];
+  /** Whether to enable web search / grounding for this request */
+  webSearchEnabled?: boolean;
 }
 
 export interface StreamMessage {

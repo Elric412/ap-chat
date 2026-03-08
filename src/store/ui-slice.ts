@@ -17,6 +17,7 @@ export interface UISlice {
   selectedModelId: string;
   inferenceParams: InferenceParameters;
   contextConfig: ContextConfig;
+  webSearchEnabled: boolean;
 
   setTheme: (theme: ThemeMode) => void;
   setResolvedTheme: (resolved: ResolvedTheme) => void;
@@ -32,6 +33,8 @@ export interface UISlice {
   setInferenceParams: (params: InferenceParameters) => void;
   setContextConfig: (config: Partial<ContextConfig>) => void;
   setContextStrategy: (strategy: ContextStrategy) => void;
+  setWebSearchEnabled: (enabled: boolean) => void;
+  toggleWebSearch: () => void;
 }
 
 const STORAGE_KEYS = {
@@ -67,6 +70,7 @@ export const createUISlice: StateCreator<UISlice, [['zustand/immer', never]], []
   selectedModelId: 'claude-sonnet-4-6-20260301',
   inferenceParams: { ...DEFAULT_PARAMETERS },
   contextConfig: { ...DEFAULT_CONTEXT_CONFIG },
+  webSearchEnabled: false,
 
   setTheme: (theme) => {
     try { localStorage.setItem(STORAGE_KEYS.theme, theme); } catch { /* noop */ }
@@ -97,4 +101,6 @@ export const createUISlice: StateCreator<UISlice, [['zustand/immer', never]], []
   setContextStrategy: (strategy) => set((state) => {
     state.contextConfig.strategy = strategy;
   }),
+  setWebSearchEnabled: (enabled) => set((state) => { state.webSearchEnabled = enabled; }),
+  toggleWebSearch: () => set((state) => { state.webSearchEnabled = !state.webSearchEnabled; }),
 });

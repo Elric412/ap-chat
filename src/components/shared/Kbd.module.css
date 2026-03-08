@@ -2,17 +2,25 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: var(--space-0-5) var(--space-1);
-  min-width: 20px;
-  height: 20px;
+  padding: var(--space-0-5) var(--space-1-5);
+  min-width: 22px;
+  height: 22px;
   font-family: var(--font-sans);
   font-size: var(--text-micro);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-micro);
   line-height: 1;
   color: var(--color-text-3);
   background: var(--color-surface-2);
   border: 1px solid var(--color-border-1);
-  border-radius: var(--radius-xs);
-  box-shadow: 0 1px 0 var(--color-border-1);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 0 var(--color-border-1), inset 0 1px 0 hsl(0, 0%, 100%, 0.04);
+  transition: all var(--duration-instant) var(--ease-mechanical);
+}
+
+.kbd:hover {
+  background: var(--color-surface-3);
+  border-color: var(--color-border-2);
+  color: var(--color-text-2);
 }
