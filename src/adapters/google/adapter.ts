@@ -2,7 +2,7 @@
  * Google Gemini Provider Adapter
  * 
  * Streams completions from the Gemini REST API using SSE.
- * Handles thinking blocks and grounding/search results.
+ * Handles thinking blocks, grounding/search results, and function calls.
  */
 
 import type { ProviderAdapter, StreamRequest, StreamMessage } from '../types';
@@ -126,6 +126,7 @@ export const googleAdapter: ProviderAdapter = {
 
             if (parts) {
               for (const part of parts) {
+                // Text content
                 if (typeof part.text === 'string') {
                   if (part.thought === true) {
                     yield { type: 'delta_thinking', content: part.text };
@@ -133,6 +134,49 @@ export const googleAdapter: ProviderAdapter = {
                     yield { type: 'delta_text', content: part.text };
                   }
                 }
+
+                // Function calls
+                const fnCall = part.functionCall as Record<string, unknown> | undefined;
+                if (fnCall) {
+                  yield {
+                    type: 'tool_call',
+                    toolCall: {
+                      id: (fnCall.name as string) ?? '',
+                      toolName: (fnCall.name as string) ?? '',
+                      arguments: (fnCall.args as Record<string, unknown>) ?? {},
+                      status: 'pending_approval',
+                    },
+                  };
+                }
+              }
+            }
+
+            // Grounding metadata — extract search citations
+            const groundingMeta = candidate.groundingMetadata as Record<string, unknown> | undefined;
+            if (groundingMeta) {
+              const chunks = groundingMeta.groundingChunks as Array<Record<string, unknown>> | undefined;
+              if (chunks) {
+                for (const chunk of chunks) {
+                  const web = chunk.web as Record<string, unknown> | undefined;
+                  if (web?.uri) {
+                    yield {
+                      type: 'citation',
+                      citation: {
+                        url: web.uri as string,
+                        title: (web.title as string) ?? '',
+                        snippet: '',
+                        source: web.uri as string,
+                        fetchedAt: Date.now(),
+                      },
+                    };
+                  }
+                }
+              }
+
+              // Search entry point (rendered as search suggestion in grounding)
+              const searchEntryPoint = groundingMeta.searchEntryPoint as Record<string, unknown> | undefined;
+              if (searchEntryPoint?.renderedContent) {
+                // We note the search was performed but don't render the HTML
               }
             }
           }

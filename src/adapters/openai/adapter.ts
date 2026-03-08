@@ -3,6 +3,7 @@
  * 
  * Streams completions from OpenAI-compatible APIs using SSE.
  * Normalizes delta events into NormalizedStreamEvent.
+ * Handles tool calls (function calling) and web search.
  */
 
 import type { ProviderAdapter, StreamRequest, StreamMessage } from '../types';
@@ -83,6 +84,9 @@ export const openaiAdapter: ProviderAdapter = {
     const decoder = new TextDecoder();
     let buffer = '';
 
+    // Tool call accumulation state
+    const pendingToolCalls = new Map<number, { id: string; name: string; args: string }>();
+
     try {
       while (true) {
         const { done, value } = await reader.read();
@@ -100,6 +104,20 @@ export const openaiAdapter: ProviderAdapter = {
 
           const data = line.slice(6).trim();
           if (data === '[DONE]') {
+            // Emit any accumulated tool calls
+            for (const [, tc] of pendingToolCalls) {
+              let parsedArgs: Record<string, unknown> = {};
+              try { parsedArgs = JSON.parse(tc.args); } catch { /* keep empty */ }
+              yield {
+                type: 'tool_call',
+                toolCall: {
+                  id: tc.id,
+                  toolName: tc.name,
+                  arguments: parsedArgs,
+                  status: 'pending_approval',
+                },
+              };
+            }
             yield { type: 'message_end' };
             return;
           }
@@ -111,12 +129,39 @@ export const openaiAdapter: ProviderAdapter = {
 
           if (choice) {
             const delta = choice.delta as Record<string, unknown> | undefined;
+
+            // Text content
             if (delta?.content && typeof delta.content === 'string') {
               yield { type: 'delta_text', content: delta.content };
             }
+
             // Reasoning/thinking content (o-series)
             if (delta?.reasoning_content && typeof delta.reasoning_content === 'string') {
               yield { type: 'delta_thinking', content: delta.reasoning_content };
+            }
+
+            // Tool calls (function calling)
+            const toolCalls = delta?.tool_calls as Array<Record<string, unknown>> | undefined;
+            if (toolCalls) {
+              for (const tc of toolCalls) {
+                const index = tc.index as number;
+                const fnObj = tc.function as Record<string, unknown> | undefined;
+
+                if (!pendingToolCalls.has(index)) {
+                  pendingToolCalls.set(index, {
+                    id: (tc.id as string) ?? '',
+                    name: (fnObj?.name as string) ?? '',
+                    args: '',
+                  });
+                }
+
+                const existing = pendingToolCalls.get(index)!;
+                if (tc.id && typeof tc.id === 'string') existing.id = tc.id;
+                if (fnObj?.name && typeof fnObj.name === 'string') existing.name = fnObj.name;
+                if (fnObj?.arguments && typeof fnObj.arguments === 'string') {
+                  existing.args += fnObj.arguments;
+                }
+              }
             }
           }
 
