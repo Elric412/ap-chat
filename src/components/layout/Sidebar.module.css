@@ -12,9 +12,15 @@
   align-items: center;
   justify-content: space-between;
   height: var(--layout-header-height);
-  padding: 0 var(--space-4);
+  padding: 0 var(--space-3) 0 var(--space-4);
   flex-shrink: 0;
   border-bottom: 1px solid var(--color-border-1);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
 }
 
 .appName {
@@ -29,6 +35,26 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+  flex-shrink: 0;
+}
+
+.iconBtn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-1);
 }
 
 .newChatButton {
@@ -58,10 +84,76 @@
   transform: scale(0.95) rotate(90deg);
 }
 
+/* ── Search ── */
+.searchBar {
+  overflow: hidden;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--color-border-1);
+}
+
+.searchInputWrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  margin: var(--space-2) var(--space-3);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--duration-fast) var(--ease-mechanical);
+}
+
+.searchInputWrap:focus-within {
+  border-color: var(--color-border-focus);
+}
+
+.searchIcon {
+  flex-shrink: 0;
+  color: var(--color-text-3);
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--color-text-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  outline: none;
+  min-width: 0;
+}
+
+.searchInput::placeholder {
+  color: var(--color-text-3);
+  opacity: 0.7;
+}
+
+.searchClear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: var(--color-surface-3);
+  color: var(--color-text-3);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+}
+
+.searchClear:hover {
+  background: var(--color-surface-4);
+  color: var(--color-text-1);
+}
+
 .conversationList {
   flex: 1;
   overflow-y: auto;
   padding: var(--space-2);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-3) transparent;
 }
 
 /* ── Date grouping ── */
@@ -112,6 +204,18 @@
   opacity: 0.6;
 }
 
+/* ── Conversation count ── */
+.convCount {
+  padding: var(--space-1) var(--space-4);
+  font-size: var(--text-micro);
+  font-family: var(--font-mono);
+  color: var(--color-text-3);
+  opacity: 0.6;
+  text-align: center;
+  flex-shrink: 0;
+  border-top: 1px solid var(--color-border-1);
+}
+
 /* ── Footer ── */
 .sidebarFooter {
   border-top: 1px solid var(--color-border-1);
@@ -160,12 +264,19 @@
 .sidebar[data-collapsed="true"] .appName,
 .sidebar[data-collapsed="true"] .emptyList,
 .sidebar[data-collapsed="true"] .footerBtn span,
-.sidebar[data-collapsed="true"] .dateLabel {
+.sidebar[data-collapsed="true"] .dateLabel,
+.sidebar[data-collapsed="true"] .searchBar,
+.sidebar[data-collapsed="true"] .convCount,
+.sidebar[data-collapsed="true"] .iconBtn {
   display: none;
 }
 
 .sidebar[data-collapsed="true"] .sidebarHeader {
   justify-content: center;
+}
+
+.sidebar[data-collapsed="true"] .headerActions {
+  gap: 0;
 }
 
 .sidebar[data-collapsed="true"] .footerBtn {
@@ -174,4 +285,25 @@
 
 .sidebar[data-collapsed="true"] .sidebarFooter {
   flex-direction: column;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .sidebarHeader {
+    padding: 0 var(--space-3);
+  }
+  
+  .conversationList {
+    padding: var(--space-1);
+  }
+  
+  .sidebarFooter {
+    padding: var(--space-2);
+    flex-wrap: wrap;
+  }
+  
+  .footerBtn {
+    padding: var(--space-2);
+    font-size: var(--text-micro);
+  }
 }

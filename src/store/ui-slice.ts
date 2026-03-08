@@ -5,6 +5,8 @@ import type { ContextConfig, ContextStrategy } from '../engine/context-engine';
 import { DEFAULT_PARAMETERS } from '../constants/default-parameters';
 import { DEFAULT_CONTEXT_CONFIG } from '../engine/context-engine';
 
+export type AutoSaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+
 export interface UISlice {
   theme: ThemeMode;
   resolvedTheme: ResolvedTheme;
@@ -18,6 +20,7 @@ export interface UISlice {
   inferenceParams: InferenceParameters;
   contextConfig: ContextConfig;
   webSearchEnabled: boolean;
+  autoSaveStatus: AutoSaveStatus;
 
   setTheme: (theme: ThemeMode) => void;
   setResolvedTheme: (resolved: ResolvedTheme) => void;
@@ -35,6 +38,7 @@ export interface UISlice {
   setContextStrategy: (strategy: ContextStrategy) => void;
   setWebSearchEnabled: (enabled: boolean) => void;
   toggleWebSearch: () => void;
+  setAutoSaveStatus: (status: AutoSaveStatus) => void;
 }
 
 const STORAGE_KEYS = {
@@ -71,6 +75,7 @@ export const createUISlice: StateCreator<UISlice, [['zustand/immer', never]], []
   inferenceParams: { ...DEFAULT_PARAMETERS },
   contextConfig: { ...DEFAULT_CONTEXT_CONFIG },
   webSearchEnabled: false,
+  autoSaveStatus: 'idle',
 
   setTheme: (theme) => {
     try { localStorage.setItem(STORAGE_KEYS.theme, theme); } catch { /* noop */ }
@@ -103,4 +108,5 @@ export const createUISlice: StateCreator<UISlice, [['zustand/immer', never]], []
   }),
   setWebSearchEnabled: (enabled) => set((state) => { state.webSearchEnabled = enabled; }),
   toggleWebSearch: () => set((state) => { state.webSearchEnabled = !state.webSearchEnabled; }),
+  setAutoSaveStatus: (status) => set((state) => { state.autoSaveStatus = status; }),
 });
