@@ -81,6 +81,11 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
         />
       )}
 
+      {/* Attachment indicators (user messages) */}
+      {isUser && message.attachmentIds.length > 0 && (
+        <AttachmentChips attachmentIds={message.attachmentIds} content={message.content} />
+      )}
+
       {/* Main text content */}
       <div className={styles.content}>
         {textContent}
