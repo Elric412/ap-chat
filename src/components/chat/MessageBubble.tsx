@@ -105,6 +105,23 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
         <WebSearchCitations results={message.webSearchResults} />
       )}
 
+      {/* Artifact chips */}
+      {hasArtifacts && (
+        <div className={styles.artifactChips}>
+          {message.artifactRefs.map((refId) => (
+            <button
+              key={refId}
+              className={styles.artifactChip}
+              onClick={() => handleViewArtifact(refId)}
+              type="button"
+            >
+              <Code2 size={12} aria-hidden="true" />
+              View artifact
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Footer with token/cost metadata */}
       {isAssistant && !isStreaming && (
         <div className={styles.footer}>
