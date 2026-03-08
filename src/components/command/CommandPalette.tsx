@@ -200,6 +200,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps): JSX.Elem
       setQuery('');
       setSelectedIndex(0);
       requestAnimationFrame(() => inputRef.current?.focus());
+      announce('Command palette opened. Type to search commands.');
     }
   }, [open]);
 
