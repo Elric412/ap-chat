@@ -123,13 +123,15 @@ export const openaiAdapter: ProviderAdapter = {
           // Usage in final chunk
           const usage = parsed.usage as Record<string, number> | undefined;
           if (usage) {
+            const completionDetails = usage.completion_tokens_details as Record<string, number> | undefined;
+            const promptDetails = usage.prompt_tokens_details as Record<string, number> | undefined;
             yield {
               type: 'usage',
               usage: {
                 inputTokens: usage.prompt_tokens ?? 0,
                 outputTokens: usage.completion_tokens ?? 0,
-                thinkingTokens: usage.reasoning_tokens ?? usage.completion_tokens_details?.reasoning_tokens ?? 0,
-                cachedTokens: usage.prompt_tokens_details?.cached_tokens ?? 0,
+                thinkingTokens: completionDetails?.reasoning_tokens ?? 0,
+                cachedTokens: promptDetails?.cached_tokens ?? 0,
                 totalTokens: usage.total_tokens ?? 0,
               },
             };
