@@ -134,7 +134,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   // ── Anthropic ──
   // ═══════════════════════════════════════════
   {
-    id: 'claude-opus-4-6-20260301',
+    id: 'claude-opus-4-6',
     providerId: 'anthropic',
     displayName: 'Claude Opus 4.6',
     family: 'Claude',
