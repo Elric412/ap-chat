@@ -93,8 +93,12 @@ export const anthropicAdapter: ProviderAdapter = {
     }
 
     if (system) body.system = system;
-    if (request.parameters.temperature !== null) body.temperature = request.parameters.temperature;
-    if (request.parameters.topP !== null) body.top_p = request.parameters.topP;
+    // Anthropic: temperature and top_p are mutually exclusive
+    if (request.parameters.temperature !== null) {
+      body.temperature = request.parameters.temperature;
+    } else if (request.parameters.topP !== null) {
+      body.top_p = request.parameters.topP;
+    }
     if (request.parameters.topK !== null) body.top_k = request.parameters.topK;
     if (request.parameters.stopSequences.length > 0) body.stop_sequences = request.parameters.stopSequences;
 
