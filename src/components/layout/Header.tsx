@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ChevronDown, Settings, SlidersHorizontal, Square } from 'lucide-react';
+import { ChevronDown, Settings, SlidersHorizontal, PanelRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../store';
 import { MODEL_REGISTRY } from '../../constants/model-registry';
@@ -12,6 +12,8 @@ export function Header(): JSX.Element {
   const selectedModelId = useAppStore((s) => s.selectedModelId);
   const paramDrawerOpen = useAppStore((s) => s.paramDrawerOpen);
   const setParamDrawerOpen = useAppStore((s) => s.setParamDrawerOpen);
+  const canvasOpen = useAppStore((s) => s.canvasOpen);
+  const toggleCanvas = useAppStore((s) => s.toggleCanvas);
   const navigate = useNavigate();
 
   const model = MODEL_REGISTRY.find((m) => m.id === selectedModelId);
@@ -40,6 +42,15 @@ export function Header(): JSX.Element {
         </button>
         <span className={styles.statusText}>Ready</span>
         <div className={styles.spacer} />
+        <button
+          className={styles.headerAction}
+          type="button"
+          aria-label="Toggle canvas"
+          data-active={canvasOpen}
+          onClick={toggleCanvas}
+        >
+          <PanelRight size={18} aria-hidden="true" />
+        </button>
         <button
           className={styles.headerAction}
           type="button"
