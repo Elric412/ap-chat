@@ -51,6 +51,7 @@ export function AppShell({ sidebar, header, children }: AppShellProps): JSX.Elem
       </aside>
 
       <div className={styles.mainRegion} role="main" id="main-content">
+        <NetworkBanner />
         {!focusMode && header}
         <div className={styles.contentArea}>
           {children}
