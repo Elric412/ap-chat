@@ -16,13 +16,18 @@ interface ToolCallCardProps {
   onDeny: (id: string) => void;
 }
 
+type Ease4 = [number, number, number, number];
+const EASE_OUT: Ease4 = [0.16, 1, 0.3, 1];
+const EASE_SNAP: Ease4 = [0.34, 1.56, 0.64, 1];
+const EASE_SILK: Ease4 = [0.19, 1, 0.22, 1];
+
 const cardVariants = {
   hidden: { opacity: 0, y: 12, scale: 0.96 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.4, ease: EASE_OUT },
   },
 };
 
@@ -31,7 +36,7 @@ const badgeVariants = {
   animate: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.3, ease: [0.34, 1.56, 0.64, 1] },
+    transition: { duration: 0.3, ease: EASE_SNAP },
   },
   exit: {
     opacity: 0,
