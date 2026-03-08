@@ -93,7 +93,7 @@ export function Header(): JSX.Element {
           <span className={styles.modelName}>{model?.displayName ?? 'Select model'}</span>
           <motion.span
             animate={{ rotate: selectorOpen ? 180 : 0 }}
-            transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
+            transition={{ duration: 0.25, ease: EASE_SNAP }}
           >
             <ChevronDown size={14} className={styles.chevron} aria-hidden="true" />
           </motion.span>
