@@ -17,6 +17,7 @@ export interface UISlice {
   selectedModelId: string;
   inferenceParams: InferenceParameters;
   contextConfig: ContextConfig;
+  webSearchEnabled: boolean;
 
   setTheme: (theme: ThemeMode) => void;
   setResolvedTheme: (resolved: ResolvedTheme) => void;
@@ -32,6 +33,8 @@ export interface UISlice {
   setInferenceParams: (params: InferenceParameters) => void;
   setContextConfig: (config: Partial<ContextConfig>) => void;
   setContextStrategy: (strategy: ContextStrategy) => void;
+  setWebSearchEnabled: (enabled: boolean) => void;
+  toggleWebSearch: () => void;
 }
 
 const STORAGE_KEYS = {
