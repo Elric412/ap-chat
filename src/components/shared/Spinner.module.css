@@ -1,0 +1,31 @@
+.spinner {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring {
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-border-2);
+}
+
+.sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  border-top-color: var(--color-primary);
+  animation: radarSweep 1.4s var(--ease-mechanical-in-out) infinite;
+}
+
+.dot {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

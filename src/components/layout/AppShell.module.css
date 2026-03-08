@@ -1,0 +1,65 @@
+.shell {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--color-surface-0);
+}
+
+.shell[data-focus-mode="true"] {
+  grid-template-columns: 1fr;
+}
+
+.sidebarRegion {
+  width: var(--layout-sidebar-width);
+  transition: width var(--duration-normal) var(--ease-mechanical);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sidebarRegion[data-collapsed="true"] {
+  width: var(--layout-sidebar-collapsed);
+}
+
+.sidebarRegion[data-hidden="true"] {
+  width: 0;
+}
+
+.mainRegion {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.contentArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebarRegion {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: var(--z-sidebar);
+    width: var(--layout-sidebar-width);
+  }
+
+  .sidebarRegion[data-hidden="true"] {
+    transform: translateX(-100%);
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .sidebarRegion {
+    width: var(--layout-sidebar-collapsed);
+  }
+}

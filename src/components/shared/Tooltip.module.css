@@ -1,0 +1,30 @@
+.tooltipTrigger {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltipContent {
+  position: absolute;
+  bottom: calc(100% + var(--space-1));
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-surface-4);
+  color: var(--color-text-1);
+  font-size: var(--text-micro);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-micro);
+  line-height: var(--leading-caption);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-mechanical);
+  z-index: var(--z-dropdown);
+}
+
+.tooltipTrigger:hover .tooltipContent,
+.tooltipTrigger:focus-within .tooltipContent {
+  opacity: 1;
+}
