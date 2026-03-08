@@ -7,6 +7,8 @@
  */
 
 import { useRef, useCallback } from 'react';
+import type { ProcessedAttachment } from '../engine/attachment-processor';
+import { attachmentToContentPart, buildMultimodalContent } from '../engine/attachment-processor';
 import { useAppStore } from '../store';
 import { getAdapter } from '../adapters/registry';
 import { getDecryptedKey } from '../vault/vault-manager';
