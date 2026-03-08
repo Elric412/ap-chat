@@ -9,6 +9,11 @@ import { ArrowDown } from 'lucide-react';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import styles from './ChatView.module.css';
 
+type Ease4 = [number, number, number, number];
+const EASE_SILK: Ease4 = [0.19, 1, 0.22, 1];
+const EASE_OUT: Ease4 = [0.16, 1, 0.3, 1];
+const EASE_SNAP: Ease4 = [0.34, 1.56, 0.64, 1];
+
 interface ChatViewProps {
   conversationId: string;
   rootNodeId: string;
