@@ -44,6 +44,7 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
 
   return (
     <div className={styles.chatView}>
+      <ContextBar />
       <div className={styles.messageList} ref={scrollRef}>
         <div className={styles.messageListInner}>
           {visibleMessages.length === 0 ? (
