@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Plus, Trash2, Lock, Key } from 'lucide-react';
+import { Plus, Trash2, Lock, Key, ShieldCheck, RefreshCw } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { PROVIDER_META } from '../../constants/provider-meta';
 import { PROVIDER_IDS, type ProviderId } from '../../types/models';
@@ -13,6 +13,8 @@ export function KeyManagement(): JSX.Element {
   const addKey = useAppStore((s) => s.addKey);
   const removeKey = useAppStore((s) => s.removeKey);
   const lockVault = useAppStore((s) => s.lockVault);
+  const verifyKey = useAppStore((s) => s.verifyKey);
+  const verifyingKey = useAppStore((s) => s.verifyingKey);
   const addToast = useAppStore((s) => s.addToast);
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -39,13 +41,11 @@ export function KeyManagement(): JSX.Element {
       return;
     }
 
-    // Security: Limit key length to prevent abuse
     if (trimmedKey.length > 500) {
       setValidationError('API key is too long (max 500 characters)');
       return;
     }
 
-    // Security: Block keys that look like they contain scripts or injection
     if (/<script|javascript:|on\w+=/i.test(trimmedKey)) {
       setValidationError('Invalid characters detected in API key');
       return;
@@ -59,15 +59,35 @@ export function KeyManagement(): JSX.Element {
 
     setSaving(true);
     try {
-      await addKey(selectedProvider, keyValue.trim());
-      addToast({
-        type: 'success',
-        title: `${meta.displayName} key added`,
-        description: 'API key encrypted and stored securely.',
-        dismissible: true,
-      });
+      await addKey(selectedProvider, trimmedKey);
       setKeyValue('');
       setShowAddForm(false);
+
+      // Auto-verify the key right after saving
+      addToast({
+        type: 'info',
+        title: `Verifying ${meta.displayName} key…`,
+        description: 'Connecting to provider to validate your API key.',
+        dismissible: true,
+      });
+
+      const result = await verifyKey(selectedProvider);
+
+      if (result === 'healthy') {
+        addToast({
+          type: 'success',
+          title: `${meta.displayName} connected successfully`,
+          description: 'API key is valid and working.',
+          dismissible: true,
+        });
+      } else {
+        addToast({
+          type: 'error',
+          title: `${meta.displayName} key invalid`,
+          description: 'Could not authenticate with this API key. Please check it and try again.',
+          dismissible: true,
+        });
+      }
     } catch {
       setValidationError('Failed to encrypt and store key');
     } finally {
@@ -75,9 +95,29 @@ export function KeyManagement(): JSX.Element {
     }
   };
 
+  const handleVerifyKey = async (providerId: ProviderId): Promise<void> => {
+    const meta = PROVIDER_META[providerId];
+    const result = await verifyKey(providerId);
+
+    if (result === 'healthy') {
+      addToast({
+        type: 'success',
+        title: `${meta.displayName} connected`,
+        description: 'API key verified successfully.',
+        dismissible: true,
+      });
+    } else {
+      addToast({
+        type: 'error',
+        title: `${meta.displayName} verification failed`,
+        description: 'API key is invalid or expired. Please replace it.',
+        dismissible: true,
+      });
+    }
+  };
+
   const handleRemoveKey = async (providerId: ProviderId): Promise<void> => {
     const meta = PROVIDER_META[providerId];
-    // Security: Confirm destructive action
     if (!window.confirm(`Remove ${meta.displayName} API key? This cannot be undone.`)) return;
     await removeKey(providerId);
     addToast({
@@ -112,6 +152,7 @@ export function KeyManagement(): JSX.Element {
       <div className={styles.providerList}>
         {keyRecords.map((record) => {
           const meta = PROVIDER_META[record.providerId];
+          const isVerifying = verifyingKey === record.providerId;
           return (
             <div key={record.providerId} className={styles.providerRow}>
               <span
@@ -122,9 +163,21 @@ export function KeyManagement(): JSX.Element {
               <span className={styles.providerName}>{meta.displayName}</span>
               <span className={styles.keyHint}>{record.displayHint}</span>
               <span className={styles.statusBadge} data-status={record.healthStatus}>
+                {record.healthStatus === 'healthy' && <ShieldCheck size={12} />}
                 {record.healthStatus}
               </span>
               <div className={styles.actions}>
+                <button
+                  className={styles.actionButton}
+                  data-variant="verify"
+                  onClick={() => handleVerifyKey(record.providerId)}
+                  disabled={isVerifying}
+                  aria-label={`Verify ${meta.displayName} key`}
+                  title="Verify API key"
+                  type="button"
+                >
+                  {isVerifying ? <Spinner size={14} /> : <RefreshCw size={14} aria-hidden="true" />}
+                </button>
                 <button
                   className={styles.actionButton}
                   data-variant="danger"
@@ -154,7 +207,6 @@ export function KeyManagement(): JSX.Element {
                 {unconfiguredProviders.map(([id, meta]) => (
                   <option key={id} value={id}>{meta.displayName}</option>
                 ))}
-                {/* Allow re-adding existing providers (will overwrite) */}
                 {PROVIDER_LIST.filter(([id]) => configuredProviders.has(id)).map(([id, meta]) => (
                   <option key={id} value={id}>{meta.displayName} (replace)</option>
                 ))}
@@ -188,8 +240,8 @@ export function KeyManagement(): JSX.Element {
                 className={styles.saveButton}
                 disabled={!keyValue || saving}
               >
-                {saving ? <Spinner size={14} /> : null}
-                Encrypt &amp; Save
+                {saving ? <Spinner size={14} /> : <ShieldCheck size={14} />}
+                Encrypt, Save &amp; Verify
               </button>
             </div>
           </form>
