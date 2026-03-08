@@ -142,13 +142,23 @@ export function useStream(): UseStreamReturn {
     const actualParentId = parentId ?? rootNodeId;
     const now = Date.now();
 
+    // Build user content with attachments
     const userContent: ContentPart[] = [{ type: 'text', text }];
+    const attachmentIds: string[] = [];
+    if (attachments?.length) {
+      for (const pa of attachments) {
+        userContent.push(attachmentToContentPart(pa));
+        attachmentIds.push(pa.attachment.id);
+      }
+    }
+
     const userNode = createMessageNode({
       id: userNodeId,
       conversationId,
       parentId: actualParentId,
       role: 'user',
       content: userContent,
+      attachmentIds,
       timestamp: now,
     });
 
