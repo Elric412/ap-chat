@@ -22,8 +22,10 @@ export function SidebarItem({
 
   const handleDelete = useCallback((e: MouseEvent) => {
     e.stopPropagation();
+    // Security: Confirm before deleting
+    if (!window.confirm(`Delete "${conversation.title}"? This cannot be undone.`)) return;
     onDelete(conversation.id);
-  }, [conversation.id, onDelete]);
+  }, [conversation.id, conversation.title, onDelete]);
 
   return (
     <button

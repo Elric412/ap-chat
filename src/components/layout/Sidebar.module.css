@@ -14,15 +14,20 @@
   height: var(--layout-header-height);
   padding: 0 var(--space-3);
   flex-shrink: 0;
+  border-bottom: 1px solid var(--color-border-1);
 }
 
 .appName {
   font-size: var(--text-h4);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-heading);
   color: var(--color-text-1);
   white-space: nowrap;
   overflow: hidden;
+  background: linear-gradient(135deg, var(--color-text-1), var(--color-primary-text));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .newChatButton {
@@ -31,19 +36,20 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: none;
-  background: transparent;
+  border: 1px solid var(--color-border-1);
+  background: var(--color-surface-2);
   color: var(--color-text-2);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background var(--duration-instant) var(--ease-mechanical),
-              color var(--duration-instant) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-mechanical);
   flex-shrink: 0;
 }
 
 .newChatButton:hover {
-  background: var(--color-surface-hover);
-  color: var(--color-text-1);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+  transform: scale(1.05);
 }
 
 .conversationList {
@@ -64,6 +70,9 @@
   border-top: 1px solid var(--color-border-1);
   padding: var(--space-2) var(--space-3);
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
 }
 
 .themeToggle {
@@ -71,7 +80,7 @@
   align-items: center;
   gap: var(--space-2);
   width: 100%;
-  padding: var(--space-1-5) var(--space-2);
+  padding: var(--space-2) var(--space-2);
   border: none;
   background: transparent;
   color: var(--color-text-2);
@@ -80,15 +89,20 @@
   font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-caption);
   line-height: var(--leading-caption);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background var(--duration-instant) var(--ease-mechanical),
-              color var(--duration-instant) var(--ease-mechanical);
+  transition: background var(--duration-fast) var(--ease-mechanical),
+              color var(--duration-fast) var(--ease-mechanical);
 }
 
 .themeToggle:hover {
   background: var(--color-surface-hover);
   color: var(--color-text-1);
+}
+
+.themeToggle[data-active="true"] {
+  background: var(--color-surface-selected);
+  color: var(--color-secondary-text);
 }
 
 /* Collapsed state */

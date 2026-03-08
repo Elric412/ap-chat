@@ -15,8 +15,10 @@ import type { ArtifactsSlice } from './artifacts-slice';
 import { createArtifactsSlice } from './artifacts-slice';
 import type { ComparisonSlice } from './comparison-slice';
 import { createComparisonSlice } from './comparison-slice';
+import type { SystemPromptsSlice } from './system-prompts-slice';
+import { createSystemPromptsSlice } from './system-prompts-slice';
 
-export interface AppState extends UISlice, VaultSlice, ToastSlice, SessionsSlice, MessagesSlice, ArtifactsSlice, ComparisonSlice {}
+export interface AppState extends UISlice, VaultSlice, ToastSlice, SessionsSlice, MessagesSlice, ArtifactsSlice, ComparisonSlice, SystemPromptsSlice {}
 
 export const useAppStore = create<AppState>()(
   devtools(
@@ -28,6 +30,7 @@ export const useAppStore = create<AppState>()(
       ...createMessagesSlice(...args),
       ...createArtifactsSlice(...args),
       ...createComparisonSlice(...args),
+      ...createSystemPromptsSlice(...args),
     })),
     { name: 'byok-chat-store', enabled: import.meta.env.DEV }
   )

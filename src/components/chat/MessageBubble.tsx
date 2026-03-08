@@ -112,7 +112,7 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
 
       {/* Main text content */}
       <div className={styles.content}>
-        {textContent}
+        {textContent || (!isStreaming && isAssistant ? <span style={{ color: 'var(--color-text-3)', fontStyle: 'italic' }}>Empty response</span> : null)}
         {isStreaming && <StreamCursor visible={true} />}
       </div>
 

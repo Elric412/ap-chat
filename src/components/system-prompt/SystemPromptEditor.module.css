@@ -1,0 +1,405 @@
+/* ── System Prompt Editor ── */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.headerIcon {
+  color: var(--color-secondary-text);
+}
+
+.title {
+  font-size: var(--text-h4);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-1);
+  letter-spacing: var(--tracking-heading);
+}
+
+.badge {
+  font-size: var(--text-micro);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-micro);
+  padding: var(--space-0-5) var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-info-ghost);
+  color: var(--color-info-text);
+}
+
+.scopeToggle {
+  display: flex;
+  gap: var(--space-1);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  padding: var(--space-0-5);
+  border: 1px solid var(--color-border-1);
+}
+
+.scopeBtn {
+  padding: var(--space-1) var(--space-3);
+  border: none;
+  background: transparent;
+  color: var(--color-text-3);
+  font-size: var(--text-caption);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-caption);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+}
+
+.scopeBtn:hover {
+  color: var(--color-text-1);
+}
+
+.scopeBtn[data-active="true"] {
+  background: var(--color-secondary-ghost);
+  color: var(--color-secondary-text);
+}
+
+.promptTextarea {
+  width: 100%;
+  min-height: 120px;
+  max-height: 300px;
+  padding: var(--space-3);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-md);
+  color: var(--color-text-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-mechanical);
+}
+
+.promptTextarea::placeholder {
+  color: var(--color-text-3);
+}
+
+.promptTextarea:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: var(--state-focus-ring);
+}
+
+.promptFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.charCount {
+  font-size: var(--text-micro);
+  font-family: var(--font-mono);
+  color: var(--color-text-3);
+  letter-spacing: var(--tracking-code);
+}
+
+.actionRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.clearBtn {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-3);
+  font-size: var(--text-caption);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+}
+
+.clearBtn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-1);
+}
+
+.saveBtn {
+  padding: var(--space-1) var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  font-size: var(--text-caption);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-mechanical);
+}
+
+.saveBtn:hover {
+  background: var(--color-primary-hover);
+}
+
+/* ── Template Library ── */
+.templateSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.templateHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.templateTitle {
+  font-size: var(--text-body);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-1);
+}
+
+.addTemplateBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border: 1px dashed var(--color-border-2);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-3);
+  font-size: var(--text-caption);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+}
+
+.addTemplateBtn:hover {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary-text);
+}
+
+.categoryFilters {
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.categoryBtn {
+  padding: var(--space-0-5) var(--space-2);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-3);
+  font-size: var(--text-micro);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-micro);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+  text-transform: capitalize;
+}
+
+.categoryBtn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-1);
+}
+
+.categoryBtn[data-active="true"] {
+  background: var(--color-secondary-ghost);
+  border-color: var(--color-secondary);
+  color: var(--color-secondary-text);
+}
+
+.templateGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.templateCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+  text-align: left;
+  width: 100%;
+  font-family: var(--font-sans);
+}
+
+.templateCard:hover {
+  border-color: var(--color-secondary-muted);
+  background: var(--color-surface-hover);
+}
+
+.templateCard[data-active="true"] {
+  border-color: var(--color-secondary);
+  background: var(--color-secondary-ghost);
+}
+
+.templateCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.templateName {
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-1);
+}
+
+.templateCategory {
+  font-size: var(--text-micro);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-micro);
+  padding: var(--space-0-5) var(--space-1-5);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-3);
+  color: var(--color-text-3);
+  text-transform: capitalize;
+}
+
+.templateDesc {
+  font-size: var(--text-caption);
+  color: var(--color-text-3);
+  line-height: var(--leading-caption);
+}
+
+.templatePreview {
+  font-size: var(--text-caption);
+  color: var(--color-text-2);
+  line-height: var(--leading-body);
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-style: italic;
+}
+
+.templateActions {
+  display: flex;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
+.templateActionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-3);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+}
+
+.templateActionBtn:hover {
+  color: var(--color-text-1);
+  background: var(--color-surface-hover);
+}
+
+.templateActionBtn[data-variant="danger"]:hover {
+  color: var(--color-error-text);
+  background: var(--color-error-ghost);
+}
+
+/* ── New Template Form ── */
+.newTemplateForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-md);
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.formLabel {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-2);
+  letter-spacing: var(--tracking-caption);
+}
+
+.formInput {
+  width: 100%;
+  height: 36px;
+  padding: 0 var(--space-3);
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-mechanical);
+}
+
+.formInput:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: var(--state-focus-ring);
+}
+
+.formTextarea {
+  width: 100%;
+  min-height: 80px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-mechanical);
+}
+
+.formTextarea:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: var(--state-focus-ring);
+}
+
+.formSelect {
+  height: 36px;
+  padding: 0 var(--space-3);
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  cursor: pointer;
+}
+
+.formActions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}

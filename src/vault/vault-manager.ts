@@ -50,6 +50,10 @@ export async function getVaultStatus(): Promise<VaultStatus> {
 
 /** Initialize the vault with a new master password (first-time setup) */
 export async function setupVault(password: string): Promise<void> {
+  // Security: Enforce minimum password length
+  if (password.length < 8) {
+    throw new Error('Master password must be at least 8 characters');
+  }
   const salt = generateSalt();
   const key = await deriveKey(password, salt);
   const { ciphertext, iv } = await createVerificationToken(key);

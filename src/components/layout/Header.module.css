@@ -7,15 +7,16 @@
   border-bottom: 1px solid var(--color-border-1);
   gap: var(--space-3);
   flex-shrink: 0;
+  backdrop-filter: blur(8px);
 }
 
 .modelTrigger {
   display: flex;
   align-items: center;
-  gap: var(--space-1-5);
-  padding: var(--space-1) var(--space-2);
+  gap: var(--space-2);
+  padding: var(--space-1-5) var(--space-3);
   border: 1px solid var(--color-border-2);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: var(--color-surface-2);
   color: var(--color-text-1);
   font-size: var(--text-label);
@@ -23,13 +24,13 @@
   font-family: var(--font-sans);
   letter-spacing: var(--tracking-label);
   cursor: pointer;
-  transition: border-color var(--duration-instant) var(--ease-mechanical),
-              background var(--duration-instant) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-mechanical);
 }
 
 .modelTrigger:hover {
   border-color: var(--color-border-3);
   background: var(--color-surface-3);
+  box-shadow: var(--shadow-xs);
 }
 
 .providerDot {
@@ -37,10 +38,12 @@
   height: 8px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
 }
 
 .chevron {
   color: var(--color-text-3);
+  transition: transform var(--duration-fast) var(--ease-mechanical);
 }
 
 .spacer {
@@ -51,15 +54,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border: none;
   background: transparent;
   color: var(--color-text-2);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background var(--duration-instant) var(--ease-mechanical),
-              color var(--duration-instant) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-mechanical);
 }
 
 .headerAction:hover {
@@ -70,6 +72,7 @@
 .headerAction[data-active="true"] {
   color: var(--color-secondary-text);
   background: var(--color-secondary-ghost);
+  box-shadow: inset 0 0 0 1px var(--color-secondary-muted);
 }
 
 .statusText {

@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding: var(--space-1-5) var(--space-2);
+  padding: var(--space-2) var(--space-2);
   border: none;
   background: transparent;
   color: var(--color-text-2);
@@ -11,14 +11,14 @@
   font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-caption);
   line-height: var(--leading-caption);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   cursor: pointer;
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: background var(--duration-instant) var(--ease-mechanical),
-              color var(--duration-instant) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-mechanical);
+  margin-bottom: var(--space-0-5);
 }
 
 .sidebarItem:hover {
@@ -29,6 +29,7 @@
 .sidebarItem[data-active="true"] {
   background: var(--color-surface-selected);
   color: var(--color-text-1);
+  border-left: 2px solid var(--color-secondary);
 }
 
 .title {
@@ -41,16 +42,16 @@
   display: none;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border: none;
   background: transparent;
   color: var(--color-text-3);
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   flex-shrink: 0;
   margin-left: var(--space-1);
-  transition: color var(--duration-instant) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-mechanical);
 }
 
 .sidebarItem:hover .deleteButton {
@@ -59,4 +60,5 @@
 
 .deleteButton:hover {
   color: var(--color-error-text);
+  background: var(--color-error-ghost);
 }

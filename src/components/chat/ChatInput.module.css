@@ -1,9 +1,9 @@
 .inputContainer {
   background: var(--color-surface-2);
   border: 1px solid var(--color-border-1);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   padding: var(--space-3);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   transition: border-color var(--duration-fast) var(--ease-mechanical),
               box-shadow var(--duration-fast) var(--ease-mechanical);
   position: relative;
@@ -238,28 +238,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: var(--color-primary);
   color: var(--color-primary-contrast);
   cursor: pointer;
-  transition: background var(--duration-instant) var(--ease-mechanical),
-              opacity var(--duration-instant) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-mechanical);
+  box-shadow: 0 2px 8px var(--color-ai-cursor-glow);
 }
 
 .sendButton:hover:not(:disabled) {
   background: var(--color-primary-hover);
+  transform: scale(1.05);
 }
 
 .sendButton:active:not(:disabled) {
   background: var(--color-primary-active);
+  transform: scale(0.98);
 }
 
 .sendButton:disabled {
   opacity: var(--state-disabled-opacity);
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .stopButton {
