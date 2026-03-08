@@ -51,7 +51,12 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
             <EmptyState />
           ) : (
             visibleMessages.map((msg) => (
-              <MessageBubble key={msg.id} message={msg} />
+              <MessageBubble
+                key={msg.id}
+                message={msg}
+                onApproveToolCall={onApproveToolCall}
+                onDenyToolCall={onDenyToolCall}
+              />
             ))
           )}
         </div>
