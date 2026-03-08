@@ -63,7 +63,7 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
 
         <h1 className={styles.title}>BYOK Chat</h1>
         <p className={styles.subtitle}>
-          Your keys, your models, your conversations.
+          Your keys. Your models. Private conversations with 30+ AI models from 8 providers.
         </p>
       </motion.div>
 
