@@ -28,22 +28,30 @@ export function SidebarItem({
   }, [conversation.id, conversation.title, onDelete]);
 
   return (
-    <button
+    <div
       className={styles.sidebarItem}
       data-active={isActive}
+      role="link"
+      tabIndex={0}
       onClick={handleClick}
-      type="button"
-      title={conversation.title}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
+      aria-label={`${conversation.title}${isActive ? ' (current)' : ''}`}
+      aria-current={isActive ? 'page' : undefined}
     >
       <span className={styles.title}>{conversation.title}</span>
       <button
         className={styles.deleteButton}
         onClick={handleDelete}
         type="button"
-        aria-label={`Delete ${conversation.title}`}
+        aria-label={`Delete conversation: ${conversation.title}`}
       >
         <X size={12} aria-hidden="true" />
       </button>
-    </button>
+    </div>
   );
 }

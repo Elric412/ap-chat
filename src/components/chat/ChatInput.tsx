@@ -239,7 +239,11 @@ export function ChatInput({
 
       {/* Attachment previews */}
       {attachments.length > 0 && (
-        <div className={styles.attachmentStrip}>
+        <div
+          className={styles.attachmentStrip}
+          role="list"
+          aria-label={`${attachments.length} file${attachments.length !== 1 ? 's' : ''} attached`}
+        >
           {attachments.map((pa) => (
             <AttachmentPreviewCard
               key={pa.attachment.id}
@@ -250,7 +254,11 @@ export function ChatInput({
         </div>
       )}
 
+      <label htmlFor="chat-input" className="sr-only">
+        Type your message
+      </label>
       <textarea
+        id="chat-input"
         ref={textareaRef}
         className={styles.textarea}
         value={value}
@@ -262,7 +270,12 @@ export function ChatInput({
         rows={1}
         disabled={disabled}
         aria-label="Message input"
+        aria-describedby="chat-input-hint"
+        aria-invalid={value.length > 100000}
       />
+      <span id="chat-input-hint" className="sr-only">
+        Press Enter to send, Shift+Enter for new line. Type / for slash commands.
+      </span>
 
       <div className={styles.actionBar}>
         {/* Attach button */}
@@ -343,25 +356,29 @@ function AttachmentPreviewCard({
   const { attachment, thumbnailUrl, dataUrl } = processed;
   const isImage = attachment.type === 'image';
   const IconComponent = FILE_ICONS[attachment.type as keyof typeof FILE_ICONS] ?? File;
+  const typeLabel = attachment.type === 'image' ? 'Image' :
+                    attachment.type === 'audio' ? 'Audio' :
+                    attachment.type === 'video' ? 'Video' :
+                    attachment.type === 'document' ? 'Document' : 'File';
 
   return (
-    <div className={styles.attachmentPreview}>
+    <div className={styles.attachmentPreview} role="listitem">
       {isImage ? (
         <img
           className={styles.attachmentThumb}
           src={thumbnailUrl ?? dataUrl}
-          alt={attachment.fileName}
+          alt={`Attached image: ${attachment.fileName}`}
           loading="lazy"
         />
       ) : (
         <div className={styles.attachmentFile}>
-          <IconComponent size={18} className={styles.attachmentFileIcon} />
+          <IconComponent size={18} className={styles.attachmentFileIcon} aria-hidden="true" />
           <span className={styles.attachmentFileName}>{attachment.fileName}</span>
           <span className={styles.attachmentSize}>{formatFileSize(attachment.size)}</span>
         </div>
       )}
 
-      <span className={styles.attachmentTypeBadge} data-type={attachment.type}>
+      <span className={styles.attachmentTypeBadge} data-type={attachment.type} aria-label={typeLabel}>
         {attachment.type === 'image' ? 'IMG' :
          attachment.type === 'audio' ? 'AUD' :
          attachment.type === 'video' ? 'VID' :
@@ -372,9 +389,9 @@ function AttachmentPreviewCard({
         className={styles.attachmentRemove}
         onClick={() => onRemove(attachment.id)}
         type="button"
-        aria-label={`Remove ${attachment.fileName}`}
+        aria-label={`Remove attachment: ${attachment.fileName}`}
       >
-        <X size={10} />
+        <X size={10} aria-hidden="true" />
       </button>
     </div>
   );
