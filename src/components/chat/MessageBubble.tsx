@@ -15,7 +15,8 @@ import { ThinkingBlock } from './ThinkingBlock';
 import { ToolCallCard } from './ToolCallCard';
 import { WebSearchCitations } from './WebSearchCitation';
 import { formatTime, formatTokenCount, formatCost } from '../../lib/format';
-import { Code2 } from 'lucide-react';
+import { Code2, Pin } from 'lucide-react';
+import { putMessage } from '../../db/messages-repo';
 import styles from './MessageBubble.module.css';
 
 interface MessageBubbleProps {
