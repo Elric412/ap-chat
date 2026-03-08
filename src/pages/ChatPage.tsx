@@ -112,7 +112,7 @@ export function ChatPage(): JSX.Element {
 
   // If we have a valid conversation, render the full chat view
   if (conversation) {
-    return <ChatViewWithRoot conversation={conversation} onSend={handleSend} isStreaming={streaming} onAbort={handleAbort} />;
+    return <ChatViewWithRoot conversation={conversation} onSend={handleSend} isStreaming={streaming} onAbort={handleAbort} onApproveToolCall={approveToolCall} onDenyToolCall={denyToolCall} />;
   }
 
   // Empty state with inline input
