@@ -1,9 +1,11 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
 import { EmptyState } from './EmptyState';
 import { ContextBar } from '../tokens/ContextBar';
+import { ArrowDown } from 'lucide-react';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import styles from './ChatView.module.css';
 
@@ -24,6 +26,7 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
   const messageMap = useAppStore((s) => s.messageMap);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [showScrollBtn, setShowScrollBtn] = useState(false);
   const messages = getActiveBranchMessages();
 
   useEffect(() => {
@@ -37,6 +40,22 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
     el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
   }, [messageMap]);
 
+  // Track scroll position for scroll-to-bottom FAB
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const handler = () => {
+      const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      setShowScrollBtn(distFromBottom > 200);
+    };
+    el.addEventListener('scroll', handler, { passive: true });
+    return () => el.removeEventListener('scroll', handler);
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+  }, []);
+
   // Announce streaming status to screen readers
   useEffect(() => {
     const statusEl = document.getElementById('stream-status');
@@ -48,7 +67,6 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
 
   const handleSend = useCallback((text: string, attachments?: ProcessedAttachment[]) => {
     onSend(text, attachments);
-    // Scroll after a tick so the new message renders first
     requestAnimationFrame(() => {
       scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
     });
@@ -78,17 +96,37 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
                 <MessageBubble
                   key={msg.id}
                   message={msg}
+                  index={i}
                   onApproveToolCall={onApproveToolCall}
                   onDenyToolCall={onDenyToolCall}
-                  style={{ animationDelay: `${Math.min(i * 30, 150)}ms` }}
                 />
               ))}
-              {/* Scroll anchor */}
               <div className={styles.scrollAnchor} />
             </>
           )}
         </div>
       </div>
+
+      {/* Scroll-to-bottom FAB */}
+      <AnimatePresence>
+        {showScrollBtn && (
+          <motion.button
+            className={styles.scrollFab}
+            onClick={scrollToBottom}
+            type="button"
+            aria-label="Scroll to bottom"
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <ArrowDown size={16} />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       <div className={styles.inputWrapper}>
         <div className={styles.inputInner}>
           <ChatInput

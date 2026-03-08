@@ -6,17 +6,20 @@
   align-items: flex-start;
   justify-content: center;
   padding-top: calc(var(--layout-header-height) + var(--space-2));
+  animation: fadeIn var(--duration-fast) var(--ease-out) both;
 }
 
 .backdrop {
   position: fixed;
   inset: 0;
-  background: transparent;
+  background: hsl(0, 0%, 0%, 0.25);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 .panel {
   position: relative;
-  width: 420px;
+  width: 440px;
   max-width: calc(100vw - var(--space-8));
   max-height: 60vh;
   background: var(--color-surface-2);
@@ -26,6 +29,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  animation: slideDown var(--duration-normal) var(--ease-snap) both;
 }
 
 .searchWrapper {
@@ -38,10 +42,12 @@
   padding: var(--space-2) var(--space-3);
   background: var(--color-surface-1);
   border: 1px solid var(--color-border-1);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   color: var(--color-text-1);
   font-family: var(--font-sans);
   font-size: var(--text-body);
+  transition: border-color var(--duration-fast) var(--ease-silk),
+              box-shadow var(--duration-fast) var(--ease-silk);
 }
 
 .searchInput::placeholder {
@@ -68,7 +74,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-1) var(--space-3);
+  padding: var(--space-1-5) var(--space-3);
   font-size: var(--text-micro);
   font-weight: var(--weight-semibold);
   color: var(--color-text-3);
@@ -81,6 +87,7 @@
   height: 6px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
 }
 
 .modelItem {
@@ -97,15 +104,22 @@
   border-radius: var(--radius-md);
   cursor: pointer;
   text-align: left;
-  transition: background var(--duration-fast) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-silk);
 }
 
 .modelItem:hover {
   background: var(--color-surface-hover);
+  transform: translateX(3px);
+}
+
+.modelItem:active {
+  transform: translateX(1px) scale(0.99);
+  transition-duration: var(--duration-instant);
 }
 
 .modelItem[data-selected="true"] {
   background: var(--color-surface-selected);
+  box-shadow: inset 3px 0 0 var(--color-secondary);
 }
 
 .modelItem:focus-visible {
@@ -144,10 +158,12 @@
   height: 5px;
   border-radius: var(--radius-full);
   background: var(--color-border-2);
+  transition: all var(--duration-fast) var(--ease-silk);
 }
 
 .capDot[data-active="true"] {
   background: var(--color-secondary);
+  box-shadow: 0 0 4px var(--color-secondary);
 }
 
 .noKey {
@@ -161,4 +177,22 @@
   text-align: center;
   color: var(--color-text-3);
   font-size: var(--text-body);
+  animation: fadeIn var(--duration-normal) var(--ease-out) both;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .overlay {
+    padding-top: var(--space-2);
+    align-items: flex-end;
+    padding-bottom: 0;
+  }
+
+  .panel {
+    width: 100%;
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    animation: slideUp var(--duration-normal) var(--ease-snap) both;
+  }
 }

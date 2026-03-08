@@ -6,8 +6,8 @@
  * streaming cursor, and branch navigation.
  */
 
-import { useState, useCallback, forwardRef, type CSSProperties } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useCallback, type CSSProperties } from 'react';
+import { motion } from 'framer-motion';
 import type { MessageNode } from '../../types/messages';
 import { useAppStore } from '../../store';
 import { BranchNavigator } from './BranchNavigator';
@@ -26,9 +26,30 @@ interface MessageBubbleProps {
   onApproveToolCall?: (messageId: string, toolCallId: string) => void;
   onDenyToolCall?: (messageId: string, toolCallId: string) => void;
   style?: CSSProperties;
+  index?: number;
 }
 
-export function MessageBubble({ message, onApproveToolCall, onDenyToolCall, style }: MessageBubbleProps): JSX.Element {
+// Bespoke motion variants — cinematic message entrances
+const bubbleVariants = {
+  hidden: (isUser: boolean) => ({
+    opacity: 0,
+    y: 16,
+    x: isUser ? 8 : -8,
+    scale: 0.97,
+  }),
+  visible: {
+    opacity: 1,
+    y: 0,
+    x: 0,
+    scale: 1,
+    transition: {
+      duration: 0.45,
+      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+    },
+  },
+};
+
+export function MessageBubble({ message, onApproveToolCall, onDenyToolCall, style, index = 0 }: MessageBubbleProps): JSX.Element {
   const messageMap = useAppStore((s) => s.messageMap);
   const [copied, setCopied] = useState(false);
 
@@ -90,10 +111,15 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall, styl
       data-status={message.status}
       data-pinned={isPinned}
       style={style}
-      initial={{ opacity: 0, y: 12, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-      layout
+      custom={isUser}
+      variants={bubbleVariants}
+      initial="hidden"
+      animate="visible"
+      transition={{
+        delay: Math.min(index * 0.04, 0.2),
+      }}
+      layout="position"
+      layoutId={message.id}
     >
       <div className={styles.header}>
         <div className={styles.roleIndicator}>

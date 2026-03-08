@@ -3,6 +3,7 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 .messageList {
@@ -29,12 +30,42 @@
   flex-shrink: 0;
 }
 
+/* ── Scroll-to-bottom FAB ── */
+.scrollFab {
+  position: absolute;
+  bottom: calc(100px + var(--space-2));
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  z-index: var(--z-raised);
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--duration-fast) var(--ease-silk),
+              border-color var(--duration-fast) var(--ease-silk),
+              color var(--duration-fast) var(--ease-silk);
+}
+
+.scrollFab:hover {
+  background: var(--color-surface-3);
+  border-color: var(--color-border-3);
+  color: var(--color-text-1);
+}
+
 .inputWrapper {
   flex-shrink: 0;
   padding: var(--space-2) var(--layout-chat-padding-x) var(--space-4);
   display: flex;
   justify-content: center;
-  background: linear-gradient(to top, var(--color-surface-0) 70%, transparent);
+  background: linear-gradient(to top, var(--color-surface-0) 60%, transparent);
   position: relative;
 }
 
@@ -55,5 +86,9 @@
 
   .inputWrapper {
     padding: var(--space-1) var(--space-2) max(var(--space-3), env(safe-area-inset-bottom));
+  }
+
+  .scrollFab {
+    bottom: calc(80px + var(--space-2));
   }
 }
