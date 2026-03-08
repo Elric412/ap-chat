@@ -1,15 +1,37 @@
 .cursor {
   display: inline-block;
-  width: 2px;
-  height: 1.1em;
+  width: 2.5px;
+  height: 1.15em;
   background: var(--color-ai-cursor);
   border-radius: var(--radius-full);
   margin-left: 2px;
   vertical-align: text-bottom;
-  animation: cursorPulse 1.2s var(--ease-mechanical) infinite;
-  box-shadow: 0 0 8px var(--color-ai-cursor-glow), 0 0 16px var(--color-ai-cursor-glow);
+  animation: cursorBreath 1.4s var(--ease-breath) infinite;
+  box-shadow:
+    0 0 6px var(--color-ai-cursor-glow),
+    0 0 14px var(--color-ai-cursor-glow),
+    0 0 28px hsl(24, 82%, 52%, 0.08);
+  transform-origin: bottom center;
 }
 
-.cursorHidden {
-  display: none;
+@keyframes cursorBreath {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scaleY(0.92);
+    box-shadow:
+      0 0 4px var(--color-ai-cursor-glow),
+      0 0 8px hsl(24, 82%, 52%, 0.06);
+  }
+  40% {
+    opacity: 1;
+    transform: scaleY(1.05);
+    box-shadow:
+      0 0 8px var(--color-ai-cursor-glow),
+      0 0 20px var(--color-ai-cursor-glow),
+      0 0 40px hsl(24, 82%, 52%, 0.1);
+  }
+  70% {
+    opacity: 0.8;
+    transform: scaleY(1);
+  }
 }

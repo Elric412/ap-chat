@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { useMediaQuery } from '../../hooks/use-media-query';
 import { CanvasPanel } from '../canvas/CanvasPanel';
@@ -10,6 +11,22 @@ interface AppShellProps {
   header: ReactNode;
   children: ReactNode;
 }
+
+const overlayVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.25, ease: [0.19, 1, 0.22, 1] } },
+  exit: { opacity: 0, transition: { duration: 0.2, ease: [0.22, 0.68, 0.28, 1.0] } },
+};
+
+const sidebarMobileVariants = {
+  hidden: { x: '-100%', transition: { duration: 0.3, ease: [0.22, 0.68, 0.28, 1.0] } },
+  visible: { x: 0, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
+};
+
+const canvasVariants = {
+  hidden: { opacity: 0, x: 40, transition: { duration: 0.25, ease: [0.22, 0.68, 0.28, 1.0] } },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
+};
 
 export function AppShell({ sidebar, header, children }: AppShellProps): JSX.Element {
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
@@ -48,23 +65,44 @@ export function AppShell({ sidebar, header, children }: AppShellProps): JSX.Elem
       </a>
 
       {/* Mobile sidebar overlay */}
-      {isMobile && sidebarOpen && (
-        <div
-          className={styles.sidebarOverlay}
-          onClick={handleOverlayClick}
-          aria-hidden="true"
-        />
-      )}
+      <AnimatePresence>
+        {isMobile && sidebarOpen && (
+          <motion.div
+            className={styles.sidebarOverlay}
+            onClick={handleOverlayClick}
+            aria-hidden="true"
+            variants={overlayVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          />
+        )}
+      </AnimatePresence>
 
-      <aside
-        className={styles.sidebarRegion}
-        data-collapsed={sidebarCollapsed}
-        data-hidden={sidebarHidden}
-        data-mobile={isMobile}
-        aria-label="Conversation sidebar"
-      >
-        {sidebar}
-      </aside>
+      {isMobile ? (
+        <motion.aside
+          className={styles.sidebarRegion}
+          data-collapsed={sidebarCollapsed}
+          data-hidden={sidebarHidden}
+          data-mobile={true}
+          aria-label="Conversation sidebar"
+          variants={sidebarMobileVariants}
+          initial={false}
+          animate={sidebarHidden ? 'hidden' : 'visible'}
+        >
+          {sidebar}
+        </motion.aside>
+      ) : (
+        <aside
+          className={styles.sidebarRegion}
+          data-collapsed={sidebarCollapsed}
+          data-hidden={sidebarHidden}
+          data-mobile={false}
+          aria-label="Conversation sidebar"
+        >
+          {sidebar}
+        </aside>
+      )}
 
       <div className={styles.mainRegion} role="main" id="main-content">
         <NetworkBanner />
@@ -74,11 +112,20 @@ export function AppShell({ sidebar, header, children }: AppShellProps): JSX.Elem
         </div>
       </div>
 
-      {canvasOpen && (
-        <aside className={styles.canvasRegion} aria-label="Artifact canvas">
-          <CanvasPanel />
-        </aside>
-      )}
+      <AnimatePresence>
+        {canvasOpen && (
+          <motion.aside
+            className={styles.canvasRegion}
+            aria-label="Artifact canvas"
+            variants={canvasVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+          >
+            <CanvasPanel />
+          </motion.aside>
+        )}
+      </AnimatePresence>
 
       {/* Live region for streaming status announcements */}
       <div

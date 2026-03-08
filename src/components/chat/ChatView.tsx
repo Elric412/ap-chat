@@ -73,7 +73,17 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
   }, [onSend]);
 
   if (messagesLoading) {
-    return <div className={styles.chatView} role="region" aria-label="Chat"><EmptyState /></div>;
+    return (
+      <div className={styles.chatView} role="region" aria-label="Chat">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
+        >
+          <EmptyState />
+        </motion.div>
+      </div>
+    );
   }
 
   return (
@@ -88,22 +98,32 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
         aria-relevant="additions"
       >
         <div className={styles.messageListInner}>
-          {visibleMessages.length === 0 ? (
-            <EmptyState onSend={handleSend} />
-          ) : (
-            <>
-              {visibleMessages.map((msg, i) => (
-                <MessageBubble
-                  key={msg.id}
-                  message={msg}
-                  index={i}
-                  onApproveToolCall={onApproveToolCall}
-                  onDenyToolCall={onDenyToolCall}
-                />
-              ))}
-              <div className={styles.scrollAnchor} />
-            </>
-          )}
+          <AnimatePresence mode="popLayout">
+            {visibleMessages.length === 0 ? (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <EmptyState onSend={handleSend} />
+              </motion.div>
+            ) : (
+              <>
+                {visibleMessages.map((msg, i) => (
+                  <MessageBubble
+                    key={msg.id}
+                    message={msg}
+                    index={i}
+                    onApproveToolCall={onApproveToolCall}
+                    onDenyToolCall={onDenyToolCall}
+                  />
+                ))}
+                <div className={styles.scrollAnchor} />
+              </>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -115,19 +135,24 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
             onClick={scrollToBottom}
             type="button"
             aria-label="Scroll to bottom"
-            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            initial={{ opacity: 0, scale: 0.6, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 10 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            exit={{ opacity: 0, scale: 0.6, y: 16 }}
+            transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
+            whileHover={{ scale: 1.15, boxShadow: '0 8px 32px hsl(230, 20%, 2%, 0.5)' }}
+            whileTap={{ scale: 0.88 }}
           >
             <ArrowDown size={16} />
           </motion.button>
         )}
       </AnimatePresence>
 
-      <div className={styles.inputWrapper}>
+      <motion.div
+        className={styles.inputWrapper}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className={styles.inputInner}>
           <ChatInput
             onSend={handleSend}
@@ -137,7 +162,7 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
             conversationId={conversationId}
           />
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

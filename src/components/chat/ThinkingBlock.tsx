@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Brain } from 'lucide-react';
 import { formatTokenCount } from '../../lib/format';
 import styles from './ThinkingBlock.module.css';
@@ -17,6 +18,25 @@ interface ThinkingBlockProps {
   isStreaming: boolean;
   startTime?: number;
 }
+
+const contentVariants = {
+  collapsed: {
+    height: 0,
+    opacity: 0,
+    transition: {
+      height: { duration: 0.35, ease: [0.19, 1, 0.22, 1] },
+      opacity: { duration: 0.2, ease: [0.19, 1, 0.22, 1] },
+    },
+  },
+  expanded: {
+    height: 'auto',
+    opacity: 1,
+    transition: {
+      height: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
+      opacity: { duration: 0.3, delay: 0.1, ease: [0.16, 1, 0.3, 1] },
+    },
+  },
+};
 
 export function ThinkingBlock({ content, tokenCount, isStreaming, startTime }: ThinkingBlockProps): JSX.Element {
   const [elapsed, setElapsed] = useState(0);
@@ -44,7 +64,13 @@ export function ThinkingBlock({ content, tokenCount, isStreaming, startTime }: T
     : `Thinking${tokenCount > 0 ? ` · ${formatTokenCount(tokenCount)} tokens` : ''}`;
 
   return (
-    <div className={styles.block} data-streaming={isStreaming}>
+    <motion.div
+      className={styles.block}
+      data-streaming={isStreaming}
+      initial={{ opacity: 0, y: 6, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+    >
       <button
         className={styles.summary}
         onClick={() => setIsOpen((prev) => !prev)}
@@ -52,16 +78,40 @@ export function ThinkingBlock({ content, tokenCount, isStreaming, startTime }: T
         aria-expanded={isOpen}
         aria-label={summaryText}
       >
-        <Brain size={14} className={styles.icon} aria-hidden="true" />
+        <motion.span
+          animate={isStreaming ? { rotate: [0, 10, -10, 0] } : { rotate: 0 }}
+          transition={isStreaming ? { duration: 2, repeat: Infinity, ease: [0.37, 0, 0.63, 1] } : { duration: 0.3 }}
+        >
+          <Brain size={14} className={styles.icon} aria-hidden="true" />
+        </motion.span>
         <span className={styles.label}>{summaryText}</span>
         {isStreaming && <span className={styles.pulse} aria-hidden="true" />}
-        <span className={styles.chevron} data-open={isOpen} aria-hidden="true">▸</span>
+        <motion.span
+          className={styles.chevron}
+          animate={{ rotate: isOpen ? 90 : 0 }}
+          transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
+          aria-hidden="true"
+        >
+          ▸
+        </motion.span>
       </button>
-      {isOpen && (
-        <div className={styles.content} ref={contentRef}>
-          {content || 'Thinking…'}
-        </div>
-      )}
-    </div>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            className={styles.content}
+            ref={contentRef}
+            variants={contentVariants}
+            initial="collapsed"
+            animate="expanded"
+            exit="collapsed"
+            style={{ overflow: 'hidden' }}
+          >
+            <div className={styles.contentInner}>
+              {content || 'Thinking…'}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
