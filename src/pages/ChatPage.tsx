@@ -1,5 +1,157 @@
+import { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAppStore } from '../store';
+import { ChatView } from '../components/chat/ChatView';
 import { EmptyState } from '../components/chat/EmptyState';
+import { ChatInput } from '../components/chat/ChatInput';
+import { uuidv7 } from '../lib/uuid';
+import { putMessage } from '../db/messages-repo';
+import type { MessageNode } from '../types/messages';
+import { DEFAULT_PARAMETERS } from '../constants/default-parameters';
+import styles from '../components/chat/ChatView.module.css';
 
 export function ChatPage(): JSX.Element {
-  return <EmptyState />;
+  const { conversationId } = useParams<{ conversationId: string }>();
+  const navigate = useNavigate();
+  const conversations = useAppStore((s) => s.conversations);
+  const createConversation = useAppStore((s) => s.createConversation);
+  const setActiveConversation = useAppStore((s) => s.setActiveConversation);
+
+  const conversation = conversationId
+    ? conversations.find((c) => c.id === conversationId)
+    : null;
+
+  /* Sync active conversation with route */
+  useEffect(() => {
+    if (conversationId) {
+      setActiveConversation(conversationId);
+    }
+  }, [conversationId, setActiveConversation]);
+
+  /** Handle first message from empty state — creates a conversation on the fly */
+  const handleFirstMessage = async (text: string): Promise<void> => {
+    const conv = createConversation();
+
+    // Create the root system node
+    const rootNode: MessageNode = {
+      id: conv.rootNodeId,
+      conversationId: conv.id,
+      parentId: null,
+      branchId: conv.rootNodeId,
+      childIds: [],
+      activeChildIndex: 0,
+      role: 'system',
+      content: [],
+      model: null,
+      provider: null,
+      parameters: DEFAULT_PARAMETERS,
+      tokenCounts: { input: 0, output: 0, thinking: 0, cached: 0 },
+      costEstimate: { inputCost: 0, outputCost: 0, thinkingCost: 0, cachedDiscount: 0, totalCost: 0 },
+      timestamp: Date.now(),
+      latency: null,
+      status: 'complete',
+      toolCalls: [],
+      toolResults: [],
+      thinkingContent: null,
+      attachmentIds: [],
+      webSearchResults: [],
+      artifactRefs: [],
+      comparisonId: null,
+      summaryRefs: [],
+      metadata: { pinned: false, bookmarked: false },
+      _clock: 0,
+      _deleted: false,
+    };
+
+    await putMessage(rootNode);
+
+    // Navigate to the new conversation, then send the message
+    navigate(`/chat/${conv.id}`, { replace: true });
+
+    // Defer the message send to after navigation settles
+    setTimeout(async () => {
+      const store = useAppStore.getState();
+      await store.loadMessages(conv.id);
+      await store.sendMessage(conv.id, text, conv.rootNodeId, conv.rootNodeId);
+      const title = text.length > 50 ? text.slice(0, 47) + '…' : text;
+      store.updateConversation(conv.id, { title });
+    }, 50);
+  };
+
+  // If we have a valid conversation, render the full chat view
+  if (conversation) {
+    return <ChatViewWithRoot conversation={conversation} />;
+  }
+
+  // Empty state with inline input
+  return (
+    <div className={styles.chatView}>
+      <div className={styles.messageList}>
+        <div className={styles.messageListInner}>
+          <EmptyState />
+        </div>
+      </div>
+      <div className={styles.inputWrapper}>
+        <div className={styles.inputInner}>
+          <ChatInput onSend={handleFirstMessage} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Wrapper that ensures root node exists before rendering ChatView */
+function ChatViewWithRoot({ conversation }: { conversation: { id: string; rootNodeId: string } }): JSX.Element {
+  const loadMessages = useAppStore((s) => s.loadMessages);
+  const messageMap = useAppStore((s) => s.messageMap);
+
+  /* Ensure root node exists */
+  useEffect(() => {
+    const ensureRoot = async (): Promise<void> => {
+      await loadMessages(conversation.id);
+      const map = useAppStore.getState().messageMap;
+      if (!map.has(conversation.rootNodeId)) {
+        // Create root node if it doesn't exist
+        const rootNode: MessageNode = {
+          id: conversation.rootNodeId,
+          conversationId: conversation.id,
+          parentId: null,
+          branchId: conversation.rootNodeId,
+          childIds: [],
+          activeChildIndex: 0,
+          role: 'system',
+          content: [],
+          model: null,
+          provider: null,
+          parameters: DEFAULT_PARAMETERS,
+          tokenCounts: { input: 0, output: 0, thinking: 0, cached: 0 },
+          costEstimate: { inputCost: 0, outputCost: 0, thinkingCost: 0, cachedDiscount: 0, totalCost: 0 },
+          timestamp: Date.now(),
+          latency: null,
+          status: 'complete',
+          toolCalls: [],
+          toolResults: [],
+          thinkingContent: null,
+          attachmentIds: [],
+          webSearchResults: [],
+          artifactRefs: [],
+          comparisonId: null,
+          summaryRefs: [],
+          metadata: { pinned: false, bookmarked: false },
+          _clock: 0,
+          _deleted: false,
+        };
+        await putMessage(rootNode);
+        await loadMessages(conversation.id);
+      }
+    };
+    void ensureRoot();
+  }, [conversation.id, conversation.rootNodeId, loadMessages]);
+
+  return (
+    <ChatView
+      conversationId={conversation.id}
+      rootNodeId={conversation.rootNodeId}
+    />
+  );
 }
