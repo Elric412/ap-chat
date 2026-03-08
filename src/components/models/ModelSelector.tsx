@@ -18,9 +18,15 @@ interface ModelSelectorProps {
   onClose: () => void;
 }
 
+type Ease4 = [number, number, number, number];
+const EASE_SILK: Ease4 = [0.19, 1, 0.22, 1];
+const EASE_OUT: Ease4 = [0.16, 1, 0.3, 1];
+const EASE_SNAP: Ease4 = [0.34, 1.56, 0.64, 1];
+const EASE_MECH: Ease4 = [0.22, 0.68, 0.28, 1.0];
+
 const backdropVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.2, ease: [0.19, 1, 0.22, 1] } },
+  visible: { opacity: 1, transition: { duration: 0.2, ease: EASE_SILK } },
   exit: { opacity: 0, transition: { duration: 0.15 } },
 };
 
@@ -30,13 +36,13 @@ const panelVariants = {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { duration: 0.35, ease: [0.34, 1.56, 0.64, 1] },
+    transition: { duration: 0.35, ease: EASE_SNAP },
   },
   exit: {
     opacity: 0,
     y: -8,
     scale: 0.97,
-    transition: { duration: 0.2, ease: [0.22, 0.68, 0.28, 1.0] },
+    transition: { duration: 0.2, ease: EASE_MECH },
   },
 };
 
@@ -45,12 +51,12 @@ const mobilePanelVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.4, ease: EASE_OUT },
   },
   exit: {
     opacity: 0,
     y: 60,
-    transition: { duration: 0.25, ease: [0.22, 0.68, 0.28, 1.0] },
+    transition: { duration: 0.25, ease: EASE_MECH },
   },
 };
 
@@ -58,7 +64,7 @@ const groupVariants = {
   hidden: { opacity: 0 },
   visible: (i: number) => ({
     opacity: 1,
-    transition: { delay: i * 0.05, duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+    transition: { delay: i * 0.05, duration: 0.3, ease: EASE_OUT },
   }),
 };
 
