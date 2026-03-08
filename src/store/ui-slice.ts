@@ -101,4 +101,6 @@ export const createUISlice: StateCreator<UISlice, [['zustand/immer', never]], []
   setContextStrategy: (strategy) => set((state) => {
     state.contextConfig.strategy = strategy;
   }),
+  setWebSearchEnabled: (enabled) => set((state) => { state.webSearchEnabled = enabled; }),
+  toggleWebSearch: () => set((state) => { state.webSearchEnabled = !state.webSearchEnabled; }),
 });
