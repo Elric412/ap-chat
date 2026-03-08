@@ -1,0 +1,75 @@
+.header {
+  display: flex;
+  align-items: center;
+  height: var(--layout-header-height);
+  padding: 0 var(--space-4);
+  background: var(--color-surface-1);
+  border-bottom: 1px solid var(--color-border-1);
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.modelTrigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+  color: var(--color-text-1);
+  font-size: var(--text-label);
+  font-weight: var(--weight-medium);
+  font-family: var(--font-sans);
+  letter-spacing: var(--tracking-label);
+  cursor: pointer;
+  transition: border-color var(--duration-instant) var(--ease-mechanical),
+              background var(--duration-instant) var(--ease-mechanical);
+}
+
+.modelTrigger:hover {
+  border-color: var(--color-border-3);
+  background: var(--color-surface-3);
+}
+
+.providerDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.chevron {
+  color: var(--color-text-3);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.headerAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-2);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--duration-instant) var(--ease-mechanical),
+              color var(--duration-instant) var(--ease-mechanical);
+}
+
+.headerAction:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-1);
+}
+
+.statusText {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-3);
+  letter-spacing: var(--tracking-caption);
+}

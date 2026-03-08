@@ -1,0 +1,449 @@
+/* ═══════════════════════════════════════════════════════════════
+   BYOK Chat — Global Design Tokens
+   Source of truth: design-system.md
+   All visual values in components must reference these tokens.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Font Loading ── */
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ── Reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  color: var(--color-text-1);
+  background-color: var(--color-surface-0);
+  overflow: hidden;
+}
+
+/* ── Dark mode (default) ── */
+:root {
+  color-scheme: dark;
+
+  /* ── Fonts ── */
+  --font-sans: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+
+  /* ── Surfaces ── */
+  --color-surface-0: hsl(225, 12%, 7%);
+  --color-surface-1: hsl(224, 10%, 10%);
+  --color-surface-2: hsl(223, 9%, 14%);
+  --color-surface-3: hsl(222, 8%, 18%);
+  --color-surface-4: hsl(220, 7%, 22%);
+
+  --color-surface-user:      hsl(220, 14%, 15%);
+  --color-surface-assistant:  transparent;
+  --color-surface-system:    hsl(220, 8%, 9%);
+  --color-surface-thinking:  hsl(42, 14%, 11%);
+  --color-surface-tool:      hsl(186, 12%, 11%);
+  --color-surface-search:    hsl(32, 12%, 11%);
+
+  --color-surface-hover: hsl(220, 8%, 16%);
+  --color-surface-active: hsl(220, 8%, 12%);
+  --color-surface-selected: hsl(186, 14%, 13%);
+
+  /* ── Text ── */
+  --color-text-1: hsl(210, 10%, 92%);
+  --color-text-2: hsl(210, 8%, 60%);
+  --color-text-3: hsl(210, 6%, 40%);
+  --color-text-inverse: hsl(225, 12%, 7%);
+  --color-text-on-primary: hsl(0, 0%, 100%);
+
+  /* ── Borders ── */
+  --color-border-1: hsl(220, 8%, 16%);
+  --color-border-2: hsl(220, 8%, 22%);
+  --color-border-3: hsl(220, 8%, 28%);
+  --color-border-focus: var(--color-secondary);
+  --color-border-error: var(--color-error);
+
+  /* ── Primary Accent — Signal Vermillion ── */
+  --color-primary:            hsl(8, 74%, 52%);
+  --color-primary-hover:      hsl(8, 74%, 46%);
+  --color-primary-active:     hsl(8, 74%, 40%);
+  --color-primary-text:       hsl(8, 80%, 62%);
+  --color-primary-ghost:      hsl(8, 50%, 14%);
+  --color-primary-ghost-hover: hsl(8, 50%, 20%);
+  --color-primary-muted:      hsl(8, 30%, 24%);
+  --color-primary-contrast:   hsl(0, 0%, 100%);
+
+  /* ── Secondary Accent — Scope Cyan ── */
+  --color-secondary:            hsl(186, 52%, 48%);
+  --color-secondary-hover:      hsl(186, 52%, 42%);
+  --color-secondary-active:     hsl(186, 52%, 36%);
+  --color-secondary-text:       hsl(186, 60%, 58%);
+  --color-secondary-ghost:      hsl(186, 30%, 14%);
+  --color-secondary-ghost-hover: hsl(186, 30%, 20%);
+  --color-secondary-muted:      hsl(186, 20%, 22%);
+
+  /* ── Semantic ── */
+  --color-error:         hsl(354, 70%, 52%);
+  --color-error-text:    hsl(354, 76%, 64%);
+  --color-error-ghost:   hsl(354, 40%, 14%);
+  --color-error-surface: hsl(354, 30%, 12%);
+
+  --color-warning:         hsl(38, 92%, 50%);
+  --color-warning-text:    hsl(38, 88%, 62%);
+  --color-warning-ghost:   hsl(38, 40%, 14%);
+  --color-warning-surface: hsl(38, 30%, 12%);
+
+  --color-success:         hsl(152, 52%, 42%);
+  --color-success-text:    hsl(152, 52%, 56%);
+  --color-success-ghost:   hsl(152, 28%, 14%);
+  --color-success-surface: hsl(152, 22%, 12%);
+
+  --color-info:            hsl(210, 56%, 52%);
+  --color-info-text:       hsl(210, 60%, 64%);
+  --color-info-ghost:      hsl(210, 30%, 14%);
+  --color-info-surface:    hsl(210, 24%, 12%);
+
+  /* ── AI-Specific ── */
+  --color-ai-thinking:         hsl(42, 70%, 50%);
+  --color-ai-thinking-text:    hsl(42, 72%, 62%);
+  --color-ai-thinking-muted:   hsl(42, 30%, 22%);
+  --color-ai-thinking-surface: var(--color-surface-thinking);
+
+  --color-ai-tool:             hsl(186, 52%, 48%);
+  --color-ai-tool-text:        hsl(186, 56%, 58%);
+  --color-ai-tool-muted:       hsl(186, 24%, 20%);
+  --color-ai-tool-surface:     var(--color-surface-tool);
+
+  --color-ai-cached:           hsl(162, 40%, 42%);
+  --color-ai-cached-text:      hsl(162, 42%, 56%);
+  --color-ai-cached-muted:     hsl(162, 20%, 18%);
+
+  --color-ai-search:           hsl(32, 52%, 50%);
+  --color-ai-search-text:      hsl(32, 54%, 62%);
+  --color-ai-search-muted:     hsl(32, 24%, 20%);
+  --color-ai-search-surface:   var(--color-surface-search);
+
+  --color-ai-cursor:           var(--color-primary);
+  --color-ai-cursor-glow:      hsl(8, 80%, 52%, 0.3);
+
+  --color-ai-cost:             hsl(38, 44%, 56%);
+  --color-ai-cost-text:        hsl(38, 44%, 64%);
+
+  /* ── Provider Identity ── */
+  --color-provider-openai:    hsl(168, 52%, 46%);
+  --color-provider-anthropic: hsl(24, 82%, 56%);
+  --color-provider-google:    hsl(217, 76%, 56%);
+  --color-provider-mistral:   hsl(35, 85%, 54%);
+  --color-provider-groq:      hsl(262, 60%, 58%);
+  --color-provider-cohere:    hsl(338, 66%, 56%);
+  --color-provider-together:  hsl(220, 65%, 55%);
+  --color-provider-ollama:    hsl(0, 0%, 56%);
+
+  /* ── Interactive State Layering ── */
+  --state-hover-overlay:    hsl(0, 0%, 100%, 0.04);
+  --state-active-overlay:   hsl(0, 0%, 0%, 0.06);
+  --state-focus-ring:       0 0 0 2px var(--color-border-focus);
+  --state-focus-ring-offset: 0 0 0 4px var(--color-surface-1);
+  --state-disabled-opacity: 0.38;
+
+  /* ── Typography Scale ── */
+  --text-display:    2.25rem;
+  --text-h1:         1.75rem;
+  --text-h2:         1.375rem;
+  --text-h3:         1.125rem;
+  --text-h4:         0.9375rem;
+  --text-body:       0.875rem;
+  --text-body-lg:    1rem;
+  --text-caption:    0.75rem;
+  --text-micro:      0.6875rem;
+  --text-label:      0.8125rem;
+  --text-code:       0.8125rem;
+  --text-code-sm:    0.75rem;
+
+  /* ── Font Weights ── */
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* ── Line Heights ── */
+  --leading-display: 1.15;
+  --leading-heading: 1.25;
+  --leading-body:    1.6;
+  --leading-caption: 1.4;
+  --leading-code:    1.65;
+  --leading-mono:    1.5;
+
+  /* ── Letter Spacing ── */
+  --tracking-display: -0.025em;
+  --tracking-heading: -0.015em;
+  --tracking-body:     0em;
+  --tracking-caption:  0.01em;
+  --tracking-micro:    0.02em;
+  --tracking-label:    0.01em;
+  --tracking-code:     0em;
+
+  /* ── Spacing ── */
+  --space-0:    0px;
+  --space-0-5:  2px;
+  --space-1:    4px;
+  --space-1-5:  6px;
+  --space-2:    8px;
+  --space-3:    12px;
+  --space-4:    16px;
+  --space-5:    20px;
+  --space-6:    24px;
+  --space-8:    32px;
+  --space-10:   40px;
+  --space-12:   48px;
+  --space-16:   64px;
+  --space-20:   80px;
+
+  /* ── Border Radius ── */
+  --radius-xs:   2px;
+  --radius-sm:   4px;
+  --radius-md:   6px;
+  --radius-lg:   8px;
+  --radius-xl:   12px;
+  --radius-full: 9999px;
+
+  /* ── Shadows (Dark) ── */
+  --shadow-xs:  0 1px 2px hsl(225, 20%, 2%, 0.5),
+                0 0 0 1px hsl(0, 0%, 100%, 0.03);
+  --shadow-sm:  0 2px 4px hsl(225, 20%, 2%, 0.5),
+                0 0 0 1px hsl(0, 0%, 100%, 0.04);
+  --shadow-md:  0 4px 12px hsl(225, 20%, 2%, 0.6),
+                0 0 0 1px hsl(0, 0%, 100%, 0.04);
+  --shadow-lg:  0 8px 24px hsl(225, 20%, 2%, 0.7),
+                0 0 0 1px hsl(0, 0%, 100%, 0.05);
+  --shadow-xl:  0 16px 48px hsl(225, 20%, 2%, 0.8),
+                0 0 0 1px hsl(0, 0%, 100%, 0.05);
+
+  /* ── Layout Dimensions ── */
+  --layout-sidebar-width:       260px;
+  --layout-sidebar-collapsed:   52px;
+  --layout-sidebar-min:         200px;
+  --layout-sidebar-max:         360px;
+  --layout-chat-max-width:      768px;
+  --layout-chat-padding-x:      var(--space-6);
+  --layout-canvas-default:      480px;
+  --layout-canvas-min:          360px;
+  --layout-canvas-max:          50vw;
+  --layout-params-width:        320px;
+  --layout-header-height:       52px;
+  --layout-input-max-width:     768px;
+  --layout-input-min-height:    52px;
+  --layout-input-max-height:    240px;
+  --layout-split-min-pane:      320px;
+  --layout-split-divider:       1px;
+  --layout-toast-width:         380px;
+  --layout-toast-gap:           var(--space-2);
+  --layout-toast-offset:        var(--space-4);
+
+  /* ── Z-Index ── */
+  --z-base:           0;
+  --z-raised:         10;
+  --z-sidebar:        20;
+  --z-dropdown:       30;
+  --z-drawer:         40;
+  --z-backdrop:       50;
+  --z-modal:          60;
+  --z-toast:          70;
+
+  /* ── Breakpoints (reference only — use in @media) ── */
+  --bp-sm:   640px;
+  --bp-md:   768px;
+  --bp-lg:   1024px;
+  --bp-xl:   1280px;
+  --bp-2xl:  1536px;
+
+  /* ── Transitions ── */
+  --duration-instant:  80ms;
+  --duration-fast:     150ms;
+  --duration-normal:   250ms;
+  --duration-slow:     400ms;
+  --duration-glacial:  600ms;
+
+  --ease-mechanical:        cubic-bezier(0.22, 0.68, 0.28, 1.0);
+  --ease-mechanical-in:     cubic-bezier(0.60, 0.00, 0.78, 0.32);
+  --ease-mechanical-out:    cubic-bezier(0.22, 0.68, 0.00, 1.0);
+  --ease-mechanical-in-out: cubic-bezier(0.45, 0.00, 0.22, 1.0);
+  --ease-snap:              cubic-bezier(0.34, 1.56, 0.64, 1.0);
+}
+
+/* ── Light mode ── */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --color-surface-0: hsl(40, 10%, 98%);
+  --color-surface-1: hsl(38, 8%, 95%);
+  --color-surface-2: hsl(36, 6%, 92%);
+  --color-surface-3: hsl(30, 4%, 88%);
+  --color-surface-4: hsl(0, 0%, 100%);
+
+  --color-surface-user:      hsl(220, 16%, 94%);
+  --color-surface-assistant:  transparent;
+  --color-surface-system:    hsl(220, 6%, 96%);
+  --color-surface-thinking:  hsl(42, 20%, 95%);
+  --color-surface-tool:      hsl(186, 16%, 94%);
+  --color-surface-search:    hsl(32, 16%, 95%);
+
+  --color-surface-hover: hsl(220, 6%, 90%);
+  --color-surface-active: hsl(220, 6%, 88%);
+  --color-surface-selected: hsl(186, 18%, 92%);
+
+  --color-text-1: hsl(220, 20%, 12%);
+  --color-text-2: hsl(220, 12%, 40%);
+  --color-text-3: hsl(220, 8%, 56%);
+  --color-text-inverse: hsl(0, 0%, 100%);
+  --color-text-on-primary: hsl(0, 0%, 100%);
+
+  --color-border-1: hsl(220, 8%, 88%);
+  --color-border-2: hsl(220, 8%, 80%);
+  --color-border-3: hsl(220, 8%, 72%);
+
+  --color-primary:            hsl(8, 74%, 48%);
+  --color-primary-hover:      hsl(8, 74%, 42%);
+  --color-primary-active:     hsl(8, 74%, 36%);
+  --color-primary-text:       hsl(8, 74%, 42%);
+  --color-primary-ghost:      hsl(8, 60%, 95%);
+  --color-primary-ghost-hover: hsl(8, 60%, 90%);
+  --color-primary-muted:      hsl(8, 40%, 90%);
+  --color-primary-contrast:   hsl(0, 0%, 100%);
+
+  --color-secondary:            hsl(186, 52%, 38%);
+  --color-secondary-hover:      hsl(186, 52%, 32%);
+  --color-secondary-active:     hsl(186, 52%, 28%);
+  --color-secondary-text:       hsl(186, 60%, 32%);
+  --color-secondary-ghost:      hsl(186, 40%, 94%);
+  --color-secondary-ghost-hover: hsl(186, 40%, 88%);
+  --color-secondary-muted:      hsl(186, 24%, 88%);
+
+  --color-error:         hsl(354, 70%, 48%);
+  --color-error-text:    hsl(354, 70%, 42%);
+  --color-error-ghost:   hsl(354, 60%, 96%);
+  --color-error-surface: hsl(354, 50%, 96%);
+
+  --color-warning:         hsl(38, 82%, 44%);
+  --color-warning-text:    hsl(38, 82%, 36%);
+  --color-warning-ghost:   hsl(38, 60%, 94%);
+  --color-warning-surface: hsl(38, 50%, 95%);
+
+  --color-success:         hsl(152, 52%, 36%);
+  --color-success-text:    hsl(152, 52%, 30%);
+  --color-success-ghost:   hsl(152, 40%, 94%);
+  --color-success-surface: hsl(152, 34%, 94%);
+
+  --color-info:            hsl(210, 56%, 44%);
+  --color-info-text:       hsl(210, 56%, 38%);
+  --color-info-ghost:      hsl(210, 44%, 94%);
+  --color-info-surface:    hsl(210, 38%, 95%);
+
+  --color-ai-thinking:         hsl(42, 70%, 44%);
+  --color-ai-thinking-text:    hsl(42, 70%, 34%);
+  --color-ai-thinking-muted:   hsl(42, 30%, 86%);
+
+  --color-ai-tool:             hsl(186, 52%, 38%);
+  --color-ai-tool-text:        hsl(186, 56%, 30%);
+  --color-ai-tool-muted:       hsl(186, 24%, 88%);
+
+  --color-ai-cached:           hsl(162, 40%, 34%);
+  --color-ai-cached-text:      hsl(162, 42%, 28%);
+  --color-ai-cached-muted:     hsl(162, 20%, 90%);
+
+  --color-ai-search:           hsl(32, 52%, 42%);
+  --color-ai-search-text:      hsl(32, 54%, 34%);
+  --color-ai-search-muted:     hsl(32, 24%, 90%);
+
+  --color-ai-cursor:           var(--color-primary);
+  --color-ai-cursor-glow:      hsl(8, 80%, 52%, 0.15);
+
+  --color-ai-cost:             hsl(38, 44%, 42%);
+  --color-ai-cost-text:        hsl(38, 44%, 34%);
+
+  --state-hover-overlay:    hsl(0, 0%, 0%, 0.04);
+  --state-active-overlay:   hsl(0, 0%, 0%, 0.08);
+  --state-focus-ring-offset: 0 0 0 4px var(--color-surface-0);
+
+  --shadow-xs:  0 1px 2px hsl(220, 16%, 50%, 0.06);
+  --shadow-sm:  0 1px 3px hsl(220, 16%, 50%, 0.08),
+                0 1px 2px hsl(220, 16%, 50%, 0.04);
+  --shadow-md:  0 4px 8px hsl(220, 16%, 50%, 0.08),
+                0 2px 4px hsl(220, 16%, 50%, 0.04);
+  --shadow-lg:  0 8px 24px hsl(220, 16%, 50%, 0.1),
+                0 4px 8px hsl(220, 16%, 50%, 0.05);
+  --shadow-xl:  0 20px 48px hsl(220, 16%, 50%, 0.14),
+                0 8px 16px hsl(220, 16%, 50%, 0.06);
+}
+
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Focus Visible ── */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--state-focus-ring);
+}
+
+/* ── Scrollbar Styling ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-2);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-3);
+}
+
+/* ── Selection ── */
+::selection {
+  background: hsl(186, 52%, 48%, 0.3);
+  color: var(--color-text-1);
+}
+
+/* ── Radar Sweep Spinner Animation ── */
+@keyframes radarSweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes cursorPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1.0; }
+}
+
+/* ── Theme Transition ── */
+[data-theme-transitioning] * {
+  transition: background-color var(--duration-slow) var(--ease-mechanical),
+              color var(--duration-slow) var(--ease-mechanical),
+              border-color var(--duration-slow) var(--ease-mechanical),
+              box-shadow var(--duration-slow) var(--ease-mechanical);
+}
