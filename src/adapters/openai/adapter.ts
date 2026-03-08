@@ -66,7 +66,7 @@ export const openaiAdapter: ProviderAdapter = {
 
     const body: Record<string, unknown> = {
       model: request.model,
-      messages: buildMessages(request.messages),
+      messages: buildMessages(request.messages, request.attachments),
       stream: true,
       stream_options: { include_usage: true },
     };
