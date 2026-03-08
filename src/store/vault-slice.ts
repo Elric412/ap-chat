@@ -2,12 +2,14 @@ import type { StateCreator } from 'zustand';
 import type { VaultStatus, EncryptedKeyRecord } from '../types/vault';
 import type { ProviderId } from '../types/models';
 import * as vaultManager from '../vault/vault-manager';
+import { getAdapter } from '../adapters/registry';
 
 export interface VaultSlice {
   vaultStatus: VaultStatus;
   keyRecords: EncryptedKeyRecord[];
   vaultLoading: boolean;
   vaultError: string | null;
+  verifyingKey: ProviderId | null;
 
   initVault: () => Promise<void>;
   setupVault: (password: string) => Promise<void>;
@@ -16,6 +18,7 @@ export interface VaultSlice {
   addKey: (providerId: ProviderId, rawKey: string) => Promise<EncryptedKeyRecord>;
   removeKey: (providerId: ProviderId) => Promise<void>;
   refreshKeyRecords: () => Promise<void>;
+  verifyKey: (providerId: ProviderId) => Promise<'healthy' | 'invalid'>;
 }
 
 export const createVaultSlice: StateCreator<VaultSlice, [['zustand/immer', never]], [], VaultSlice> = (set, get) => ({
