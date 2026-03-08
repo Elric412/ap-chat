@@ -5,7 +5,8 @@
   margin-bottom: var(--space-3);
   animation: fadeIn var(--duration-normal) var(--ease-mechanical) both;
   transition: background var(--duration-fast) var(--ease-mechanical),
-              box-shadow var(--duration-fast) var(--ease-mechanical);
+              box-shadow var(--duration-fast) var(--ease-mechanical),
+              transform var(--duration-fast) var(--ease-mechanical);
 }
 
 /* Role variants */
