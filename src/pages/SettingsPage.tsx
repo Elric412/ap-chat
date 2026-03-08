@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Palette, Download, Info, Shield, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Palette, Download, Info, Shield, Terminal } from 'lucide-react';
 import { KeyManagement } from '../components/vault/KeyManagement';
+import { SystemPromptEditor } from '../components/system-prompt/SystemPromptEditor';
 import { useTheme } from '../hooks/use-theme';
 import { useAppStore } from '../store';
 import { MODEL_REGISTRY } from '../constants/model-registry';
-import { PROVIDER_META } from '../constants/provider-meta';
 import styles from './SettingsPage.module.css';
 
 export function SettingsPage(): JSX.Element {
@@ -12,6 +12,7 @@ export function SettingsPage(): JSX.Element {
   const { resolvedTheme, toggleTheme } = useTheme();
   const conversations = useAppStore((s) => s.conversations);
   const keyRecords = useAppStore((s) => s.keyRecords);
+  const activeConversationId = useAppStore((s) => s.activeConversationId);
 
   const totalConversations = conversations.length;
   const configuredProviders = keyRecords.length;
@@ -35,6 +36,11 @@ export function SettingsPage(): JSX.Element {
       <div className={styles.settingsContent}>
         {/* API Keys Section */}
         <KeyManagement />
+
+        {/* System Prompt Section */}
+        <section className={styles.section}>
+          <SystemPromptEditor conversationId={activeConversationId} />
+        </section>
 
         {/* Appearance Section */}
         <section className={styles.section}>
