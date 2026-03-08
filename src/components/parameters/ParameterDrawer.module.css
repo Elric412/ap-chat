@@ -11,7 +11,7 @@
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform var(--duration-normal) var(--ease-mechanical);
+  transition: transform var(--duration-normal) cubic-bezier(0.32, 0.72, 0, 1);
   box-shadow: var(--shadow-xl);
 }
 
@@ -44,12 +44,13 @@
   color: var(--color-text-2);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background var(--duration-fast) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-mechanical);
 }
 
 .closeButton:hover {
   background: var(--color-surface-hover);
   color: var(--color-text-1);
+  transform: rotate(90deg);
 }
 
 .drawerBody {
@@ -83,6 +84,13 @@
   color: var(--color-text-1);
 }
 
+.paramHint {
+  font-size: var(--text-micro);
+  color: var(--color-text-3);
+  line-height: var(--leading-caption);
+  margin-top: var(--space-0-5);
+}
+
 .slider {
   -webkit-appearance: none;
   appearance: none;
@@ -92,6 +100,11 @@
   border-radius: var(--radius-full);
   outline: none;
   cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-mechanical);
+}
+
+.slider:hover {
+  background: var(--color-surface-4);
 }
 
 .slider::-webkit-slider-thumb {
@@ -104,14 +117,70 @@
   cursor: pointer;
   border: 2px solid var(--color-surface-1);
   box-shadow: var(--shadow-xs);
-  transition: transform var(--duration-fast) var(--ease-snap);
+  transition: transform var(--duration-fast) var(--ease-snap),
+              box-shadow var(--duration-fast) var(--ease-snap);
 }
 
 .slider::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
+  transform: scale(1.2);
+  box-shadow: 0 0 0 4px var(--color-secondary-ghost);
+}
+
+.slider:active::-webkit-slider-thumb {
+  transform: scale(1.3);
 }
 
 .slider:focus-visible {
+  box-shadow: var(--state-focus-ring);
+}
+
+/* Dynamic token mode */
+.dynamicTokenRow {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.tokenModeBtn {
+  flex: 1;
+  padding: var(--space-1-5) var(--space-2);
+  border: 1px solid var(--color-border-1);
+  background: transparent;
+  color: var(--color-text-2);
+  font-size: var(--text-caption);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-medium);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+}
+
+.tokenModeBtn:hover {
+  background: var(--color-surface-hover);
+}
+
+.tokenModeBtn[data-active="true"] {
+  background: var(--color-secondary-ghost);
+  border-color: var(--color-secondary);
+  color: var(--color-secondary-text);
+}
+
+.tokenInput {
+  width: 100%;
+  height: 36px;
+  padding: 0 var(--space-3);
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-border-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-body);
+  color: var(--color-text-1);
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-mechanical);
+  margin-top: var(--space-1);
+}
+
+.tokenInput:focus {
+  border-color: var(--color-border-focus);
   box-shadow: var(--state-focus-ring);
 }
 
@@ -178,6 +247,7 @@
 
 .levelButton:hover {
   background: var(--color-surface-hover);
+  transform: translateY(-1px);
 }
 
 .levelButton[data-active="true"] {
@@ -197,20 +267,22 @@
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--duration-fast) var(--ease-mechanical);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
 }
 
 .resetButton:hover {
   background: var(--color-surface-hover);
   color: var(--color-text-1);
+  transform: translateY(-1px);
 }
 
 .backdrop {
   position: fixed;
   inset: 0;
   z-index: calc(var(--z-drawer) - 1);
-  background: hsl(0, 0%, 0%, 0.3);
-}
-
-.backdropHidden {
-  display: none;
+  background: hsl(0, 0%, 0%, 0.4);
+  backdrop-filter: blur(4px);
 }

@@ -2,8 +2,7 @@
   margin-top: var(--space-3);
   display: flex;
   flex-direction: column;
-  gap: var(--space-1-5);
-  animation: fadeIn var(--duration-normal) var(--ease-mechanical);
+  gap: var(--space-1);
 }
 
 .citationHeader {
@@ -14,40 +13,74 @@
   font-weight: var(--weight-semibold);
   color: var(--color-ai-search-text);
   letter-spacing: var(--tracking-caption);
-  padding-bottom: var(--space-1);
+  padding: var(--space-1-5) var(--space-2);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  width: 100%;
+  text-align: left;
+  transition: background var(--duration-fast) var(--ease-mechanical);
+}
+
+.citationHeader:hover {
+  background: var(--color-surface-hover);
 }
 
 .citationHeaderIcon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: var(--radius-full);
   background: var(--color-ai-search-surface);
+  transition: transform var(--duration-fast) var(--ease-snap);
+}
+
+.citationHeader:hover .citationHeaderIcon {
+  transform: scale(1.1);
+}
+
+.collapseIcon {
+  margin-left: auto;
+  color: var(--color-text-3);
+  display: flex;
+}
+
+.citationItems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+  overflow: hidden;
 }
 
 .citation {
   display: flex;
-  gap: var(--space-2);
+  flex-direction: column;
   padding: var(--space-2) var(--space-3);
   background: var(--color-ai-search-surface);
   border: 1px solid var(--color-ai-search-muted);
   border-radius: var(--radius-lg);
-  text-decoration: none;
-  color: inherit;
   transition: all var(--duration-fast) var(--ease-mechanical);
+  position: relative;
 }
 
 .citation:hover {
   border-color: var(--color-ai-search);
   background: var(--color-surface-hover);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
-.citation:focus-visible {
-  outline: none;
+.citationLink {
+  display: flex;
+  gap: var(--space-2);
+  text-decoration: none;
+  color: inherit;
+}
+
+.citation:focus-within {
   box-shadow: var(--state-focus-ring);
 }
 
@@ -64,6 +97,13 @@
   font-weight: var(--weight-bold);
   flex-shrink: 0;
   margin-top: 1px;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+}
+
+.citation:hover .indexBadge {
+  background: var(--color-ai-search);
+  color: var(--color-text-on-primary);
+  transform: scale(1.1);
 }
 
 .body {
@@ -90,13 +130,13 @@
   color: var(--color-text-3);
   flex-shrink: 0;
   opacity: 0;
-  transition: opacity var(--duration-fast) var(--ease-mechanical),
-              transform var(--duration-fast) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-mechanical);
+  transform: translateY(1px);
 }
 
 .citation:hover .externalIcon {
   opacity: 1;
-  transform: translateX(1px) translateY(-1px);
+  transform: translateX(2px) translateY(-1px);
 }
 
 .sourceRow {
@@ -107,6 +147,13 @@
   color: var(--color-text-3);
 }
 
+.favicon {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
 .domain {
   font-size: var(--text-micro);
   color: var(--color-text-3);
@@ -114,13 +161,45 @@
   letter-spacing: var(--tracking-code);
 }
 
+.fetchedAt {
+  font-size: var(--text-micro);
+  color: var(--color-text-3);
+  opacity: 0.6;
+  margin-left: var(--space-1);
+}
+
+.expandBtn {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  opacity: 0;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+}
+
+.citation:hover .expandBtn {
+  opacity: 1;
+}
+
+.expandBtn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-1);
+}
+
 .snippet {
-  margin-top: var(--space-1);
   font-size: var(--text-micro);
   color: var(--color-text-2);
   line-height: var(--leading-caption);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  padding-top: var(--space-1-5);
+  padding-left: calc(20px + var(--space-2));
   overflow: hidden;
 }

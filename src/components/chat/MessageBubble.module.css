@@ -5,7 +5,8 @@
   margin-bottom: var(--space-3);
   animation: fadeIn var(--duration-normal) var(--ease-mechanical) both;
   transition: background var(--duration-fast) var(--ease-mechanical),
-              box-shadow var(--duration-fast) var(--ease-mechanical);
+              box-shadow var(--duration-fast) var(--ease-mechanical),
+              transform var(--duration-fast) var(--ease-mechanical);
 }
 
 /* Role variants */
@@ -121,12 +122,17 @@
   background: transparent;
   color: var(--color-text-3);
   cursor: pointer;
-  transition: all var(--duration-instant) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-mechanical);
 }
 
 .actionBtn:hover {
   color: var(--color-text-1);
   background: var(--state-hover-overlay);
+  transform: scale(1.15);
+}
+
+.actionBtn:active {
+  transform: scale(0.9);
 }
 
 .actionBtn[data-copied="true"] {
@@ -269,11 +275,16 @@
   border: 1px solid var(--color-secondary-muted);
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all var(--duration-instant) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-mechanical);
 }
 
 .artifactChip:hover {
   background: var(--color-secondary-ghost-hover);
   border-color: var(--color-secondary);
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 12px var(--color-secondary-ghost);
+}
+
+.artifactChip:active {
+  transform: translateY(0) scale(0.98);
 }
