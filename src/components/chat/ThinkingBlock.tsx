@@ -12,28 +12,28 @@ import { Brain } from 'lucide-react';
 import { formatTokenCount } from '../../lib/format';
 import styles from './ThinkingBlock.module.css';
 
-interface ThinkingBlockProps {
-  content: string;
-  tokenCount: number;
-  isStreaming: boolean;
-  startTime?: number;
-}
+// Typed easing tuples for framer-motion
+type Ease4 = [number, number, number, number];
+const EASE_SILK: Ease4 = [0.19, 1, 0.22, 1];
+const EASE_OUT: Ease4 = [0.16, 1, 0.3, 1];
+const EASE_SNAP: Ease4 = [0.34, 1.56, 0.64, 1];
+const EASE_BREATH: Ease4 = [0.37, 0, 0.63, 1];
 
 const contentVariants = {
   collapsed: {
     height: 0,
     opacity: 0,
     transition: {
-      height: { duration: 0.35, ease: [0.19, 1, 0.22, 1] },
-      opacity: { duration: 0.2, ease: [0.19, 1, 0.22, 1] },
+      height: { duration: 0.35, ease: EASE_SILK },
+      opacity: { duration: 0.2, ease: EASE_SILK },
     },
   },
   expanded: {
-    height: 'auto',
+    height: 'auto' as const,
     opacity: 1,
     transition: {
-      height: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
-      opacity: { duration: 0.3, delay: 0.1, ease: [0.16, 1, 0.3, 1] },
+      height: { duration: 0.4, ease: EASE_OUT },
+      opacity: { duration: 0.3, delay: 0.1, ease: EASE_OUT },
     },
   },
 };
