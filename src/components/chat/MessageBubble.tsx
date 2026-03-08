@@ -258,6 +258,6 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall, styl
           />
         </div>
       )}
-    </div>
+    </article>
   );
 }
