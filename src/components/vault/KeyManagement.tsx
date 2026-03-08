@@ -63,6 +63,8 @@ export function KeyManagement(): JSX.Element {
 
   const handleRemoveKey = async (providerId: ProviderId): Promise<void> => {
     const meta = PROVIDER_META[providerId];
+    // Security: Confirm destructive action
+    if (!window.confirm(`Remove ${meta.displayName} API key? This cannot be undone.`)) return;
     await removeKey(providerId);
     addToast({
       type: 'info',

@@ -196,9 +196,19 @@ export function useStream(): UseStreamReturn {
     // Build context using the context engine (sliding window + pinning)
     const branchMessages = store.getActiveBranchMessages();
     const contextConfig = store.contextConfig;
-    const contextWindow = buildContextWindow(branchMessages, model, contextConfig);
+    const systemPrompt = store.getEffectiveSystemPrompt(conversationId);
+    const systemPromptTokens = systemPrompt ? Math.ceil(systemPrompt.length / 4) : 0;
+    const contextWindow = buildContextWindow(branchMessages, model, contextConfig, systemPromptTokens);
 
     const contextMessages: StreamMessage[] = [];
+
+    // Inject system prompt if configured
+    if (systemPrompt) {
+      contextMessages.push({
+        role: 'system',
+        content: [{ type: 'text', text: systemPrompt }],
+      });
+    }
 
     // Inject summary as a system message if present
     if (contextWindow.summary) {
