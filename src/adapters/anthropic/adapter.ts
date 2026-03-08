@@ -61,6 +61,7 @@ function classifyError(status: number, body: string): ClassifiedError {
   const message = parsed?.error?.message ?? body;
 
   if (status === 401) return { type: 'auth', message, retryable: false, httpStatus: status, providerId: 'anthropic' };
+  if (status === 404) return { type: 'unknown', message: `Model not found. ${message}`, retryable: false, httpStatus: status, providerId: 'anthropic' };
   if (status === 429) return { type: 'rate_limit', message, retryable: true, retryAfterMs: 5000, httpStatus: status, providerId: 'anthropic' };
   if (status === 400 && message.includes('credit')) return { type: 'quota', message, retryable: false, httpStatus: status, providerId: 'anthropic' };
   if (status === 400 && message.includes('too long')) return { type: 'context_overflow', message, retryable: false, httpStatus: status, providerId: 'anthropic' };
