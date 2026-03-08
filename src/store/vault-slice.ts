@@ -26,6 +26,7 @@ export const createVaultSlice: StateCreator<VaultSlice, [['zustand/immer', never
   keyRecords: [],
   vaultLoading: false,
   vaultError: null,
+  verifyingKey: null,
 
   initVault: async () => {
     set((state) => { state.vaultLoading = true; });
@@ -118,5 +119,31 @@ export const createVaultSlice: StateCreator<VaultSlice, [['zustand/immer', never
   refreshKeyRecords: async () => {
     const records = await vaultManager.getAllKeyRecords();
     set((state) => { state.keyRecords = records; });
+  },
+
+  verifyKey: async (providerId) => {
+    set((state) => { state.verifyingKey = providerId; });
+    try {
+      const decryptedKey = await vaultManager.getDecryptedKey(providerId);
+      if (!decryptedKey) {
+        await vaultManager.updateKeyHealth(providerId, 'invalid');
+        await get().refreshKeyRecords();
+        return 'invalid';
+      }
+
+      const adapter = getAdapter(providerId);
+      const isValid = await adapter.validateKey(decryptedKey);
+      const status = isValid ? 'healthy' : 'invalid';
+
+      await vaultManager.updateKeyHealth(providerId, status);
+      await get().refreshKeyRecords();
+      return status;
+    } catch {
+      await vaultManager.updateKeyHealth(providerId, 'invalid');
+      await get().refreshKeyRecords();
+      return 'invalid';
+    } finally {
+      set((state) => { state.verifyingKey = null; });
+    }
   },
 });
