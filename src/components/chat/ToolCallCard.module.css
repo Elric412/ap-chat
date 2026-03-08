@@ -1,0 +1,180 @@
+.card {
+  margin-top: var(--space-2);
+  border: 1px solid var(--color-ai-tool-muted);
+  border-radius: var(--radius-md);
+  background: var(--color-ai-tool-surface);
+  overflow: hidden;
+  transition: border-color var(--duration-fast) var(--ease-mechanical);
+}
+
+.card[data-status="pending_approval"] {
+  border-color: var(--color-ai-tool);
+}
+
+.card[data-status="executing"] {
+  border-color: var(--color-ai-tool);
+}
+
+.card[data-status="failed"] {
+  border-color: var(--color-error);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+}
+
+.icon {
+  color: var(--color-ai-tool-text);
+  flex-shrink: 0;
+}
+
+.toolName {
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+  font-weight: var(--weight-medium);
+  color: var(--color-ai-tool-text);
+}
+
+.statusArea {
+  flex-shrink: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-0-5) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-micro);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-micro);
+}
+
+.badge[data-variant="executing"] {
+  color: var(--color-ai-tool-text);
+  background: var(--color-ai-tool-muted);
+}
+
+.badge[data-variant="completed"] {
+  color: var(--color-success-text);
+  background: var(--color-success-ghost);
+}
+
+.badge[data-variant="failed"] {
+  color: var(--color-error-text);
+  background: var(--color-error-ghost);
+}
+
+.badge[data-variant="denied"] {
+  color: var(--color-warning-text);
+  background: var(--color-warning-ghost);
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Arguments */
+.arguments {
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--color-ai-tool-muted);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.argRow {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.argKey {
+  font-family: var(--font-mono);
+  font-size: var(--text-code-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-3);
+  flex-shrink: 0;
+  min-width: 60px;
+}
+
+.argKey::after {
+  content: ':';
+}
+
+.argValue {
+  font-family: var(--font-mono);
+  font-size: var(--text-code-sm);
+  color: var(--color-text-1);
+  word-break: break-all;
+}
+
+/* Action buttons */
+.actions {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--color-ai-tool-muted);
+}
+
+.approveButton,
+.denyButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+}
+
+.approveButton {
+  background: var(--color-success-ghost);
+  color: var(--color-success-text);
+  border-color: var(--color-success);
+}
+
+.approveButton:hover {
+  background: var(--color-success);
+  color: var(--color-text-on-primary);
+}
+
+.approveButton:focus-visible {
+  outline: none;
+  box-shadow: var(--state-focus-ring);
+}
+
+.denyButton {
+  background: transparent;
+  color: var(--color-text-2);
+  border-color: var(--color-border-1);
+}
+
+.denyButton:hover {
+  background: var(--color-error-ghost);
+  color: var(--color-error-text);
+  border-color: var(--color-error);
+}
+
+.denyButton:focus-visible {
+  outline: none;
+  box-shadow: var(--state-focus-ring);
+}
