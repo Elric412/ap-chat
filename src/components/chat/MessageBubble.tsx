@@ -69,7 +69,7 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
   };
 
   return (
-    <div className={styles.bubble} data-role={message.role} data-status={message.status}>
+    <div className={styles.bubble} data-role={message.role} data-status={message.status} data-pinned={isPinned}>
       <div className={styles.header}>
         <div className={styles.roleIndicator}>
           {isUser && (
@@ -82,6 +82,16 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
             {isUser ? 'You' : isAssistant ? (message.model ?? 'Assistant') : message.role}
           </span>
         </div>
+        <button
+          className={styles.pinBtn}
+          data-pinned={isPinned}
+          onClick={handleTogglePin}
+          type="button"
+          aria-label={isPinned ? 'Unpin message' : 'Pin message'}
+          title={isPinned ? 'Pinned — always included in context' : 'Pin to always include in context'}
+        >
+          <Pin size={12} />
+        </button>
         <span className={styles.timestamp}>{timeStr}</span>
       </div>
 
