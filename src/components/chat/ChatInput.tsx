@@ -355,7 +355,7 @@ export function ChatInput({
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
