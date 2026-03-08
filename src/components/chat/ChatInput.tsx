@@ -217,7 +217,7 @@ export function ChatInput({
 
       {/* Preset dropdown */}
       {showPresets && (
-        <div className={styles.presetMenu}>
+        <div className={styles.presetMenu} ref={presetRef}>
           {presets.map((p) => (
             <button
               key={p.id}
