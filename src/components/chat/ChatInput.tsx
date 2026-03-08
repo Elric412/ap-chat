@@ -6,7 +6,8 @@
  * slash command menu, and preset selector.
  */
 
-import { useState, useRef, useCallback, useEffect, type KeyboardEvent, type ChangeEvent, type DragEvent } from 'react';
+import { useState, useRef, useCallback, useEffect, forwardRef, type KeyboardEvent, type ChangeEvent, type DragEvent } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp, Square, Paperclip, X, FileText, Music, Film, File, Upload, Zap } from 'lucide-react';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import {

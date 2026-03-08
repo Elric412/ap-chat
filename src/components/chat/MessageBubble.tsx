@@ -259,6 +259,6 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall, styl
           />
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
