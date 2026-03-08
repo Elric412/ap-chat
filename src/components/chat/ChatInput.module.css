@@ -1,9 +1,9 @@
 .inputContainer {
   background: var(--color-surface-2);
   border: 1px solid var(--color-border-1);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   padding: var(--space-3);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   transition: border-color var(--duration-fast) var(--ease-mechanical),
               box-shadow var(--duration-fast) var(--ease-mechanical);
   position: relative;
