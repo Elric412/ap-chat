@@ -43,11 +43,11 @@ body {
   --font-display: 'Space Grotesk', 'Outfit', sans-serif;
 
   /* ── Surfaces ── */
-  --color-surface-0: hsl(230, 15%, 6%);
-  --color-surface-1: hsl(228, 12%, 9%);
-  --color-surface-2: hsl(226, 10%, 13%);
-  --color-surface-3: hsl(224, 9%, 17%);
-  --color-surface-4: hsl(222, 8%, 21%);
+  --color-surface-0: hsl(225, 18%, 5%);
+  --color-surface-1: hsl(225, 14%, 8%);
+  --color-surface-2: hsl(224, 11%, 12%);
+  --color-surface-3: hsl(222, 10%, 16%);
+  --color-surface-4: hsl(220, 9%, 20%);
 
   --color-surface-user:      hsl(225, 16%, 14%);
   --color-surface-assistant:  transparent;
