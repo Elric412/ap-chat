@@ -22,6 +22,7 @@ import { exportAsMarkdown, exportAsJson, downloadFile } from './engine/export-en
 function AppInner(): JSX.Element {
   useTheme();
   const { commandPaletteOpen, setCommandPaletteOpen } = useKeyboard();
+  useAutoSave();
 
   const initVault = useAppStore((s) => s.initVault);
 
