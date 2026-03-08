@@ -48,7 +48,7 @@ export function CanvasPanel(): JSX.Element | null {
   if (!canvasOpen) return null;
 
   const activeArtifact = activeArtifactId ? artifacts.get(activeArtifactId) : null;
-  const allArtifacts = Array.from(artifacts.values()).sort((a, b) => a.createdAt - b.createdAt);
+  const allArtifacts: Artifact[] = Array.from(artifacts.values() as Iterable<Artifact>).sort((a, b) => a.createdAt - b.createdAt);
 
   const activeContent = activeArtifact
     ? activeArtifact.versions[activeArtifact.activeVersionIndex]?.content ?? ''
