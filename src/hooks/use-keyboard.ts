@@ -1,12 +1,22 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store';
 import { KEYBOARD_SHORTCUTS } from '../constants/keyboard-shortcuts';
 
-export function useKeyboard(): void {
+interface UseKeyboardReturn {
+  commandPaletteOpen: boolean;
+  setCommandPaletteOpen: (open: boolean) => void;
+}
+
+export function useKeyboard(): UseKeyboardReturn {
   const toggleFocusMode = useAppStore((s) => s.toggleFocusMode);
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
+  const setParamDrawerOpen = useAppStore((s) => s.setParamDrawerOpen);
+  const paramDrawerOpen = useAppStore((s) => s.paramDrawerOpen);
+  const createConversation = useAppStore((s) => s.createConversation);
 
-  /* Global keyboard shortcut listener */
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent): void {
       const isMeta = e.metaKey || e.ctrlKey;
@@ -19,6 +29,7 @@ export function useKeyboard(): void {
 
         if (requiresMeta && !isMeta) continue;
         if (requiresShift && !e.shiftKey) continue;
+        if (!requiresShift && e.shiftKey && parts.length > 1) continue;
         if (e.key.toLowerCase() !== key) continue;
 
         e.preventDefault();
@@ -30,6 +41,19 @@ export function useKeyboard(): void {
           case 'toggle-sidebar':
             toggleSidebar();
             break;
+          case 'command-palette':
+            setCommandPaletteOpen((prev) => !prev);
+            break;
+          case 'new-chat': {
+            const conv = createConversation();
+            // Navigate via window location since we can't use navigate here easily
+            window.history.pushState({}, '', `/chat/${conv.id}`);
+            window.dispatchEvent(new PopStateEvent('popstate'));
+            break;
+          }
+          case 'toggle-params':
+            setParamDrawerOpen(!paramDrawerOpen);
+            break;
           default:
             break;
         }
@@ -38,5 +62,7 @@ export function useKeyboard(): void {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [toggleFocusMode, toggleSidebar]);
+  }, [toggleFocusMode, toggleSidebar, createConversation, setParamDrawerOpen, paramDrawerOpen]);
+
+  return { commandPaletteOpen, setCommandPaletteOpen };
 }
