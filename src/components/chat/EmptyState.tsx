@@ -45,13 +45,13 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
   };
 
   return (
-    <div className={styles.emptyState}>
+    <div className={styles.emptyState} role="region" aria-label="Welcome to BYOK Chat">
       <div className={styles.hero}>
-        <div className={styles.orbitalContainer}>
+        <div className={styles.orbitalContainer} aria-hidden="true">
           <div className={styles.orbitalRing} />
           <div className={styles.orbitalRingInner} />
           <div className={styles.iconContainer}>
-            <MessageSquare size={24} aria-hidden="true" />
+            <MessageSquare size={24} />
           </div>
         </div>
 
@@ -66,13 +66,14 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
           className={styles.setupCta}
           onClick={() => navigate('/settings')}
           type="button"
+          aria-label="Navigate to settings to add your first API key"
         >
           <Key size={14} aria-hidden="true" />
           Add your first API key
           <ArrowRight size={14} aria-hidden="true" />
         </button>
       ) : (
-        <div className={styles.promptGrid}>
+        <div className={styles.promptGrid} role="group" aria-label="Starter prompts">
           {STARTER_PROMPTS.map((sp) => (
             <button
               key={sp.label}
@@ -80,6 +81,7 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
               data-color={sp.color}
               onClick={() => handlePromptClick(sp.prompt)}
               type="button"
+              aria-label={`${sp.label}: ${sp.prompt}`}
             >
               <sp.icon size={16} className={styles.promptIcon} aria-hidden="true" />
               <span className={styles.promptLabel}>{sp.label}</span>
@@ -89,15 +91,15 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
         </div>
       )}
 
-      <div className={styles.shortcuts}>
-        <span className={styles.shortcutHint}>
-          <Kbd>⌘</Kbd><Kbd>K</Kbd> Command palette
+      <div className={styles.shortcuts} aria-label="Keyboard shortcuts" role="list">
+        <span className={styles.shortcutHint} role="listitem">
+          <Kbd>⌘</Kbd><Kbd>K</Kbd> <span>Command palette</span>
         </span>
-        <span className={styles.shortcutHint}>
-          <Kbd>⌘</Kbd><Kbd>N</Kbd> New chat
+        <span className={styles.shortcutHint} role="listitem">
+          <Kbd>⌘</Kbd><Kbd>N</Kbd> <span>New chat</span>
         </span>
-        <span className={styles.shortcutHint}>
-          <Kbd>/</Kbd> Slash commands
+        <span className={styles.shortcutHint} role="listitem">
+          <Kbd>/</Kbd> <span>Slash commands</span>
         </span>
       </div>
     </div>
