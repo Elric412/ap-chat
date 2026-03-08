@@ -193,11 +193,28 @@ export function useStream(): UseStreamReturn {
       if (parent) state.messageMap.set(actualParentId, parent);
     });
 
-    // Build context from active branch
+    // Build context using the context engine (sliding window + pinning)
     const branchMessages = store.getActiveBranchMessages();
-    const contextMessages: StreamMessage[] = branchMessages
-      .filter((m) => m.role !== 'system' || m.content.length > 0)
-      .map((m) => ({ role: m.role, content: m.content }));
+    const contextConfig = store.contextConfig;
+    const contextWindow = buildContextWindow(branchMessages, model, contextConfig);
+
+    const contextMessages: StreamMessage[] = [];
+
+    // Inject summary as a system message if present
+    if (contextWindow.summary) {
+      contextMessages.push({
+        role: 'system',
+        content: [{ type: 'text', text: contextWindow.summary }],
+      });
+    }
+
+    // Add windowed messages
+    for (const m of contextWindow.messages) {
+      if (m.role === 'system' && m.content.length === 0) continue;
+      contextMessages.push({ role: m.role, content: m.content });
+    }
+
+    // Add current user message
     contextMessages.push({ role: 'user', content: userContent });
 
     let accumulatedText = '';
