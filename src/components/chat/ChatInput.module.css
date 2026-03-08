@@ -1,21 +1,24 @@
 .inputContainer {
   background: var(--color-surface-2);
   border: 1px solid var(--color-border-1);
-  border-radius: var(--radius-xl);
-  padding: var(--space-3);
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--glow-input);
   transition: border-color var(--duration-fast) var(--ease-mechanical),
-              box-shadow var(--duration-fast) var(--ease-mechanical);
+              box-shadow var(--duration-fast) var(--ease-mechanical),
+              transform var(--duration-fast) var(--ease-mechanical);
   position: relative;
 }
 
 .inputContainer[data-focused="true"] {
   border-color: var(--color-border-focus);
+  box-shadow: var(--glow-input), var(--glow-secondary);
+  transform: translateY(-1px);
 }
 
 .inputContainer[data-dragover="true"] {
   border-color: var(--color-secondary);
-  box-shadow: var(--shadow-sm), 0 0 0 2px var(--color-secondary-ghost);
+  box-shadow: var(--shadow-md), 0 0 0 3px var(--color-secondary-ghost);
 }
 
 /* Drop overlay */
@@ -27,7 +30,7 @@
   justify-content: center;
   gap: var(--space-2);
   background: var(--color-secondary-ghost);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   z-index: var(--z-raised);
   pointer-events: none;
   color: var(--color-secondary-text);
@@ -51,15 +54,17 @@
 .attachmentPreview {
   position: relative;
   flex-shrink: 0;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--color-border-1);
   background: var(--color-surface-3);
-  transition: border-color var(--duration-instant) var(--ease-mechanical);
+  transition: border-color var(--duration-instant) var(--ease-mechanical),
+              transform var(--duration-fast) var(--ease-mechanical);
 }
 
 .attachmentPreview:hover {
   border-color: var(--color-border-2);
+  transform: scale(1.02);
 }
 
 .attachmentThumb {
@@ -207,8 +212,7 @@
   background: transparent;
   color: var(--color-text-3);
   cursor: pointer;
-  transition: background var(--duration-instant) var(--ease-mechanical),
-              color var(--duration-instant) var(--ease-mechanical);
+  transition: all var(--duration-instant) var(--ease-mechanical);
 }
 
 .attachBtn:hover {
@@ -238,25 +242,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-full);
   background: var(--color-primary);
   color: var(--color-primary-contrast);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-mechanical);
-  box-shadow: 0 2px 8px var(--color-ai-cursor-glow);
+  transition: all var(--duration-fast) var(--ease-spring);
+  box-shadow: 0 2px 12px var(--color-ai-cursor-glow);
 }
 
 .sendButton:hover:not(:disabled) {
   background: var(--color-primary-hover);
-  transform: scale(1.05);
+  transform: scale(1.08);
+  box-shadow: 0 4px 20px var(--color-ai-cursor-glow);
 }
 
 .sendButton:active:not(:disabled) {
   background: var(--color-primary-active);
-  transform: scale(0.98);
+  transform: scale(0.95);
 }
 
 .sendButton:disabled {
@@ -269,18 +274,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   background: var(--color-error);
   color: var(--color-text-on-primary);
   cursor: pointer;
-  transition: background var(--duration-instant) var(--ease-mechanical);
+  transition: all var(--duration-fast) var(--ease-mechanical);
 }
 
 .stopButton:hover {
   background: var(--color-error-text);
+  transform: scale(1.05);
 }
 
 /* Hidden file input */
@@ -297,12 +303,13 @@
   margin-bottom: var(--space-2);
   background: var(--color-surface-2);
   border: 1px solid var(--color-border-1);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
   max-height: 240px;
   overflow-y: auto;
   z-index: var(--z-dropdown);
   padding: var(--space-1);
+  animation: slideDown var(--duration-normal) var(--ease-mechanical);
 }
 
 .presetItem {

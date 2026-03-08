@@ -22,10 +22,11 @@
 
 .inputWrapper {
   flex-shrink: 0;
-  padding: var(--space-3) var(--layout-chat-padding-x) var(--space-6);
+  padding: var(--space-4) var(--layout-chat-padding-x) var(--space-8);
   display: flex;
   justify-content: center;
-  background: linear-gradient(to top, var(--color-surface-0) 80%, transparent);
+  background: linear-gradient(to top, var(--color-surface-0) 60%, transparent);
+  position: relative;
 }
 
 .inputInner {

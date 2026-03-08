@@ -4,33 +4,90 @@
   align-items: center;
   justify-content: center;
   flex: 1;
-  gap: var(--space-4);
+  gap: var(--space-5);
   padding: var(--space-16);
-  animation: slideUp var(--duration-slow) var(--ease-mechanical);
+  animation: slideUp var(--duration-glacial) var(--ease-mechanical);
+  position: relative;
+}
+
+/* ── Orbital ring decoration ── */
+.orbitalContainer {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orbitalRing {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border-1);
+  animation: orbitalSpin 20s linear infinite;
+}
+
+.orbitalRing::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  box-shadow: 0 0 12px var(--color-ai-cursor-glow);
+}
+
+.orbitalRingInner {
+  position: absolute;
+  inset: 20px;
+  border-radius: var(--radius-full);
+  border: 1px dashed var(--color-border-1);
+  animation: orbitalSpin 14s linear infinite reverse;
+  opacity: 0.6;
+}
+
+.orbitalRingInner::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-secondary);
+  box-shadow: 0 0 8px var(--color-secondary);
 }
 
 .iconContainer {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 72px;
-  height: 72px;
+  width: 56px;
+  height: 56px;
   border-radius: var(--radius-xl);
-  background: linear-gradient(135deg, var(--color-surface-2), var(--color-surface-3));
+  background: linear-gradient(145deg, var(--color-surface-3), var(--color-surface-2));
   color: var(--color-primary-text);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg), var(--glow-primary);
+  position: relative;
+  z-index: 1;
 }
 
 .title {
-  font-size: var(--text-h1);
-  font-weight: var(--weight-bold);
-  line-height: var(--leading-heading);
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: 800;
+  line-height: var(--leading-display);
   letter-spacing: var(--tracking-display);
   color: var(--color-text-1);
-  background: linear-gradient(135deg, var(--color-text-1), var(--color-primary-text));
+  background: linear-gradient(135deg, var(--color-text-1) 0%, var(--color-primary-text) 50%, var(--color-secondary-text) 100%);
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: gradientShift 6s ease infinite;
 }
 
 .subtitle {
@@ -39,37 +96,40 @@
   line-height: var(--leading-body);
   color: var(--color-text-2);
   text-align: center;
-  max-width: 420px;
+  max-width: 400px;
 }
 
 .setupCta {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-5);
-  background: var(--color-primary-ghost);
-  border: 1px solid var(--color-primary-muted);
-  border-radius: var(--radius-lg);
-  color: var(--color-primary-text);
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-full);
+  color: var(--color-primary-contrast);
   font-family: var(--font-sans);
   font-size: var(--text-body);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-mechanical);
-  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-fast) var(--ease-spring);
+  box-shadow: var(--shadow-md), var(--glow-primary);
+  letter-spacing: var(--tracking-label);
 }
 
 .setupCta:hover {
-  background: var(--color-primary-ghost-hover);
-  border-color: var(--color-primary);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--shadow-lg), 0 0 48px hsl(24, 82%, 52%, 0.2);
+}
+
+.setupCta:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .shortcuts {
   display: flex;
-  gap: var(--space-4);
-  margin-top: var(--space-4);
+  gap: var(--space-5);
+  margin-top: var(--space-6);
   flex-wrap: wrap;
   justify-content: center;
 }
