@@ -153,7 +153,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
     releaseDate: '2026-03-01', defaultSafeParams: { temperature: 1 },
   },
   {
-    id: 'claude-sonnet-4-6-20260301',
+    id: 'claude-sonnet-4-6',
     providerId: 'anthropic',
     displayName: 'Claude Sonnet 4.6',
     family: 'Claude',
