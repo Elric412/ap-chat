@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store';
 import { ChatView } from '../components/chat/ChatView';
 import { EmptyState } from '../components/chat/EmptyState';
 import { ChatInput } from '../components/chat/ChatInput';
+import { useStream } from '../hooks/use-stream';
 import { uuidv7 } from '../lib/uuid';
 import { putMessage } from '../db/messages-repo';
 import type { MessageNode } from '../types/messages';
@@ -16,6 +17,9 @@ export function ChatPage(): JSX.Element {
   const conversations = useAppStore((s) => s.conversations);
   const createConversation = useAppStore((s) => s.createConversation);
   const setActiveConversation = useAppStore((s) => s.setActiveConversation);
+  const updateConversation = useAppStore((s) => s.updateConversation);
+  const { sendWithStream, abort, isStreaming } = useStream();
+  const [streaming, setStreaming] = useState(false);
 
   const conversation = conversationId
     ? conversations.find((c) => c.id === conversationId)
@@ -28,9 +32,31 @@ export function ChatPage(): JSX.Element {
     }
   }, [conversationId, setActiveConversation]);
 
+  /** Handle sending a message in an existing conversation */
+  const handleSend = useCallback(async (text: string) => {
+    if (!conversation) return;
+    setStreaming(true);
+
+    const store = useAppStore.getState();
+    const branchMessages = store.getActiveBranchMessages();
+    const lastMsg = branchMessages[branchMessages.length - 1];
+    const parentId = lastMsg?.id ?? null;
+
+    await sendWithStream(conversation.id, text, parentId, conversation.rootNodeId);
+
+    // Auto-title after first exchange
+    if (branchMessages.length <= 1) {
+      const title = text.length > 50 ? text.slice(0, 47) + '…' : text;
+      updateConversation(conversation.id, { title });
+    }
+
+    setStreaming(false);
+  }, [conversation, sendWithStream, updateConversation]);
+
   /** Handle first message from empty state — creates a conversation on the fly */
-  const handleFirstMessage = async (text: string): Promise<void> => {
+  const handleFirstMessage = useCallback(async (text: string) => {
     const conv = createConversation();
+    setStreaming(true);
 
     // Create the root system node
     const rootNode: MessageNode = {
@@ -65,22 +91,28 @@ export function ChatPage(): JSX.Element {
 
     await putMessage(rootNode);
 
-    // Navigate to the new conversation, then send the message
+    // Navigate to the new conversation
     navigate(`/chat/${conv.id}`, { replace: true });
 
-    // Defer the message send to after navigation settles
+    // Defer to let navigation/render settle
     setTimeout(async () => {
       const store = useAppStore.getState();
       await store.loadMessages(conv.id);
-      await store.sendMessage(conv.id, text, conv.rootNodeId, conv.rootNodeId);
+      await sendWithStream(conv.id, text, conv.rootNodeId, conv.rootNodeId);
       const title = text.length > 50 ? text.slice(0, 47) + '…' : text;
       store.updateConversation(conv.id, { title });
+      setStreaming(false);
     }, 50);
-  };
+  }, [createConversation, navigate, sendWithStream]);
+
+  const handleAbort = useCallback(() => {
+    abort();
+    setStreaming(false);
+  }, [abort]);
 
   // If we have a valid conversation, render the full chat view
   if (conversation) {
-    return <ChatViewWithRoot conversation={conversation} />;
+    return <ChatViewWithRoot conversation={conversation} onSend={handleSend} isStreaming={streaming} onAbort={handleAbort} />;
   }
 
   // Empty state with inline input
@@ -93,7 +125,7 @@ export function ChatPage(): JSX.Element {
       </div>
       <div className={styles.inputWrapper}>
         <div className={styles.inputInner}>
-          <ChatInput onSend={handleFirstMessage} />
+          <ChatInput onSend={handleFirstMessage} isStreaming={streaming} onAbort={handleAbort} />
         </div>
       </div>
     </div>
@@ -101,9 +133,18 @@ export function ChatPage(): JSX.Element {
 }
 
 /** Wrapper that ensures root node exists before rendering ChatView */
-function ChatViewWithRoot({ conversation }: { conversation: { id: string; rootNodeId: string } }): JSX.Element {
+function ChatViewWithRoot({
+  conversation,
+  onSend,
+  isStreaming,
+  onAbort,
+}: {
+  conversation: { id: string; rootNodeId: string };
+  onSend: (text: string) => void;
+  isStreaming: boolean;
+  onAbort: () => void;
+}): JSX.Element {
   const loadMessages = useAppStore((s) => s.loadMessages);
-  const messageMap = useAppStore((s) => s.messageMap);
 
   /* Ensure root node exists */
   useEffect(() => {
@@ -111,7 +152,6 @@ function ChatViewWithRoot({ conversation }: { conversation: { id: string; rootNo
       await loadMessages(conversation.id);
       const map = useAppStore.getState().messageMap;
       if (!map.has(conversation.rootNodeId)) {
-        // Create root node if it doesn't exist
         const rootNode: MessageNode = {
           id: conversation.rootNodeId,
           conversationId: conversation.id,
@@ -152,6 +192,9 @@ function ChatViewWithRoot({ conversation }: { conversation: { id: string; rootNo
     <ChatView
       conversationId={conversation.id}
       rootNodeId={conversation.rootNodeId}
+      onSend={onSend}
+      isStreaming={isStreaming}
+      onAbort={onAbort}
     />
   );
 }

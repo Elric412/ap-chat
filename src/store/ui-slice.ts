@@ -1,5 +1,7 @@
 import type { StateCreator } from 'zustand';
 import type { ThemeMode, ResolvedTheme, DensityMode } from '../types/ui';
+import type { InferenceParameters } from '../types/parameters';
+import { DEFAULT_PARAMETERS } from '../constants/default-parameters';
 
 export interface UISlice {
   theme: ThemeMode;
@@ -10,6 +12,8 @@ export interface UISlice {
   canvasOpen: boolean;
   focusMode: boolean;
   paramDrawerOpen: boolean;
+  selectedModelId: string;
+  inferenceParams: InferenceParameters;
 
   setTheme: (theme: ThemeMode) => void;
   setResolvedTheme: (resolved: ResolvedTheme) => void;
@@ -21,6 +25,8 @@ export interface UISlice {
   setCanvasOpen: (open: boolean) => void;
   toggleFocusMode: () => void;
   setParamDrawerOpen: (open: boolean) => void;
+  setSelectedModelId: (id: string) => void;
+  setInferenceParams: (params: InferenceParameters) => void;
 }
 
 const STORAGE_KEYS = {
@@ -53,6 +59,8 @@ export const createUISlice: StateCreator<UISlice, [['zustand/immer', never]], []
   canvasOpen: false,
   focusMode: false,
   paramDrawerOpen: false,
+  selectedModelId: 'claude-sonnet-4-20250514',
+  inferenceParams: { ...DEFAULT_PARAMETERS },
 
   setTheme: (theme) => {
     try { localStorage.setItem(STORAGE_KEYS.theme, theme); } catch { /* noop */ }
@@ -75,4 +83,6 @@ export const createUISlice: StateCreator<UISlice, [['zustand/immer', never]], []
     }
   }),
   setParamDrawerOpen: (open) => set((state) => { state.paramDrawerOpen = open; }),
+  setSelectedModelId: (id) => set((state) => { state.selectedModelId = id; }),
+  setInferenceParams: (params) => set((state) => { state.inferenceParams = params; }),
 });

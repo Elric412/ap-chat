@@ -11,6 +11,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { VaultSetupModal } from './components/vault/VaultSetupModal';
 import { VaultUnlockModal } from './components/vault/VaultUnlockModal';
 import { ToastStack } from './components/shared/ToastStack';
+import { ParameterDrawer } from './components/parameters/ParameterDrawer';
 
 function AppInner(): JSX.Element {
   useTheme();
@@ -39,6 +40,7 @@ function AppInner(): JSX.Element {
       </AppShell>
       <VaultSetupModal />
       <VaultUnlockModal />
+      <ParameterDrawer />
       <ToastStack />
     </>
   );
