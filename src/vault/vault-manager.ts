@@ -28,6 +28,11 @@ let autoLockTimer: ReturnType<typeof setTimeout> | null = null;
 /** Default idle timeout: 15 minutes */
 const DEFAULT_IDLE_TIMEOUT_MS = 15 * 60 * 1000;
 
+/** Brute-force protection */
+let failedAttempts = 0;
+const BASE_DELAY_MS = 1000;
+const MAX_DELAY_MS = 30_000;
+
 /** Reset auto-lock timer */
 function resetAutoLockTimer(onLock: () => void): void {
   if (autoLockTimer !== null) {
