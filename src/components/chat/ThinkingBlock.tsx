@@ -38,6 +38,13 @@ const contentVariants = {
   },
 };
 
+interface ThinkingBlockProps {
+  content: string;
+  tokenCount: number;
+  isStreaming: boolean;
+  startTime?: number;
+}
+
 export function ThinkingBlock({ content, tokenCount, isStreaming, startTime }: ThinkingBlockProps): JSX.Element {
   const [elapsed, setElapsed] = useState(0);
   const [isOpen, setIsOpen] = useState(false);

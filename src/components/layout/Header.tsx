@@ -10,8 +10,12 @@ import { Tooltip } from '../shared/Tooltip';
 import { useMediaQuery } from '../../hooks/use-media-query';
 import styles from './Header.module.css';
 
+type Ease4 = [number, number, number, number];
+const EASE_SNAP: Ease4 = [0.34, 1.56, 0.64, 1];
+const EASE_OUT: Ease4 = [0.16, 1, 0.3, 1];
+
 const buttonTap = { scale: 0.88, transition: { duration: 0.08 } };
-const buttonHover = { y: -1, transition: { duration: 0.15, ease: [0.34, 1.56, 0.64, 1] } };
+const buttonHover = { y: -1, transition: { duration: 0.15, ease: EASE_SNAP } };
 
 export function Header(): JSX.Element {
   const [selectorOpen, setSelectorOpen] = useState(false);
