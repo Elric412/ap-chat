@@ -68,10 +68,10 @@ export function useCloudSync() {
           conversation_id: msg.conversationId,
           user_id: user.id,
           parent_id: msg.parentId ?? null,
-          role: msg.role,
-          content: msg.content as unknown as Record<string, unknown>,
+          role: msg.role as string,
+          content: JSON.parse(JSON.stringify(msg.content)),
           model: msg.model ?? null,
-          status: msg.status,
+          status: msg.status as string,
           token_input: msg.tokenCounts.input,
           token_output: msg.tokenCounts.output,
           token_thinking: msg.tokenCounts.thinking,
@@ -79,15 +79,15 @@ export function useCloudSync() {
           cost_estimate: msg.costEstimate.totalCost,
           latency_ms: msg.latency ?? null,
           thinking_content: msg.thinkingContent ?? null,
-          tool_calls: msg.toolCalls as unknown as Record<string, unknown>,
-          web_search_results: msg.webSearchResults as unknown as Record<string, unknown>,
-          metadata: msg.metadata as unknown as Record<string, unknown>,
+          tool_calls: JSON.parse(JSON.stringify(msg.toolCalls)),
+          web_search_results: JSON.parse(JSON.stringify(msg.webSearchResults)),
+          metadata: JSON.parse(JSON.stringify(msg.metadata)),
           created_at: new Date(msg.timestamp).toISOString(),
         };
 
         const { error } = existing
           ? await supabase.from('messages').update(payload).eq('id', msg.id)
-          : await supabase.from('messages').insert(payload);
+          : await supabase.from('messages').insert([payload]);
 
         if (error) console.error('Sync message error:', error);
       }
