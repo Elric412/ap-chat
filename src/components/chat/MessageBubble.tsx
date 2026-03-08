@@ -46,6 +46,12 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
 
   const hasToolCalls = message.toolCalls.length > 0;
   const hasCitations = message.webSearchResults.length > 0;
+  const hasArtifacts = message.artifactRefs.length > 0;
+
+  const handleViewArtifact = (artifactId: string) => {
+    useAppStore.getState().setActiveArtifact(artifactId);
+    useAppStore.getState().setCanvasOpen(true);
+  };
 
   return (
     <div className={styles.bubble} data-role={message.role} data-status={message.status}>
