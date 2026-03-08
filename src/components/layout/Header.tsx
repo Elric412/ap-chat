@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Settings, SlidersHorizontal, PanelRight, Columns2, Globe, Menu, Cloud, CloudOff } from 'lucide-react';
+import { ChevronDown, Settings, SlidersHorizontal, PanelRight, Columns2, Globe, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../store';
 import { MODEL_REGISTRY } from '../../constants/model-registry';
 import { PROVIDER_META } from '../../constants/provider-meta';
 import { ModelSelector } from '../models/ModelSelector';
-import { Tooltip } from '../shared/Tooltip';
 import { useMediaQuery } from '../../hooks/use-media-query';
+import { DynamicIsland } from './DynamicIsland';
 import styles from './Header.module.css';
 
 type Ease4 = [number, number, number, number];
@@ -30,7 +30,6 @@ export function Header(): JSX.Element {
   const toggleWebSearch = useAppStore((s) => s.toggleWebSearch);
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
-  const autoSaveStatus = useAppStore((s) => s.autoSaveStatus);
   const navigate = useNavigate();
 
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -69,7 +68,7 @@ export function Header(): JSX.Element {
               transition={{ duration: 0.2, ease: EASE_SNAP }}
               whileTap={buttonTap}
             >
-              <Menu size={20} aria-hidden="true" />
+              <Menu size={18} aria-hidden="true" />
             </motion.button>
           )}
         </AnimatePresence>
@@ -95,7 +94,7 @@ export function Header(): JSX.Element {
             animate={{ rotate: selectorOpen ? 180 : 0 }}
             transition={{ duration: 0.25, ease: EASE_SNAP }}
           >
-            <ChevronDown size={14} className={styles.chevron} aria-hidden="true" />
+            <ChevronDown size={12} className={styles.chevron} aria-hidden="true" />
           </motion.span>
         </motion.button>
 
@@ -116,7 +115,7 @@ export function Header(): JSX.Element {
           whileHover={supportsSearch ? buttonHover : undefined}
           whileTap={supportsSearch ? buttonTap : undefined}
         >
-          <Globe size={14} aria-hidden="true" />
+          <Globe size={13} aria-hidden="true" />
           <span className={styles.searchLabel}>Search</span>
           <AnimatePresence>
             {webSearchEnabled && supportsSearch && (
@@ -132,32 +131,12 @@ export function Header(): JSX.Element {
           </AnimatePresence>
         </motion.button>
 
-        {/* Auto-save indicator */}
-        <AnimatePresence mode="wait">
-          {autoSaveStatus !== 'idle' && (
-            <motion.span
-              key={autoSaveStatus}
-              className={styles.saveStatus}
-              data-status={autoSaveStatus}
-              title={`Auto-save: ${autoSaveStatus}`}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.25, ease: EASE_OUT }}
-            >
-              {autoSaveStatus === 'saving' ? (
-                <Cloud size={12} className={styles.savePulse} aria-hidden="true" />
-              ) : autoSaveStatus === 'saved' ? (
-                <Cloud size={12} aria-hidden="true" />
-              ) : autoSaveStatus === 'error' ? (
-                <CloudOff size={12} aria-hidden="true" />
-              ) : null}
-              {!isMobile && autoSaveStatus === 'saved' && <span className={styles.saveLabel}>Saved</span>}
-            </motion.span>
-          )}
-        </AnimatePresence>
+        {/* Dynamic Island — morphing status pill */}
+        <DynamicIsland />
 
         <div className={styles.spacer} />
+
+        <span className={styles.divider} />
 
         {!isMobile && (
           <>
@@ -171,7 +150,7 @@ export function Header(): JSX.Element {
               whileHover={buttonHover}
               whileTap={buttonTap}
             >
-              <Columns2 size={18} aria-hidden="true" />
+              <Columns2 size={16} aria-hidden="true" />
             </motion.button>
             <motion.button
               className={styles.headerAction}
@@ -182,7 +161,7 @@ export function Header(): JSX.Element {
               whileHover={buttonHover}
               whileTap={buttonTap}
             >
-              <PanelRight size={18} aria-hidden="true" />
+              <PanelRight size={16} aria-hidden="true" />
             </motion.button>
           </>
         )}
@@ -194,7 +173,7 @@ export function Header(): JSX.Element {
           whileHover={buttonHover}
           whileTap={buttonTap}
         >
-          <SlidersHorizontal size={18} aria-hidden="true" />
+          <SlidersHorizontal size={16} aria-hidden="true" />
         </motion.button>
         {!isMobile && (
           <motion.button
@@ -205,7 +184,7 @@ export function Header(): JSX.Element {
             whileHover={buttonHover}
             whileTap={buttonTap}
           >
-            <Settings size={18} aria-hidden="true" />
+            <Settings size={16} aria-hidden="true" />
           </motion.button>
         )}
       </motion.header>

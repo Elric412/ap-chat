@@ -12,16 +12,17 @@
   position: fixed;
   inset: 0;
   background: hsl(0, 0%, 0%, 0.45);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .palette {
   position: relative;
-  width: 540px;
+  width: 520px;
   max-width: calc(100vw - var(--space-8));
-  max-height: 60vh;
-  background: var(--color-surface-2);
-  border: 1px solid var(--color-border-1);
+  max-height: 58vh;
+  background: var(--color-surface-1);
+  border: 1px solid hsl(0, 0%, 100%, 0.06);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
   display: flex;
@@ -29,12 +30,25 @@
   overflow: hidden;
 }
 
+/* Glass highlight */
+.palette::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(0, 0%, 100%, 0.05), transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+
 .searchRow {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-border-1);
+  border-bottom: 1px solid hsl(0, 0%, 100%, 0.04);
 }
 
 .searchIcon {
@@ -60,7 +74,7 @@
 .resultList {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-2);
+  padding: var(--space-1-5);
 }
 
 .categoryLabel {
@@ -70,6 +84,7 @@
   color: var(--color-text-3);
   text-transform: uppercase;
   letter-spacing: var(--tracking-micro);
+  opacity: 0.6;
 }
 
 .resultItem {
@@ -87,6 +102,7 @@
   cursor: pointer;
   text-align: left;
   transition: background var(--duration-instant) var(--ease-mechanical);
+  min-height: 36px;
 }
 
 .resultItem:hover,
@@ -102,7 +118,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
+  width: 18px;
   flex-shrink: 0;
   color: var(--color-text-2);
 }

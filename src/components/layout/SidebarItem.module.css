@@ -11,28 +11,29 @@
   font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-caption);
   line-height: var(--leading-caption);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   cursor: pointer;
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   transition: all var(--duration-fast) var(--ease-silk);
-  margin-bottom: var(--space-0-5);
+  margin-bottom: 1px;
   position: relative;
   gap: var(--space-2);
   -webkit-tap-highlight-color: transparent;
+  min-height: 34px;
 }
 
 .chatIcon {
   flex-shrink: 0;
   color: var(--color-text-3);
-  opacity: 0.3;
+  opacity: 0.25;
   transition: all var(--duration-normal) var(--ease-silk);
 }
 
 .sidebarItem:hover .chatIcon {
-  opacity: 0.7;
+  opacity: 0.6;
   color: var(--color-text-2);
 }
 
@@ -61,12 +62,12 @@
   content: '';
   position: absolute;
   left: 0;
-  top: 6px;
-  bottom: 6px;
-  width: 3px;
+  top: 7px;
+  bottom: 7px;
+  width: 2px;
   border-radius: 0 var(--radius-full) var(--radius-full) 0;
   background: var(--color-primary);
-  box-shadow: 0 0 10px hsl(24, 82%, 52%, 0.2);
+  box-shadow: 0 0 8px hsl(24, 82%, 52%, 0.15);
   animation: indicatorIn 0.35s var(--ease-bounce) both;
 }
 
@@ -101,26 +102,26 @@
   min-width: 0;
   padding: var(--space-0-5) var(--space-2);
   border: 1px solid var(--color-primary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   background: var(--color-surface-0);
   color: var(--color-text-1);
   font-family: var(--font-sans);
   font-size: var(--text-caption);
   font-weight: var(--weight-medium);
   outline: none;
-  box-shadow: 0 0 0 3px hsl(24, 82%, 52%, 0.1);
+  box-shadow: 0 0 0 2px hsl(24, 82%, 52%, 0.1);
 }
 
 .confirmBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border: none;
   background: var(--color-primary-ghost);
   color: var(--color-primary-text);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   cursor: pointer;
   flex-shrink: 0;
   transition: all var(--duration-fast) var(--ease-snap);
@@ -136,12 +137,12 @@
   display: none;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border: none;
   background: transparent;
   color: var(--color-text-3);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   cursor: pointer;
   flex-shrink: 0;
   margin-left: var(--space-1);
@@ -155,7 +156,7 @@
 .deleteButton:hover {
   color: var(--color-error-text);
   background: var(--color-error-ghost);
-  transform: scale(1.15);
+  transform: scale(1.1);
 }
 
 .deleteButton:active {
@@ -166,7 +167,8 @@
 /* ── Mobile — always show delete ── */
 @media (max-width: 768px) {
   .sidebarItem {
-    padding: var(--space-2-5, 10px) var(--space-3);
+    padding: var(--space-2-5) var(--space-3);
+    min-height: 38px;
   }
 
   .deleteButton {

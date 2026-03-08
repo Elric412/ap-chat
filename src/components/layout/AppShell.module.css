@@ -2,7 +2,6 @@
   display: grid;
   grid-template-columns: auto 1fr;
   grid-template-rows: 1fr;
-  height: 100vh;
   height: 100dvh;
   width: 100vw;
   overflow: hidden;
@@ -11,7 +10,7 @@
 }
 
 /* Ambient gradient mesh — subtle, warm-tinted */
-.shell::before {
+.shell::after {
   content: '';
   position: fixed;
   inset: 0;

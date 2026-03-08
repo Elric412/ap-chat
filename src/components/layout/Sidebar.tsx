@@ -1,13 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { useTheme } from '../../hooks/use-theme';
 import { useAuth } from '../../hooks/use-auth';
-import { Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare, LogIn, User, Search, X, Menu } from 'lucide-react';
+import { Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare, LogIn, User, Search, X } from 'lucide-react';
 import { SidebarItem } from './SidebarItem';
 import type { Conversation } from '../../types/conversations';
 import styles from './Sidebar.module.css';
+
+type Ease4 = [number, number, number, number];
+const EASE_SNAP: Ease4 = [0.34, 1.56, 0.64, 1];
 
 function groupByDate(conversations: Conversation[]): { label: string; items: Conversation[] }[] {
   const now = new Date();
@@ -31,6 +34,21 @@ function groupByDate(conversations: Conversation[]): { label: string; items: Con
   }
 
   return order.filter((l) => groups[l]?.length).map((label) => ({ label, items: groups[label] }));
+}
+
+/** macOS Dock magnification effect */
+function useDockMagnification(itemCount: number) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const getScale = useCallback((index: number): number => {
+    if (hoveredIndex === null) return 1;
+    const distance = Math.abs(index - hoveredIndex);
+    if (distance === 0) return 1.35;
+    if (distance === 1) return 1.15;
+    return 1;
+  }, [hoveredIndex]);
+
+  return { hoveredIndex, setHoveredIndex, getScale };
 }
 
 export function Sidebar(): JSX.Element {
@@ -85,6 +103,44 @@ export function Sidebar(): JSX.Element {
     }
   }, [deleteConversation, activeConversationId, navigate]);
 
+  // Dock items config
+  const dockItems = useMemo(() => {
+    const items: { icon: typeof User; label: string; onClick: () => void; active?: boolean }[] = [];
+
+    if (user) {
+      items.push({
+        icon: User,
+        label: user.email?.split('@')[0] ?? 'Account',
+        onClick: () => void signOut(),
+        active: false,
+      });
+    } else {
+      items.push({
+        icon: LogIn,
+        label: 'Sign in',
+        onClick: () => navigate('/auth'),
+      });
+    }
+
+    items.push({
+      icon: vaultStatus === 'unlocked' ? Unlock : vaultStatus === 'locked' ? Lock : Settings,
+      label: vaultStatus === 'unlocked' ? `Keys (${configuredCount})` : 'Settings',
+      onClick: () => navigate('/settings'),
+      active: location.pathname === '/settings',
+    });
+
+    items.push({
+      icon: resolvedTheme === 'dark' ? Sun : Moon,
+      label: resolvedTheme === 'dark' ? 'Light mode' : 'Dark mode',
+      onClick: toggleTheme,
+    });
+
+    return items;
+  }, [user, signOut, navigate, vaultStatus, configuredCount, location.pathname, resolvedTheme, toggleTheme]);
+
+  const { hoveredIndex, setHoveredIndex, getScale } = useDockMagnification(dockItems.length);
+  const [tooltipIndex, setTooltipIndex] = useState<number | null>(null);
+
   return (
     <nav className={styles.sidebar} data-collapsed={sidebarCollapsed} aria-label="Sidebar">
       <div className={styles.sidebarHeader}>
@@ -96,7 +152,7 @@ export function Sidebar(): JSX.Element {
             type="button"
             onClick={() => setSearchOpen(!searchOpen)}
           >
-            <Search size={16} aria-hidden="true" />
+            <Search size={15} aria-hidden="true" />
           </button>
           <button
             className={styles.newChatButton}
@@ -104,7 +160,7 @@ export function Sidebar(): JSX.Element {
             type="button"
             onClick={handleNewChat}
           >
-            <Plus size={18} aria-hidden="true" />
+            <Plus size={16} aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -120,7 +176,7 @@ export function Sidebar(): JSX.Element {
             transition={{ duration: 0.2 }}
           >
             <div className={styles.searchInputWrap}>
-              <Search size={14} className={styles.searchIcon} aria-hidden="true" />
+              <Search size={13} className={styles.searchIcon} aria-hidden="true" />
               <input
                 className={styles.searchInput}
                 type="text"
@@ -137,7 +193,7 @@ export function Sidebar(): JSX.Element {
                   type="button"
                   aria-label="Clear search"
                 >
-                  <X size={12} />
+                  <X size={11} />
                 </button>
               )}
             </div>
@@ -148,7 +204,7 @@ export function Sidebar(): JSX.Element {
       <div className={styles.conversationList}>
         {filteredConversations.length === 0 ? (
           <div className={styles.emptyList}>
-            <MessageSquare size={20} className={styles.emptyIcon} aria-hidden="true" />
+            <MessageSquare size={18} className={styles.emptyIcon} aria-hidden="true" />
             <p className={styles.emptyText}>
               {searchQuery ? 'No matching chats' : 'No conversations yet'}
             </p>
@@ -179,61 +235,44 @@ export function Sidebar(): JSX.Element {
         </div>
       )}
 
-      <div className={styles.sidebarFooter}>
-        {user ? (
-          <button
-            className={styles.footerBtn}
-            onClick={() => void signOut()}
+      {/* macOS Dock Footer */}
+      <div
+        className={styles.sidebarFooter}
+        onMouseLeave={() => { setHoveredIndex(null); setTooltipIndex(null); }}
+      >
+        {dockItems.map((item, i) => (
+          <motion.button
+            key={item.label}
+            className={styles.dockItem}
+            onClick={item.onClick}
             type="button"
-            aria-label="Sign out"
-            title={user.email ?? 'Signed in'}
+            data-active={item.active}
+            aria-label={item.label}
+            onMouseEnter={() => { setHoveredIndex(i); setTooltipIndex(i); }}
+            onMouseLeave={() => setTooltipIndex(null)}
+            animate={{
+              scale: getScale(i),
+              y: hoveredIndex === i ? -4 : 0,
+            }}
+            transition={{ duration: 0.2, ease: EASE_SNAP }}
+            whileTap={{ scale: 0.88 }}
           >
-            <User size={16} aria-hidden="true" />
-            <span>{user.email?.split('@')[0] ?? 'Account'}</span>
-          </button>
-        ) : (
-          <button
-            className={styles.footerBtn}
-            onClick={() => navigate('/auth')}
-            type="button"
-            aria-label="Sign in"
-          >
-            <LogIn size={16} aria-hidden="true" />
-            <span>Sign In</span>
-          </button>
-        )}
-        <button
-          className={styles.footerBtn}
-          onClick={() => navigate('/settings')}
-          type="button"
-          data-active={location.pathname === '/settings'}
-          aria-label="Settings"
-        >
-          {vaultStatus === 'unlocked'
-            ? <Unlock size={16} aria-hidden="true" />
-            : vaultStatus === 'locked'
-            ? <Lock size={16} aria-hidden="true" />
-            : <Settings size={16} aria-hidden="true" />
-          }
-          <span>
-            {vaultStatus === 'unlocked'
-              ? `Keys (${configuredCount})`
-              : 'Settings'
-            }
-          </span>
-        </button>
-        <button
-          className={styles.footerBtn}
-          onClick={toggleTheme}
-          type="button"
-          aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
-        >
-          {resolvedTheme === 'dark'
-            ? <Sun size={16} aria-hidden="true" />
-            : <Moon size={16} aria-hidden="true" />
-          }
-          <span>{resolvedTheme === 'dark' ? 'Light' : 'Dark'}</span>
-        </button>
+            <item.icon size={16} aria-hidden="true" />
+            <AnimatePresence>
+              {tooltipIndex === i && (
+                <motion.span
+                  className={styles.dockTooltip}
+                  initial={{ opacity: 0, y: 4, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 4, scale: 0.9 }}
+                  transition={{ duration: 0.15, ease: EASE_SNAP }}
+                >
+                  {item.label}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        ))}
       </div>
     </nav>
   );

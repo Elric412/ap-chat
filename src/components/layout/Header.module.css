@@ -1,3 +1,7 @@
+/* ═══════════════════════════════════════════════════════════════
+   Header — Dynamic Island-inspired morphing status bar
+   ═══════════════════════════════════════════════════════════════ */
+
 .header {
   display: flex;
   align-items: center;
@@ -5,7 +9,7 @@
   padding: 0 var(--space-4);
   background: var(--glass-bg);
   border-bottom: 1px solid hsl(0, 0%, 100%, 0.04);
-  gap: var(--space-2);
+  gap: var(--space-3);
   flex-shrink: 0;
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -25,12 +29,75 @@
   pointer-events: none;
 }
 
+/* ── Dynamic Island — morphing pill status ── */
+.dynamicIsland {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-surface-0);
+  border: 1px solid hsl(0, 0%, 100%, 0.06);
+  border-radius: var(--radius-full);
+  min-height: 32px;
+  overflow: hidden;
+  position: relative;
+  transition: all var(--duration-slow) var(--ease-silk);
+}
+
+.dynamicIsland[data-expanded="true"] {
+  padding: var(--space-1-5) var(--space-4);
+  gap: var(--space-3);
+  background: var(--color-surface-1);
+  border-color: hsl(0, 0%, 100%, 0.08);
+  box-shadow: var(--shadow-md);
+}
+
+.islandDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+  transition: all var(--duration-normal) var(--ease-silk);
+}
+
+.islandDot[data-status="saving"] {
+  background: var(--color-warning);
+  box-shadow: 0 0 8px var(--color-warning);
+  animation: cursorPulse 1.2s var(--ease-breath) infinite;
+}
+
+.islandDot[data-status="saved"] {
+  background: var(--color-success);
+  box-shadow: 0 0 6px hsl(152, 52%, 42%, 0.3);
+}
+
+.islandDot[data-status="error"] {
+  background: var(--color-error);
+  box-shadow: 0 0 8px hsl(354, 70%, 52%, 0.3);
+}
+
+.islandDot[data-status="idle"] {
+  background: var(--color-text-3);
+  opacity: 0.3;
+}
+
+.islandLabel {
+  font-size: var(--text-micro);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-3);
+  letter-spacing: var(--tracking-micro);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Menu button ── */
 .menuBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border: none;
   background: transparent;
   color: var(--color-text-2);
@@ -50,14 +117,15 @@
   transform: scale(0.92);
 }
 
+/* ── Model trigger ── */
 .modelTrigger {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-1-5) var(--space-3);
   border: 1px solid hsl(0, 0%, 100%, 0.06);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-2);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-1);
   color: var(--color-text-1);
   font-size: var(--text-label);
   font-weight: var(--weight-medium);
@@ -67,11 +135,12 @@
   transition: all var(--duration-normal) var(--ease-mechanical);
   min-width: 0;
   -webkit-tap-highlight-color: transparent;
+  height: 34px;
 }
 
 .modelTrigger:hover {
   border-color: hsl(0, 0%, 100%, 0.1);
-  background: var(--color-surface-3);
+  background: var(--color-surface-2);
   box-shadow: var(--shadow-sm);
 }
 
@@ -82,8 +151,8 @@
 }
 
 .providerDot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
 }
@@ -98,53 +167,12 @@
   flex: 1;
 }
 
-/* ── Save Status ── */
-.saveStatus {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--text-micro);
-  font-family: var(--font-mono);
-  color: var(--color-text-3);
-  opacity: 0.5;
-  font-variant-numeric: tabular-nums;
-}
-
-.saveStatus[data-status="saving"] {
-  color: var(--color-warning-text);
-  opacity: 1;
-}
-
-.saveStatus[data-status="saved"] {
-  color: var(--color-success-text);
-  opacity: 0.6;
-}
-
-.saveStatus[data-status="error"] {
-  color: var(--color-error-text);
-  opacity: 1;
-}
-
-.savePulse {
-  animation: pulse 1.2s ease-in-out infinite;
-}
-
-.saveLabel {
-  font-size: var(--text-micro);
-  letter-spacing: var(--tracking-micro);
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 1; }
-}
-
 /* ── Search Toggle ── */
 .searchToggle {
   display: flex;
   align-items: center;
   gap: var(--space-1-5);
-  padding: var(--space-1) var(--space-2-5, 10px);
+  padding: var(--space-1) var(--space-2-5);
   border: 1px solid hsl(0, 0%, 100%, 0.04);
   border-radius: var(--radius-full);
   background: transparent;
@@ -156,6 +184,7 @@
   cursor: pointer;
   transition: all var(--duration-normal) var(--ease-mechanical);
   position: relative;
+  height: 30px;
 }
 
 .searchToggle:hover:not(:disabled) {
@@ -192,12 +221,13 @@
   animation: cursorPulse 2s var(--ease-mechanical) infinite;
 }
 
+/* ── Header actions ── */
 .headerAction {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border: none;
   background: transparent;
   color: var(--color-text-3);
@@ -222,36 +252,52 @@
   background: var(--color-secondary-ghost);
 }
 
-.statusText {
-  font-size: var(--text-caption);
-  font-weight: var(--weight-medium);
-  color: var(--color-text-3);
-  letter-spacing: var(--tracking-caption);
+/* ── Divider ── */
+.divider {
+  width: 1px;
+  height: 20px;
+  background: hsl(0, 0%, 100%, 0.06);
+  flex-shrink: 0;
 }
 
 /* ── Mobile ── */
 @media (max-width: 768px) {
   .header {
     padding: 0 var(--space-2);
-    gap: var(--space-1);
+    gap: var(--space-2);
   }
 
   .modelTrigger {
     padding: var(--space-1) var(--space-2);
     font-size: var(--text-caption);
-    max-width: 180px;
+    max-width: 160px;
+    height: 32px;
   }
 
   .headerAction {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
   }
 
   .searchToggle {
     padding: var(--space-1);
+    height: 28px;
   }
 
   .searchLabel {
+    display: none;
+  }
+
+  .dynamicIsland {
+    padding: var(--space-1) var(--space-2);
+    min-height: 28px;
+  }
+
+  .islandLabel {
+    display: none;
+  }
+
+  .divider {
     display: none;
   }
 }

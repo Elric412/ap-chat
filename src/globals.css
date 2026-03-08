@@ -200,12 +200,13 @@ body {
   --tracking-label:    0.01em;
   --tracking-code:     0em;
 
-  /* ── Spacing ── */
+  /* ── Spacing (8px base grid) ── */
   --space-0:    0px;
   --space-0-5:  2px;
   --space-1:    4px;
   --space-1-5:  6px;
   --space-2:    8px;
+  --space-2-5:  10px;
   --space-3:    12px;
   --space-4:    16px;
   --space-5:    20px;
@@ -253,7 +254,7 @@ body {
   --layout-canvas-min:          360px;
   --layout-canvas-max:          50vw;
   --layout-params-width:        320px;
-  --layout-header-height:       56px;
+  --layout-header-height:       52px;
   --layout-input-max-width:     768px;
   --layout-input-min-height:    56px;
   --layout-input-max-height:    240px;
@@ -295,25 +296,47 @@ body {
   --duration-cinematic: 900ms;
 
   /* ── Signature Easings — "Velvet Mechanical" family ── */
-  /* The default: fast in, decelerate with slight elasticity */
   --ease-out:             cubic-bezier(0.16, 1, 0.3, 1);
-  /* Assertive entrance — snaps into place with confidence */
   --ease-snap:            cubic-bezier(0.34, 1.56, 0.64, 1);
-  /* Soft overshoot — playful but controlled */
   --ease-spring:          cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  /* Dramatic reveal — slow start, explosive finish */
   --ease-dramatic:        cubic-bezier(0.7, 0, 0.15, 1);
-  /* Luxurious — silk-like deceleration */
   --ease-silk:            cubic-bezier(0.19, 1, 0.22, 1);
-  /* Mechanical precision — consistent, engineered feel */
   --ease-mechanical:      cubic-bezier(0.22, 0.68, 0.28, 1.0);
   --ease-mechanical-in:   cubic-bezier(0.60, 0.00, 0.78, 0.32);
   --ease-mechanical-out:  cubic-bezier(0.22, 0.68, 0.00, 1.0);
   --ease-mechanical-in-out: cubic-bezier(0.45, 0.00, 0.22, 1.0);
-  /* Breath — organic, living feel */
   --ease-breath:          cubic-bezier(0.37, 0, 0.63, 1);
-  /* Bounce — playful termination */
   --ease-bounce:          cubic-bezier(0.34, 1.7, 0.64, 1);
+
+  /* ── shadcn/ui overrides ── */
+  --radius: 12px;
+  --background: 225 18% 5%;
+  --foreground: 210 12% 93%;
+  --card: 225 14% 8%;
+  --card-foreground: 210 12% 93%;
+  --popover: 224 11% 12%;
+  --popover-foreground: 210 12% 93%;
+  --primary: 24 82% 52%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 172 52% 46%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 222 10% 16%;
+  --muted-foreground: 210 8% 56%;
+  --accent: 225 10% 15%;
+  --accent-foreground: 210 12% 93%;
+  --destructive: 354 70% 52%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 225 10% 14%;
+  --input: 225 10% 20%;
+  --ring: 172 52% 46%;
+  --sidebar-background: 225 14% 8%;
+  --sidebar-foreground: 210 12% 93%;
+  --sidebar-primary: 24 82% 52%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 225 10% 15%;
+  --sidebar-accent-foreground: 210 12% 93%;
+  --sidebar-border: 225 10% 14%;
+  --sidebar-ring: 172 52% 46%;
 }
 
 /* ── Light mode ── */
@@ -427,6 +450,27 @@ body {
   --glow-primary: 0 0 40px hsl(24, 82%, 46%, 0.08), 0 0 80px hsl(24, 82%, 46%, 0.04);
   --glow-secondary: 0 0 40px hsl(172, 52%, 36%, 0.08), 0 0 80px hsl(172, 52%, 36%, 0.04);
   --glow-input: 0 4px 24px hsl(225, 16%, 50%, 0.1), 0 0 0 1px hsl(0, 0%, 0%, 0.05);
+
+  /* ── shadcn light overrides ── */
+  --background: 40 12% 97%;
+  --foreground: 225 22% 10%;
+  --card: 38 10% 94%;
+  --card-foreground: 225 22% 10%;
+  --popover: 36 8% 91%;
+  --popover-foreground: 225 22% 10%;
+  --primary: 24 82% 46%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 172 52% 36%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 30 6% 87%;
+  --muted-foreground: 225 12% 38%;
+  --accent: 225 8% 89%;
+  --accent-foreground: 225 22% 10%;
+  --destructive: 354 70% 48%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 225 10% 87%;
+  --input: 225 10% 79%;
+  --ring: 172 52% 36%;
 }
 
 /* ── Reduced Motion ── */
@@ -609,4 +653,19 @@ select:focus-visible,
 
 [data-theme="light"] .noise-overlay::before {
   opacity: 0.02;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   shadcn/ui COMPONENT OVERRIDES — Premium, non-default styling
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Override default Tailwind layer for shadcn */
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
 }

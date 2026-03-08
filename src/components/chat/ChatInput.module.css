@@ -16,10 +16,10 @@
   content: '';
   position: absolute;
   top: 0;
-  left: var(--space-6);
-  right: var(--space-6);
+  left: var(--space-8);
+  right: var(--space-8);
   height: 1px;
-  background: linear-gradient(90deg, transparent, hsl(0, 0%, 100%, 0.06), transparent);
+  background: linear-gradient(90deg, transparent, hsl(0, 0%, 100%, 0.05), transparent);
   pointer-events: none;
   border-radius: var(--radius-full);
 }
@@ -70,7 +70,7 @@
 .attachmentPreview {
   position: relative;
   flex-shrink: 0;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid hsl(0, 0%, 100%, 0.04);
   background: var(--color-surface-3);
@@ -84,8 +84,8 @@
 }
 
 .attachmentThumb {
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   object-fit: cover;
   display: block;
 }
@@ -96,8 +96,8 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-0-5);
-  width: 80px;
-  height: 64px;
+  width: 72px;
+  height: 56px;
   padding: var(--space-1);
 }
 
@@ -114,7 +114,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 72px;
+  max-width: 64px;
 }
 
 .attachmentSize {
@@ -127,8 +127,8 @@
   position: absolute;
   top: 2px;
   right: 2px;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border: none;
   border-radius: var(--radius-full);
   background: var(--color-surface-0);
@@ -162,7 +162,7 @@
   font-size: 8px;
   font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-micro);
-  padding: 1px 4px;
+  padding: 1px 3px;
   border-radius: var(--radius-xs);
   text-transform: uppercase;
 }
@@ -211,7 +211,7 @@
 
 .textarea::placeholder {
   color: var(--color-text-3);
-  opacity: 0.5;
+  opacity: 0.45;
 }
 
 .actionBar {
@@ -219,15 +219,15 @@
   align-items: center;
   gap: var(--space-2);
   margin-top: var(--space-2);
-  height: 36px;
+  height: 34px;
 }
 
 .attachBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border: none;
   border-radius: var(--radius-md);
   background: transparent;
@@ -275,15 +275,15 @@
 }
 
 .inputContainer[data-focused="true"] .charHint {
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
 .sendButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border: none;
   border-radius: var(--radius-full);
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
@@ -315,8 +315,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border: none;
   border-radius: var(--radius-full);
   background: var(--color-error);
@@ -364,14 +364,14 @@
   flex-direction: column;
   gap: var(--space-0-5);
   width: 100%;
-  padding: var(--space-2-5, 10px) var(--space-3);
+  padding: var(--space-2-5) var(--space-3);
   border: none;
   background: transparent;
   color: var(--color-text-1);
   font-family: var(--font-sans);
   font-size: var(--text-body);
   text-align: left;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--duration-fast) var(--ease-silk);
   -webkit-tap-highlight-color: transparent;
@@ -413,13 +413,13 @@
   }
 
   .attachBtn {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
   }
 
   .sendButton, .stopButton {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
   }
 
   .charHint {
