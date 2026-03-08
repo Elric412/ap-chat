@@ -166,7 +166,7 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
                   className={styles.emptySearch}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.3, ease: EASE_OUT }}
                 >
                   No models match your search
                 </motion.div>
