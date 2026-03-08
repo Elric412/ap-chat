@@ -49,10 +49,23 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
   const hasToolCalls = message.toolCalls.length > 0;
   const hasCitations = message.webSearchResults.length > 0;
   const hasArtifacts = message.artifactRefs.length > 0;
+  const isPinned = message.metadata.pinned;
 
   const handleViewArtifact = (artifactId: string) => {
     useAppStore.getState().setActiveArtifact(artifactId);
     useAppStore.getState().setCanvasOpen(true);
+  };
+
+  const handleTogglePin = () => {
+    useAppStore.setState((state) => {
+      const node = state.messageMap.get(message.id);
+      if (node) {
+        node.metadata.pinned = !node.metadata.pinned;
+        node._clock += 1;
+      }
+    });
+    const updated = useAppStore.getState().messageMap.get(message.id);
+    if (updated) void putMessage(updated);
   };
 
   return (
