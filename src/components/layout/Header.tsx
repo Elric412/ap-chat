@@ -81,7 +81,7 @@ export function Header(): JSX.Element {
           onClick={handleToggleSelector}
           whileHover={{ scale: 1.02, y: -1 }}
           whileTap={{ scale: 0.97 }}
-          transition={{ duration: 0.15, ease: [0.34, 1.56, 0.64, 1] }}
+          transition={{ duration: 0.15, ease: EASE_SNAP }}
         >
           <motion.span
             className={styles.providerDot}
