@@ -15,7 +15,8 @@ import { ThinkingBlock } from './ThinkingBlock';
 import { ToolCallCard } from './ToolCallCard';
 import { WebSearchCitations } from './WebSearchCitation';
 import { formatTime, formatTokenCount, formatCost } from '../../lib/format';
-import { Code2 } from 'lucide-react';
+import { Code2, Pin } from 'lucide-react';
+import { putMessage } from '../../db/messages-repo';
 import styles from './MessageBubble.module.css';
 
 interface MessageBubbleProps {
@@ -48,14 +49,27 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
   const hasToolCalls = message.toolCalls.length > 0;
   const hasCitations = message.webSearchResults.length > 0;
   const hasArtifacts = message.artifactRefs.length > 0;
+  const isPinned = message.metadata.pinned;
 
   const handleViewArtifact = (artifactId: string) => {
     useAppStore.getState().setActiveArtifact(artifactId);
     useAppStore.getState().setCanvasOpen(true);
   };
 
+  const handleTogglePin = () => {
+    useAppStore.setState((state) => {
+      const node = state.messageMap.get(message.id);
+      if (node) {
+        node.metadata.pinned = !node.metadata.pinned;
+        node._clock += 1;
+      }
+    });
+    const updated = useAppStore.getState().messageMap.get(message.id);
+    if (updated) void putMessage(updated);
+  };
+
   return (
-    <div className={styles.bubble} data-role={message.role} data-status={message.status}>
+    <div className={styles.bubble} data-role={message.role} data-status={message.status} data-pinned={isPinned}>
       <div className={styles.header}>
         <div className={styles.roleIndicator}>
           {isUser && (
@@ -68,6 +82,16 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall }: Me
             {isUser ? 'You' : isAssistant ? (message.model ?? 'Assistant') : message.role}
           </span>
         </div>
+        <button
+          className={styles.pinBtn}
+          data-pinned={isPinned}
+          onClick={handleTogglePin}
+          type="button"
+          aria-label={isPinned ? 'Unpin message' : 'Pin message'}
+          title={isPinned ? 'Pinned — always included in context' : 'Pin to always include in context'}
+        >
+          <Pin size={12} />
+        </button>
         <span className={styles.timestamp}>{timeStr}</span>
       </div>
 

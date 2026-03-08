@@ -3,6 +3,7 @@ import { useAppStore } from '../../store';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
 import { EmptyState } from './EmptyState';
+import { ContextBar } from '../tokens/ContextBar';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import styles from './ChatView.module.css';
 
@@ -43,6 +44,7 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
 
   return (
     <div className={styles.chatView}>
+      <ContextBar />
       <div className={styles.messageList} ref={scrollRef}>
         <div className={styles.messageListInner}>
           {visibleMessages.length === 0 ? (
