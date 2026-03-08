@@ -42,6 +42,7 @@ export function Sidebar(): JSX.Element {
   const setActiveConversation = useAppStore((s) => s.setActiveConversation);
   const deleteConversation = useAppStore((s) => s.deleteConversation);
   const { resolvedTheme, toggleTheme } = useTheme();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
