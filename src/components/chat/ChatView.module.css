@@ -1,0 +1,31 @@
+.chatView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.messageList {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--space-4) 0;
+}
+
+.messageListInner {
+  max-width: var(--layout-chat-max-width);
+  margin: 0 auto;
+  padding: 0 var(--layout-chat-padding-x);
+}
+
+.inputWrapper {
+  flex-shrink: 0;
+  padding: var(--space-3) var(--layout-chat-padding-x) var(--space-6);
+  display: flex;
+  justify-content: center;
+}
+
+.inputInner {
+  width: 100%;
+  max-width: var(--layout-input-max-width);
+}
