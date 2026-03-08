@@ -172,7 +172,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
     releaseDate: '2026-03-01', defaultSafeParams: { temperature: 1 },
   },
   {
-    id: 'claude-haiku-4-6-20260301',
+    id: 'claude-haiku-4-5',
     providerId: 'anthropic',
     displayName: 'Claude Haiku 4.6',
     family: 'Claude',
