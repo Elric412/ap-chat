@@ -9,6 +9,7 @@
 import type { MessageNode } from '../../types/messages';
 import { useAppStore } from '../../store';
 import { BranchNavigator } from './BranchNavigator';
+import { AttachmentChips } from './AttachmentChips';
 import { StreamCursor } from './StreamCursor';
 import { ThinkingBlock } from './ThinkingBlock';
 import { ToolCallCard } from './ToolCallCard';
