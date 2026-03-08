@@ -69,7 +69,7 @@ export function ThinkingBlock({ content, tokenCount, isStreaming, startTime }: T
       data-streaming={isStreaming}
       initial={{ opacity: 0, y: 6, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.4, ease: EASE_OUT }}
     >
       <button
         className={styles.summary}
@@ -80,7 +80,7 @@ export function ThinkingBlock({ content, tokenCount, isStreaming, startTime }: T
       >
         <motion.span
           animate={isStreaming ? { rotate: [0, 10, -10, 0] } : { rotate: 0 }}
-          transition={isStreaming ? { duration: 2, repeat: Infinity, ease: [0.37, 0, 0.63, 1] } : { duration: 0.3 }}
+          transition={isStreaming ? { duration: 2, repeat: Infinity, ease: EASE_BREATH } : { duration: 0.3 }}
         >
           <Brain size={14} className={styles.icon} aria-hidden="true" />
         </motion.span>
@@ -89,7 +89,7 @@ export function ThinkingBlock({ content, tokenCount, isStreaming, startTime }: T
         <motion.span
           className={styles.chevron}
           animate={{ rotate: isOpen ? 90 : 0 }}
-          transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
+          transition={{ duration: 0.25, ease: EASE_SNAP }}
           aria-hidden="true"
         >
           ▸

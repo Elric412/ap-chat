@@ -134,7 +134,7 @@ export function ToolCallCard({ toolCall, onApprove, onDeny }: ToolCallCardProps)
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.3, ease: EASE_OUT }}
           >
             <motion.button
               className={styles.approveButton}
@@ -143,7 +143,7 @@ export function ToolCallCard({ toolCall, onApprove, onDeny }: ToolCallCardProps)
               aria-label={`Approve ${toolCall.toolName}`}
               whileHover={{ scale: 1.04, y: -1 }}
               whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.15, ease: [0.34, 1.56, 0.64, 1] }}
+              transition={{ duration: 0.15, ease: EASE_SNAP }}
             >
               <Check size={14} aria-hidden="true" />
               Approve
@@ -155,7 +155,7 @@ export function ToolCallCard({ toolCall, onApprove, onDeny }: ToolCallCardProps)
               aria-label={`Deny ${toolCall.toolName}`}
               whileHover={{ scale: 1.04, y: -1 }}
               whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.15, ease: [0.34, 1.56, 0.64, 1] }}
+              transition={{ duration: 0.15, ease: EASE_SNAP }}
             >
               <X size={14} aria-hidden="true" />
               Deny

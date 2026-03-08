@@ -206,9 +206,9 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
                         transition={{
                           delay: groupIdx * 0.05 + modelIdx * 0.03,
                           duration: 0.3,
-                          ease: [0.16, 1, 0.3, 1],
+                          ease: EASE_OUT,
                         }}
-                        whileHover={{ x: 3, transition: { duration: 0.15, ease: [0.34, 1.56, 0.64, 1] } }}
+                        whileHover={{ x: 3, transition: { duration: 0.15, ease: EASE_SNAP } }}
                         whileTap={{ scale: 0.98 }}
                       >
                         <div className={styles.modelInfo}>
