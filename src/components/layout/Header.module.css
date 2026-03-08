@@ -54,6 +54,59 @@
   flex: 1;
 }
 
+/* ── Search Toggle ── */
+.searchToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-3);
+  font-size: var(--text-micro);
+  font-weight: var(--weight-medium);
+  font-family: var(--font-sans);
+  letter-spacing: var(--tracking-micro);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-mechanical);
+  position: relative;
+}
+
+.searchToggle:hover:not(:disabled) {
+  border-color: var(--color-border-2);
+  color: var(--color-text-2);
+  background: var(--color-surface-hover);
+}
+
+.searchToggle[data-active="true"][data-supported="true"] {
+  border-color: var(--color-ai-search-muted);
+  background: var(--color-ai-search-surface);
+  color: var(--color-ai-search-text);
+}
+
+.searchToggle[data-active="true"][data-supported="true"]:hover {
+  border-color: var(--color-ai-search);
+}
+
+.searchToggle:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.searchLabel {
+  line-height: 1;
+}
+
+.searchDot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--color-ai-search);
+  box-shadow: 0 0 6px var(--color-ai-search);
+  animation: cursorPulse 2s var(--ease-mechanical) infinite;
+}
+
 .headerAction {
   display: flex;
   align-items: center;
