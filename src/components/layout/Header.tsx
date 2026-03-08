@@ -10,8 +10,8 @@ import styles from './Header.module.css';
 export function Header(): JSX.Element {
   const [selectorOpen, setSelectorOpen] = useState(false);
   const selectedModelId = useAppStore((s) => s.selectedModelId);
-  const setParamDrawerOpen = useAppStore((s) => s.paramDrawerOpen);
-  const toggleParamDrawer = useAppStore((s) => s.setParamDrawerOpen);
+  const paramDrawerOpen = useAppStore((s) => s.paramDrawerOpen);
+  const setParamDrawerOpen = useAppStore((s) => s.setParamDrawerOpen);
   const navigate = useNavigate();
 
   const model = MODEL_REGISTRY.find((m) => m.id === selectedModelId);
