@@ -107,7 +107,7 @@ export function ToolCallCard({ toolCall, onApprove, onDeny }: ToolCallCardProps)
           className={styles.arguments}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.15, duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
+          transition={{ delay: 0.15, duration: 0.3, ease: EASE_SILK }}
         >
           {Object.entries(toolCall.arguments).map(([key, value], i) => (
             <motion.div
@@ -115,7 +115,7 @@ export function ToolCallCard({ toolCall, onApprove, onDeny }: ToolCallCardProps)
               className={styles.argRow}
               initial={{ opacity: 0, x: -6 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 + i * 0.04, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ delay: 0.2 + i * 0.04, duration: 0.3, ease: EASE_OUT }}
             >
               <span className={styles.argKey}>{key}</span>
               <span className={styles.argValue}>
