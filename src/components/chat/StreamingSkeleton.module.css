@@ -23,11 +23,11 @@
   animation: accentPulse 2s ease-in-out infinite;
 }
 
-/* ── Header row ── */
+/* ── Header row with typing indicator ── */
 .header {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   margin-bottom: var(--space-4);
 }
 
@@ -36,65 +36,43 @@
   height: 22px;
   border-radius: var(--radius-md);
   background: var(--color-surface-3);
+  flex-shrink: 0;
   animation: shimmer 2s ease-in-out infinite;
 }
 
-.roleTag {
-  width: 48px;
-  height: 14px;
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-3);
-  animation: shimmer 2s ease-in-out infinite 0.1s;
-}
-
-/* ── Content lines ── */
-.lines {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2-5);
-}
-
-.line {
-  height: 14px;
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-3);
-  animation: shimmer 2s ease-in-out infinite;
-}
-
-.line:nth-child(1) {
-  width: 92%;
-  animation-delay: 0.05s;
-}
-
-.line:nth-child(2) {
-  width: 78%;
-  animation-delay: 0.1s;
-}
-
-.line:nth-child(3) {
-  width: 85%;
-  animation-delay: 0.15s;
-}
-
-.line:nth-child(4) {
-  width: 40%;
-  animation-delay: 0.2s;
-}
-
-/* ── Typing dots ── */
-.dots {
+/* ── Typing indicator ── */
+.typingIndicator {
   display: flex;
   align-items: center;
-  gap: 5px;
-  margin-top: var(--space-3);
+  gap: var(--space-1-5);
+}
+
+.modelName {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-1);
+  letter-spacing: var(--tracking-body);
+}
+
+.typingLabel {
+  font-size: var(--text-caption);
+  color: var(--color-text-3);
+  font-weight: var(--weight-regular);
+}
+
+.dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: var(--space-0-5);
 }
 
 .dot {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
   border-radius: var(--radius-full);
   background: var(--color-text-3);
-  opacity: 0.4;
   animation: dotBounce 1.4s ease-in-out infinite;
 }
 
@@ -106,23 +84,52 @@
   animation-delay: 0.32s;
 }
 
+/* ── Content lines ── */
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2-5);
+}
+
+.line {
+  height: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-3);
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.line:nth-child(1) {
+  width: 88%;
+  animation-delay: 0.05s;
+}
+
+.line:nth-child(2) {
+  width: 72%;
+  animation-delay: 0.1s;
+}
+
+.line:nth-child(3) {
+  width: 36%;
+  animation-delay: 0.15s;
+}
+
 @keyframes shimmer {
-  0%, 100% { opacity: 0.25; }
-  50% { opacity: 0.5; }
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.45; }
 }
 
 @keyframes accentPulse {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 0.5; }
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.45; }
 }
 
 @keyframes dotBounce {
   0%, 80%, 100% {
     transform: translateY(0);
-    opacity: 0.3;
+    opacity: 0.25;
   }
   40% {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     opacity: 0.7;
   }
 }
