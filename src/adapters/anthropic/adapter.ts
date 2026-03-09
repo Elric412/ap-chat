@@ -104,7 +104,7 @@ export const anthropicAdapter: ProviderAdapter = {
 
     // Extended thinking
     if (request.parameters.thinkingEnabled) {
-      const budgetMap = { low: 2048, medium: 8192, high: 32768 } as const;
+      const budgetMap = { low: 2048, medium: 8192, high: 32768, 'x-high': 65536 } as const;
       const budgetTokens = budgetMap[request.parameters.thinkingLevel] ?? 8192;
       const maxTokens = (body.max_tokens as number) ?? 4096;
       // Anthropic requires max_tokens > thinking.budget_tokens
@@ -148,6 +148,9 @@ export const anthropicAdapter: ProviderAdapter = {
     let currentToolUseArgs = '';
     let inToolUse = false;
 
+    // Web search results accumulation
+    let webSearchResults: Array<{ url: string; title: string; snippet: string }> = [];
+
     try {
       while (true) {
         const { done, value } = await reader.read();
@@ -180,6 +183,33 @@ export const anthropicAdapter: ProviderAdapter = {
                 currentToolUseId = (block.id as string) ?? '';
                 currentToolUseName = (block.name as string) ?? '';
                 currentToolUseArgs = '';
+              }
+
+              // Handle web_search_tool_result for extracting citations
+              if (blockType === 'web_search_tool_result') {
+                const searchResults = block.content as Array<Record<string, unknown>> | undefined;
+                if (searchResults) {
+                  for (const result of searchResults) {
+                    if (result.type === 'web_search_result') {
+                      const url = (result.url as string) ?? '';
+                      const title = (result.title as string) ?? '';
+                      const snippet = (result.encrypted_content as string) ?? (result.page_content as string) ?? '';
+                      if (url && !webSearchResults.some(r => r.url === url)) {
+                        webSearchResults.push({ url, title, snippet });
+                        yield {
+                          type: 'citation',
+                          citation: {
+                            url,
+                            title,
+                            snippet,
+                            source: url,
+                            fetchedAt: Date.now(),
+                          },
+                        };
+                      }
+                    }
+                  }
+                }
               }
               break;
             }

@@ -88,9 +88,11 @@ export const openaiAdapter: ProviderAdapter = {
       ];
     }
 
-    // Thinking (o-series models)
+    // Thinking (o-series models and GPT-5 series)
     if (request.parameters.thinkingEnabled) {
-      body.reasoning_effort = request.parameters.thinkingLevel;
+      // For GPT-5 series: x-high maps to extended thinking, otherwise use the level as-is
+      const thinkingLevel = request.parameters.thinkingLevel === 'x-high' ? 'x-high' : request.parameters.thinkingLevel;
+      body.reasoning_effort = thinkingLevel;
     }
 
     const response = await fetch(`${baseUrl}/chat/completions`, {
