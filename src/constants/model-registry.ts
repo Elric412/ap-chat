@@ -200,7 +200,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsThinking: true, supportsVision: true,
       supportsWebSearch: true, supportsCaching: true, supportsTopK: true,
     },
-    thinkingConfig: { parameterName: 'budget_tokens', levels: { low: 4096, medium: 16384, high: 65536 }, minBudgetTokens: 1024, maxBudgetTokens: 131072 },
+    thinkingConfig: { parameterName: 'budget_tokens', levels: { low: 4096, medium: 16384, high: 65536, 'x-high': 131072 }, minBudgetTokens: 1024, maxBudgetTokens: 131072 },
     cachingConfig: { headerKey: 'cache_control', strategy: 'ephemeral' },
     browserDirectSupported: true, transportMode: 'sse', deprecated: false,
     releaseDate: '2026-03-01', defaultSafeParams: { temperature: 1 },
