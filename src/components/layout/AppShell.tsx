@@ -63,7 +63,7 @@ export function AppShell({ sidebar, header, children }: AppShellProps): JSX.Elem
   const sidebarHidden = !sidebarOpen || focusMode;
 
   return (
-    <div className={`${styles.shell} noise-overlay`} data-focus-mode={focusMode} data-canvas={canvasOpen}>
+    <div className={styles.shell} data-focus-mode={focusMode} data-canvas={canvasOpen}>
       {/* Skip navigation link for keyboard/screen reader users */}
       <a href="#main-content" className={styles.skipLink}>
         Skip to main content

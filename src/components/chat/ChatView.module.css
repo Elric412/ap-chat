@@ -1,3 +1,7 @@
+/* ═══════════════════════════════════════════════════════════════
+   ChatView — Clean container
+   ═══════════════════════════════════════════════════════════════ */
+
 .chatView {
   display: flex;
   flex-direction: column;
@@ -36,11 +40,11 @@
   bottom: calc(100px + var(--space-3));
   left: 50%;
   transform: translateX(-50%);
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--color-border-2);
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border-1);
   border-radius: var(--radius-full);
-  background: var(--color-surface-2);
+  background: var(--color-surface-1);
   color: var(--color-text-2);
   display: flex;
   align-items: center;
@@ -49,14 +53,12 @@
   box-shadow: var(--shadow-md);
   z-index: var(--z-raised);
   -webkit-tap-highlight-color: transparent;
-  transition: background var(--duration-fast) var(--ease-silk),
-              border-color var(--duration-fast) var(--ease-silk),
-              color var(--duration-fast) var(--ease-silk);
+  transition: all var(--duration-fast) var(--ease-silk);
 }
 
 .scrollFab:hover {
-  background: var(--color-surface-3);
-  border-color: var(--color-border-3);
+  background: var(--color-surface-2);
+  border-color: var(--color-border-2);
   color: var(--color-text-1);
 }
 
@@ -65,7 +67,7 @@
   padding: var(--space-3) var(--layout-chat-padding-x) var(--space-5);
   display: flex;
   justify-content: center;
-  background: linear-gradient(to top, var(--color-surface-0) 60%, transparent);
+  background: linear-gradient(to top, var(--color-surface-0) 70%, transparent);
   position: relative;
 }
 
