@@ -106,7 +106,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsVision: true, supportsJsonMode: true, supportsStructuredOutput: true,
       supportsSeed: true, supportsFrequencyPenalty: true, supportsPresencePenalty: true,
     },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2025-04-14', defaultSafeParams: { temperature: 1, topP: 1 },
   },
   {
@@ -123,7 +123,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsVision: true, supportsJsonMode: true, supportsStructuredOutput: true,
       supportsSeed: true, supportsFrequencyPenalty: true, supportsPresencePenalty: true,
     },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2025-04-14', defaultSafeParams: { temperature: 1, topP: 1 },
   },
   {
@@ -141,7 +141,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsJsonMode: true, supportsStructuredOutput: true,
     },
     thinkingConfig: { parameterName: 'reasoning_effort', levels: { low: 'low', medium: 'medium', high: 'high' } },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2025-04-16', defaultSafeParams: {},
   },
   {
@@ -159,7 +159,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsJsonMode: true, supportsStructuredOutput: true,
     },
     thinkingConfig: { parameterName: 'reasoning_effort', levels: { low: 'low', medium: 'medium', high: 'high' } },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2025-06-10', defaultSafeParams: {},
   },
   {
@@ -177,7 +177,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsJsonMode: true, supportsStructuredOutput: true,
     },
     thinkingConfig: { parameterName: 'reasoning_effort', levels: { low: 'low', medium: 'medium', high: 'high' } },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2025-04-16', defaultSafeParams: {},
   },
 
