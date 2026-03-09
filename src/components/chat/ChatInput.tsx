@@ -190,8 +190,6 @@ export function ChatInput({
 
   const canSend = (value.trim().length > 0 || attachments.length > 0) && !disabled;
 
-  const presets = getAllPresets();
-
   return (
     <motion.div
       className={styles.inputContainer}
