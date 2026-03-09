@@ -36,13 +36,12 @@ export function SkillEditor(): JSX.Element {
 
   const [icon, setIcon] = useState(existingSkill?.icon ?? '🧠');
   const [name, setName] = useState(existingSkill?.name ?? '');
-  const [description, setDescription] = useState(existingSkill?.description ?? '');
   const [instructions, setInstructions] = useState(existingSkill?.instructions ?? '');
   const [category, setCategory] = useState<SkillCategory>(existingSkill?.category ?? 'general');
   const [tagsStr, setTagsStr] = useState(existingSkill?.tags.join(', ') ?? '');
 
   const tokenEstimate = useMemo(() => Math.ceil(instructions.length / 4), [instructions]);
-  const canSave = name.trim().length > 0 && description.trim().length > 0 && instructions.trim().length > 0;
+  const canSave = name.trim().length > 0 && instructions.trim().length > 0;
 
   const handleSave = () => {
     if (!canSave) return;
