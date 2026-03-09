@@ -382,60 +382,6 @@
   display: none;
 }
 
-/* Preset dropdown */
-.presetMenu {
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  right: 0;
-  margin-bottom: var(--space-2);
-  background: var(--color-surface-2);
-  border: 1px solid hsl(0, 0%, 100%, 0.06);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
-  max-height: 240px;
-  overflow-y: auto;
-  z-index: var(--z-dropdown);
-  padding: var(--space-1);
-  animation: slideUp var(--duration-normal) var(--ease-snap) both;
-}
-
-.presetItem {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-0-5);
-  width: 100%;
-  padding: var(--space-2-5) var(--space-3);
-  border: none;
-  background: transparent;
-  color: var(--color-text-1);
-  font-family: var(--font-sans);
-  font-size: var(--text-body);
-  text-align: left;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-silk);
-  -webkit-tap-highlight-color: transparent;
-}
-
-.presetItem:hover {
-  background: var(--color-surface-hover);
-}
-
-.presetItem:active {
-  background: var(--color-surface-active);
-  transition-duration: var(--duration-instant);
-}
-
-.presetName {
-  font-weight: var(--weight-medium);
-}
-
-.presetDesc {
-  font-size: var(--text-caption);
-  color: var(--color-text-3);
-}
-
 /* ── Mobile ── */
 @media (max-width: 768px) {
   .inputContainer {
@@ -466,9 +412,5 @@
 
   .charHint {
     display: none;
-  }
-  
-  .presetMenu {
-    max-height: 200px;
   }
 }

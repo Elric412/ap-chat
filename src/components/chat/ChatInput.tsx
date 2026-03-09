@@ -17,6 +17,7 @@ import {
   FILE_INPUT_ACCEPT,
 } from '../../engine/attachment-processor';
 import { SlashCommandMenu } from '../command/SlashCommandMenu';
+import { PresetMenu } from './PresetMenu';
 import { getAllPresets } from '../../constants/presets';
 import { MODEL_REGISTRY } from '../../constants/model-registry';
 import { useAppStore } from '../../store';
@@ -53,7 +54,7 @@ export function ChatInput({
   const [showPresets, setShowPresets] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const presetRef = useRef<HTMLDivElement>(null);
+  
 
   const setInferenceParams = useAppStore((s) => s.setInferenceParams);
   const setSelectedModelId = useAppStore((s) => s.setSelectedModelId);
@@ -147,18 +148,6 @@ export function ChatInput({
     });
   }, [inferenceParams, setInferenceParams, setSelectedModelId]);
 
-  // Close preset menu on click outside
-  useEffect(() => {
-    if (!showPresets) return;
-    const handler = (e: MouseEvent) => {
-      if (presetRef.current && !presetRef.current.contains(e.target as Node)) {
-        setShowPresets(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [showPresets]);
-
   /** Process and add files */
   const addFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
@@ -201,8 +190,6 @@ export function ChatInput({
 
   const canSend = (value.trim().length > 0 || attachments.length > 0) && !disabled;
 
-  const presets = getAllPresets();
-
   return (
     <motion.div
       className={styles.inputContainer}
@@ -239,22 +226,12 @@ export function ChatInput({
         onClose={() => setShowSlashMenu(false)}
       />
 
-      {/* Preset dropdown */}
-      {showPresets && (
-        <div className={styles.presetMenu} ref={presetRef}>
-          {presets.map((p) => (
-            <button
-              key={p.id}
-              className={styles.presetItem}
-              onClick={() => handlePresetApply(p.id)}
-              type="button"
-            >
-              <span className={styles.presetName}>{p.name}</span>
-              <span className={styles.presetDesc}>{p.description}</span>
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Premium preset menu */}
+      <PresetMenu
+        open={showPresets}
+        onClose={() => setShowPresets(false)}
+        onApply={handlePresetApply}
+      />
 
       {/* Attachment previews */}
       {attachments.length > 0 && (
