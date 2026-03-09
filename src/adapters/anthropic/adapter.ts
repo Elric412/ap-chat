@@ -184,6 +184,42 @@ export const anthropicAdapter: ProviderAdapter = {
                 currentToolUseName = (block.name as string) ?? '';
                 currentToolUseArgs = '';
               }
+
+              // Handle web_search_tool_result for extracting citations
+              if (blockType === 'web_search_tool_result') {
+                const searchResults = block.content as Array<Record<string, unknown>> | undefined;
+                if (searchResults) {
+                  for (const result of searchResults) {
+                    if (result.type === 'web_search_result') {
+                      const url = (result.url as string) ?? '';
+                      const title = (result.title as string) ?? '';
+                      const snippet = (result.encrypted_content as string) ?? (result.page_content as string) ?? '';
+                      if (url && !webSearchResults.some(r => r.url === url)) {
+                        webSearchResults.push({ url, title, snippet });
+                        yield {
+                          type: 'citation',
+                          citation: {
+                            url,
+                            title,
+                            snippet,
+                            source: url,
+                            fetchedAt: Date.now(),
+                          },
+                        };
+                      }
+                    }
+                  }
+                }
+              }
+              break;
+            }
+
+              if (blockType === 'tool_use') {
+                inToolUse = true;
+                currentToolUseId = (block.id as string) ?? '';
+                currentToolUseName = (block.name as string) ?? '';
+                currentToolUseArgs = '';
+              }
               break;
             }
 
