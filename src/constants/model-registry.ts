@@ -206,7 +206,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
     releaseDate: '2026-03-01', defaultSafeParams: { temperature: 1 },
   },
   {
-    id: 'claude-sonnet-4-6',
+    id: 'claude-sonnet-4-6-20260301',
     providerId: 'anthropic',
     displayName: 'Claude Sonnet 4.6',
     family: 'Claude',
@@ -219,7 +219,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsThinking: true, supportsVision: true,
       supportsWebSearch: true, supportsCaching: true, supportsTopK: true,
     },
-    thinkingConfig: { parameterName: 'budget_tokens', levels: { low: 2048, medium: 8192, high: 32768 }, minBudgetTokens: 1024, maxBudgetTokens: 65536 },
+    thinkingConfig: { parameterName: 'budget_tokens', levels: { low: 2048, medium: 8192, high: 32768, 'x-high': 65536 }, minBudgetTokens: 1024, maxBudgetTokens: 65536 },
     cachingConfig: { headerKey: 'cache_control', strategy: 'ephemeral' },
     browserDirectSupported: true, transportMode: 'sse', deprecated: false,
     releaseDate: '2026-03-01', defaultSafeParams: { temperature: 1 },

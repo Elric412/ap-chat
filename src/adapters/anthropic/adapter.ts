@@ -104,7 +104,7 @@ export const anthropicAdapter: ProviderAdapter = {
 
     // Extended thinking
     if (request.parameters.thinkingEnabled) {
-      const budgetMap = { low: 2048, medium: 8192, high: 32768 } as const;
+      const budgetMap = { low: 2048, medium: 8192, high: 32768, 'x-high': 65536 } as const;
       const budgetTokens = budgetMap[request.parameters.thinkingLevel] ?? 8192;
       const maxTokens = (body.max_tokens as number) ?? 4096;
       // Anthropic requires max_tokens > thinking.budget_tokens
