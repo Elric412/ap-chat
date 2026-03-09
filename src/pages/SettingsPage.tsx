@@ -1,11 +1,29 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Palette, Download, Info, Shield, Terminal } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Palette, Download, Info, Shield, Sparkles } from 'lucide-react';
 import { KeyManagement } from '../components/vault/KeyManagement';
 import { SystemPromptEditor } from '../components/system-prompt/SystemPromptEditor';
 import { useTheme } from '../hooks/use-theme';
 import { useAppStore } from '../store';
 import { MODEL_REGISTRY } from '../constants/model-registry';
 import styles from './SettingsPage.module.css';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06, delayChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.4, ease: [0.22, 0.68, 0, 1] as [number, number, number, number] }
+  }
+};
 
 export function SettingsPage(): JSX.Element {
   const navigate = useNavigate();
@@ -21,54 +39,75 @@ export function SettingsPage(): JSX.Element {
 
   return (
     <div className={styles.settingsPage}>
-      <div className={styles.settingsHeader}>
-        <button
+      <motion.div 
+        className={styles.settingsHeader}
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 0.68, 0, 1] }}
+      >
+        <motion.button
           className={styles.backBtn}
           onClick={() => navigate('/')}
           type="button"
           aria-label="Back to chat"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
-          <ArrowLeft size={18} />
-          <span>Back to chat</span>
-        </button>
+          <ArrowLeft size={16} />
+          <span>Back</span>
+        </motion.button>
         <h1 className={styles.pageTitle}>Settings</h1>
-      </div>
-      <div className={styles.settingsContent}>
+      </motion.div>
+
+      <motion.div 
+        className={styles.settingsContent}
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         {/* API Keys Section */}
-        <KeyManagement />
+        <motion.div variants={itemVariants}>
+          <KeyManagement />
+        </motion.div>
 
         {/* System Prompt Section */}
-        <section className={styles.section}>
+        <motion.section className={styles.section} variants={itemVariants}>
           <SystemPromptEditor conversationId={activeConversationId} />
-        </section>
+        </motion.section>
 
         {/* Appearance Section */}
-        <section className={styles.section}>
+        <motion.section className={styles.section} variants={itemVariants}>
           <div className={styles.sectionHeader}>
-            <Palette size={16} aria-hidden="true" />
+            <Palette size={18} aria-hidden="true" />
             <h2 className={styles.sectionTitle}>Appearance</h2>
           </div>
-          <div className={styles.optionRow}>
+          <motion.div 
+            className={styles.optionRow}
+            whileHover={{ scale: 1.005 }}
+            transition={{ duration: 0.2 }}
+          >
             <div>
               <span className={styles.optionLabel}>Theme</span>
               <span className={styles.optionDescription}>
-                Currently using {resolvedTheme} mode
+                Currently using <strong>{resolvedTheme}</strong> mode
               </span>
             </div>
-            <button
+            <motion.button
               className={styles.optionButton}
               onClick={toggleTheme}
               type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              Switch to {resolvedTheme === 'dark' ? 'light' : 'dark'}
-            </button>
-          </div>
-        </section>
+              <span>Switch to {resolvedTheme === 'dark' ? 'light' : 'dark'}</span>
+            </motion.button>
+          </motion.div>
+        </motion.section>
 
         {/* Data & Export Section */}
-        <section className={styles.section}>
+        <motion.section className={styles.section} variants={itemVariants}>
           <div className={styles.sectionHeader}>
-            <Download size={16} aria-hidden="true" />
+            <Download size={18} aria-hidden="true" />
             <h2 className={styles.sectionTitle}>Data & Export</h2>
           </div>
           <div className={styles.optionRow}>
@@ -87,34 +126,46 @@ export function SettingsPage(): JSX.Element {
             <span className={styles.statLabel}>Configured providers</span>
             <span className={styles.statValue}>{configuredProviders} / {providerCount}</span>
           </div>
-        </section>
+        </motion.section>
 
         {/* About Section */}
-        <section className={styles.section}>
+        <motion.section className={styles.section} variants={itemVariants}>
           <div className={styles.sectionHeader}>
-            <Info size={16} aria-hidden="true" />
+            <Sparkles size={18} aria-hidden="true" />
             <h2 className={styles.sectionTitle}>About</h2>
           </div>
           <div className={styles.aboutGrid}>
-            <div className={styles.aboutCard}>
+            <motion.div 
+              className={styles.aboutCard}
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.25, ease: [0.22, 0.68, 0, 1] }}
+            >
               <span className={styles.aboutValue}>{providerCount}</span>
               <span className={styles.aboutLabel}>Providers</span>
-            </div>
-            <div className={styles.aboutCard}>
+            </motion.div>
+            <motion.div 
+              className={styles.aboutCard}
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.25, ease: [0.22, 0.68, 0, 1] }}
+            >
               <span className={styles.aboutValue}>{totalModels}</span>
               <span className={styles.aboutLabel}>Models</span>
-            </div>
+            </motion.div>
           </div>
           <p className={styles.aboutText}>
             BYOK Chat — Multi-model AI chat with your own API keys.
             All data is stored locally in IndexedDB. API keys are encrypted with AES-256-GCM.
           </p>
-          <div className={styles.securityNote}>
-            <Shield size={14} aria-hidden="true" />
+          <motion.div 
+            className={styles.securityNote}
+            whileHover={{ scale: 1.01 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Shield size={16} aria-hidden="true" />
             <span>Keys never leave your browser. No server, no tracking.</span>
-          </div>
-        </section>
-      </div>
+          </motion.div>
+        </motion.section>
+      </motion.div>
     </div>
   );
 }

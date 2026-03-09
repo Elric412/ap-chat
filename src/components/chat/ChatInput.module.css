@@ -25,8 +25,8 @@
 }
 
 .inputContainer[data-focused="true"] {
-  border-color: hsl(0, 0%, 100%, 0.08);
-  box-shadow: var(--shadow-lg), 0 0 40px hsl(225, 18%, 5%, 0.4);
+  border-color: hsl(0, 0%, 100%, 0.1);
+  box-shadow: var(--shadow-lg), 0 0 0 1px hsl(0, 0%, 100%, 0.06);
   transform: translateY(-1px);
 }
 
