@@ -175,16 +175,18 @@
 }
 
 .providerDot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
 }
 
 .chevron {
   color: var(--color-text-3);
-  transition: transform var(--duration-fast) var(--ease-mechanical);
+  transition: transform var(--duration-normal) var(--ease-silk);
   flex-shrink: 0;
+  opacity: 0.6;
 }
 
 .spacer {
