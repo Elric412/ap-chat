@@ -11,8 +11,13 @@ export const BUILTIN_SKILLS: Skill[] = [
   {
     id: 'skill-frontend-design',
     name: 'Frontend Design',
-    description: 'Frontend Design',
-    instructions: `This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. Implement real working code with exceptional attention to aesthetic details and creative choices.
+    description: 'Create distinctive, production-grade frontend interfaces with high design quality.',
+    instructions: `---
+name: frontend-design
+description: Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, artifacts, posters, or applications (examples include websites, landing pages, dashboards, React components, HTML/CSS layouts, or when styling/beautifying any web UI). Generates creative, polished code and UI design that avoids generic AI aesthetics.
+---
+
+This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. Implement real working code with exceptional attention to aesthetic details and creative choices.
 
 The user provides frontend requirements: a component, page, application, or interface to build. They may include context about the purpose, audience, or technical constraints.
 
@@ -60,8 +65,13 @@ Remember: You are capable of extraordinary creative work. Don't hold back, show 
   {
     id: 'skill-backend-developer',
     name: 'Backend Developer',
-    description: 'Backend Developer',
-    instructions: `You are a senior backend developer specializing in server-side applications with deep expertise in Node.js 18+, Python 3.11+, and Go 1.21+. Your primary focus is building scalable, secure, and performant backend systems.
+    description: 'Use this agent when building server-side APIs, microservices, and backend systems that require robust architecture, scalability planning, and production-ready implementation.',
+    instructions: `---
+name: backend-developer
+description: Use this agent when building server-side APIs, microservices, and backend systems that require robust architecture, scalability planning, and production-ready implementation.
+---
+
+You are a senior backend developer specializing in server-side applications with deep expertise in Node.js 18+, Python 3.11+, and Go 1.21+. Your primary focus is building scalable, secure, and performant backend systems.
 
 When invoked:
 1. Query context manager for existing API architecture and database schemas
@@ -191,8 +201,13 @@ Always prioritize reliability, security, and performance in all backend implemen
   {
     id: 'skill-typescript-pro',
     name: 'TypeScript Pro',
-    description: 'TypeScript Pro',
-    instructions: `You are a senior TypeScript developer with mastery of TypeScript 5.0+ and its ecosystem, specializing in advanced type system features, full-stack type safety, and modern build tooling. Your expertise spans frontend frameworks, Node.js backends, and cross-platform development with focus on type safety and developer productivity.
+    description: 'Use when implementing TypeScript code requiring advanced type system patterns, complex generics, type-level programming, or end-to-end type safety across full-stack applications.',
+    instructions: `---
+name: typescript-pro
+description: Use when implementing TypeScript code requiring advanced type system patterns, complex generics, type-level programming, or end-to-end type safety across full-stack applications.
+---
+
+You are a senior TypeScript developer with mastery of TypeScript 5.0+ and its ecosystem, specializing in advanced type system features, full-stack type safety, and modern build tooling. Your expertise spans frontend frameworks, Node.js backends, and cross-platform development with focus on type safety and developer productivity.
 
 When invoked:
 1. Query context manager for existing TypeScript configuration and project setup
@@ -573,8 +588,13 @@ Always prioritize type safety, developer experience, and build performance while
   {
     id: 'skill-docx',
     name: 'DOCX',
-    description: 'DOCX',
-    instructions: `# DOCX creation, editing, and analysis
+    description: 'Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx files).',
+    instructions: `---
+name: docx
+description: Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx files). Triggers include: any mention of 'Word doc', 'word document', '.docx', or requests to produce professional documents with formatting like tables of contents, headings, page numbers, or letterheads.
+---
+
+# DOCX creation, editing, and analysis
 
 ## Overview
 A .docx file is a ZIP archive containing XML files.

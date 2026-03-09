@@ -68,6 +68,11 @@ export function SkillLibraryPanel(): JSX.Element | null {
   const tokenEst = skillConfig.mode !== 'disabled' ? getSkillTokenEstimate() : 0;
 
   const handleClose = useCallback(() => setOpen(false), [setOpen]);
+  
+  // Guard: don't close panel if skill editor is open (prevents accidental close on editor backdrop click)
+  const handleBackdropClick = useCallback(() => {
+    if (!skillEditorOpen) setOpen(false);
+  }, [skillEditorOpen, setOpen]);
 
   if (!open) return null;
 
@@ -81,7 +86,7 @@ export function SkillLibraryPanel(): JSX.Element | null {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          <div className={styles.backdrop} onClick={handleClose} aria-hidden="true" />
+          <div className={styles.backdrop} onClick={handleBackdropClick} aria-hidden="true" />
           <motion.div
             className={styles.panel}
             initial={{ x: '100%' }}
