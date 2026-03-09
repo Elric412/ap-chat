@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { MessageBubble } from './MessageBubble';
@@ -7,6 +7,7 @@ import { EmptyState } from './EmptyState';
 import { StreamingSkeleton } from './StreamingSkeleton';
 import { ContextBar } from '../tokens/ContextBar';
 import { ArrowDown } from 'lucide-react';
+import { MODEL_REGISTRY } from '../../constants/model-registry';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import styles from './ChatView.module.css';
 
@@ -30,6 +31,12 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
   const messagesLoading = useAppStore((s) => s.messagesLoading);
   const getActiveBranchMessages = useAppStore((s) => s.getActiveBranchMessages);
   const messageMap = useAppStore((s) => s.messageMap);
+  const selectedModelId = useAppStore((s) => s.selectedModelId);
+
+  const activeModelName = useMemo(() => {
+    const entry = MODEL_REGISTRY.find((m) => m.id === selectedModelId);
+    return entry?.displayName ?? selectedModelId;
+  }, [selectedModelId]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
@@ -128,7 +135,7 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
                 ))}
                 {/* Streaming skeleton — shown when waiting for first content */}
                 {isStreaming && visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1]?.role === 'user' && (
-                  <StreamingSkeleton />
+                  <StreamingSkeleton modelName={activeModelName} />
                 )}
                 <div className={styles.scrollAnchor} />
               </>
