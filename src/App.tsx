@@ -20,6 +20,7 @@ const VaultSetupModal = lazy(() => import('./components/vault/VaultSetupModal').
 const VaultUnlockModal = lazy(() => import('./components/vault/VaultUnlockModal').then((module) => ({ default: module.VaultUnlockModal })));
 const ParameterDrawer = lazy(() => import('./components/parameters/ParameterDrawer').then((module) => ({ default: module.ParameterDrawer })));
 const CommandPalette = lazy(() => import('./components/command/CommandPalette').then((module) => ({ default: module.CommandPalette })));
+const SkillLibraryPanel = lazy(() => import('./components/skills/SkillLibraryPanel').then((module) => ({ default: module.SkillLibraryPanel })));
 
 function AppInner(): JSX.Element {
   useTheme();
