@@ -228,22 +228,12 @@ export function ChatInput({
         onClose={() => setShowSlashMenu(false)}
       />
 
-      {/* Preset dropdown */}
-      {showPresets && (
-        <div className={styles.presetMenu} ref={presetRef}>
-          {presets.map((p) => (
-            <button
-              key={p.id}
-              className={styles.presetItem}
-              onClick={() => handlePresetApply(p.id)}
-              type="button"
-            >
-              <span className={styles.presetName}>{p.name}</span>
-              <span className={styles.presetDesc}>{p.description}</span>
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Premium preset menu */}
+      <PresetMenu
+        open={showPresets}
+        onClose={() => setShowPresets(false)}
+        onApply={handlePresetApply}
+      />
 
       {/* Attachment previews */}
       {attachments.length > 0 && (
