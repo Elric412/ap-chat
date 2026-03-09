@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { useTheme } from '../../hooks/use-theme';
 import { useAuth } from '../../hooks/use-auth';
-import { Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare, LogIn, User, Search, X } from 'lucide-react';
+import { Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare, LogIn, User, Search, X, BookOpen } from 'lucide-react';
 import { SidebarItem } from './SidebarItem';
 import type { Conversation } from '../../types/conversations';
 import styles from './Sidebar.module.css';
@@ -52,6 +52,8 @@ function useDockMagnification(itemCount: number) {
 }
 
 export function Sidebar(): JSX.Element {
+  const skillConfig = useAppStore((s) => s.skillConfig);
+  const setSkillPanelOpen = useAppStore((s) => s.setSkillPanelOpen);
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
   const vaultStatus = useAppStore((s) => s.vaultStatus);
   const keyRecords = useAppStore((s) => s.keyRecords);
@@ -123,6 +125,12 @@ export function Sidebar(): JSX.Element {
     }
 
     items.push({
+      icon: BookOpen,
+      label: `Skills${skillConfig.mode !== 'disabled' ? ' ●' : ''}`,
+      onClick: () => setSkillPanelOpen(true),
+    });
+
+    items.push({
       icon: vaultStatus === 'unlocked' ? Unlock : vaultStatus === 'locked' ? Lock : Settings,
       label: vaultStatus === 'unlocked' ? `Keys (${configuredCount})` : 'Settings',
       onClick: () => navigate('/settings'),
@@ -136,7 +144,7 @@ export function Sidebar(): JSX.Element {
     });
 
     return items;
-  }, [user, signOut, navigate, vaultStatus, configuredCount, location.pathname, resolvedTheme, toggleTheme]);
+  }, [user, signOut, navigate, vaultStatus, configuredCount, location.pathname, resolvedTheme, toggleTheme, skillConfig.mode, setSkillPanelOpen]);
 
   const { hoveredIndex, setHoveredIndex, getScale } = useDockMagnification(dockItems.length);
   const [tooltipIndex, setTooltipIndex] = useState<number | null>(null);

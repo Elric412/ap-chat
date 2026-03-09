@@ -20,6 +20,7 @@ const VaultSetupModal = lazy(() => import('./components/vault/VaultSetupModal').
 const VaultUnlockModal = lazy(() => import('./components/vault/VaultUnlockModal').then((module) => ({ default: module.VaultUnlockModal })));
 const ParameterDrawer = lazy(() => import('./components/parameters/ParameterDrawer').then((module) => ({ default: module.ParameterDrawer })));
 const CommandPalette = lazy(() => import('./components/command/CommandPalette').then((module) => ({ default: module.CommandPalette })));
+const SkillLibraryPanel = lazy(() => import('./components/skills/SkillLibraryPanel').then((module) => ({ default: module.SkillLibraryPanel })));
 
 function AppInner(): JSX.Element {
   useTheme();
@@ -28,10 +29,12 @@ function AppInner(): JSX.Element {
   const location = useLocation();
 
   const initVault = useAppStore((s) => s.initVault);
+  const initSkills = useAppStore((s) => s.initSkills);
 
   useEffect(() => {
     initVault();
-  }, [initVault]);
+    initSkills();
+  }, [initVault, initSkills]);
 
   // Listen for export events dispatched from command palette
   useEffect(() => {
@@ -99,6 +102,7 @@ function AppInner(): JSX.Element {
         <VaultSetupModal />
         <VaultUnlockModal />
         <ParameterDrawer />
+        <SkillLibraryPanel />
       </Suspense>
       <ToastStack />
       <Suspense fallback={null}>

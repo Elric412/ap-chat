@@ -8,7 +8,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search, MessageSquare, Plus, Sun, Moon, Settings, Download,
-  Columns2, PanelRight, Eye, SlidersHorizontal, FileJson, FileText,
+  Columns2, PanelRight, Eye, SlidersHorizontal, FileJson, FileText, BookOpen,
 } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { MODEL_REGISTRY } from '../../constants/model-registry';
@@ -46,7 +46,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps): JSX.Elem
   const setParamDrawerOpen = useAppStore((s) => s.setParamDrawerOpen);
   const paramDrawerOpen = useAppStore((s) => s.paramDrawerOpen);
   const setComparisonMode = useAppStore((s) => s.setComparisonMode);
-
+  const setSkillPanelOpen = useAppStore((s) => s.setSkillPanelOpen);
+  const skillConfig = useAppStore((s) => s.skillConfig);
+  const setSkillMode = useAppStore((s) => s.setSkillMode);
   const actions = useMemo((): CommandAction[] => {
     const list: CommandAction[] = [];
 
@@ -117,6 +119,25 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps): JSX.Elem
       action: () => setComparisonMode(true),
     });
 
+    // Skills
+    list.push({
+      id: 'open-skills',
+      label: 'Open Skill Library',
+      category: 'Actions',
+      icon: <BookOpen size={16} />,
+      keywords: ['skills', 'library', 'expertise'],
+      action: () => setSkillPanelOpen(true),
+    });
+
+    list.push({
+      id: 'toggle-skills',
+      label: skillConfig.mode === 'disabled' ? 'Enable Skill Library' : 'Disable Skill Library',
+      category: 'Actions',
+      icon: <BookOpen size={16} />,
+      keywords: ['skills', 'toggle', 'enable', 'disable'],
+      action: () => setSkillMode(skillConfig.mode === 'disabled' ? 'all' : 'disabled'),
+    });
+
     list.push({
       id: 'export-md',
       label: 'Export as Markdown',
@@ -178,7 +199,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps): JSX.Elem
   }, [
     conversations, createConversation, navigate, resolvedTheme, toggleTheme,
     toggleCanvas, toggleFocusMode, setParamDrawerOpen, paramDrawerOpen,
-    setSelectedModelId, setComparisonMode,
+    setSelectedModelId, setComparisonMode, setSkillPanelOpen, skillConfig.mode, setSkillMode,
   ]);
 
   const filtered = useMemo(() => {

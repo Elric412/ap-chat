@@ -10,6 +10,7 @@ import { useState, useRef, useCallback, useEffect, forwardRef, type KeyboardEven
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp, Square, Paperclip, X, FileText, Music, Film, File, Upload, Zap, Search } from 'lucide-react';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
+import { SkillIndicator } from '../skills/SkillIndicator';
 import {
   processFiles,
   formatFileSize,
@@ -298,6 +299,9 @@ export function ChatInput({
         >
           <Search size={16} aria-hidden="true" />
         </button>
+
+        {/* Skill indicator */}
+        <SkillIndicator />
 
         <input
           ref={fileInputRef}

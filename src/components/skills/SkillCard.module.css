@@ -1,0 +1,196 @@
+/* ═══════════════════════════════════════════════════════════════
+   SkillCard — Individual skill display card
+   ═══════════════════════════════════════════════════════════════ */
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-1);
+  background: var(--color-surface-1);
+  margin-bottom: var(--space-2);
+  transition: all var(--duration-fast) var(--ease-silk);
+  cursor: default;
+}
+
+.card:hover {
+  border-color: var(--color-border-2);
+  background: var(--color-surface-hover);
+}
+
+.card[data-disabled="true"] {
+  opacity: 0.45;
+}
+
+.card[data-selected="true"] {
+  border-color: var(--color-secondary);
+  background: hsl(220, 70%, 50%, 0.04);
+}
+
+.icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-2);
+  border-radius: var(--radius-sm);
+}
+
+.body {
+  flex: 1;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.name {
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.builtinBadge {
+  font-size: 9px;
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-micro);
+  color: var(--color-text-3);
+  background: var(--color-surface-3);
+  padding: 1px 5px;
+  border-radius: var(--radius-xs);
+  flex-shrink: 0;
+}
+
+.description {
+  font-size: var(--text-caption);
+  color: var(--color-text-3);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-1-5);
+}
+
+.tag {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: var(--color-text-3);
+  background: var(--color-surface-2);
+  padding: 1px 4px;
+  border-radius: var(--radius-xs);
+}
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+/* Toggle switch */
+.toggle {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--color-surface-3);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-silk);
+  flex-shrink: 0;
+}
+
+.toggle[data-on="true"] {
+  background: var(--color-primary);
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-contrast);
+  transition: transform var(--duration-fast) var(--ease-silk);
+  box-shadow: var(--shadow-xs);
+}
+
+.toggle[data-on="true"]::after {
+  transform: translateX(14px);
+}
+
+/* Checkbox for custom mode */
+.checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--color-border-2);
+  border-radius: var(--radius-xs);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-contrast);
+  font-size: 10px;
+  transition: all var(--duration-fast) var(--ease-silk);
+  flex-shrink: 0;
+}
+
+.checkbox[data-checked="true"] {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Action buttons */
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-3);
+  cursor: pointer;
+  opacity: 0;
+  transition: all var(--duration-fast) var(--ease-silk);
+}
+
+.card:hover .actionBtn {
+  opacity: 1;
+}
+
+.actionBtn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-1);
+}
+
+.actionBtn[data-destructive="true"]:hover {
+  color: var(--color-error-text);
+  background: var(--color-error-ghost);
+}
