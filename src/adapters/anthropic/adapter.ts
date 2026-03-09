@@ -148,6 +148,9 @@ export const anthropicAdapter: ProviderAdapter = {
     let currentToolUseArgs = '';
     let inToolUse = false;
 
+    // Web search results accumulation
+    let webSearchResults: Array<{ url: string; title: string; snippet: string }> = [];
+
     try {
       while (true) {
         const { done, value } = await reader.read();
