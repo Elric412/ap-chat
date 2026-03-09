@@ -31,6 +31,12 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
   const messagesLoading = useAppStore((s) => s.messagesLoading);
   const getActiveBranchMessages = useAppStore((s) => s.getActiveBranchMessages);
   const messageMap = useAppStore((s) => s.messageMap);
+  const selectedModelId = useAppStore((s) => s.selectedModelId);
+
+  const activeModelName = useMemo(() => {
+    const entry = MODEL_REGISTRY.find((m) => m.id === selectedModelId);
+    return entry?.displayName ?? selectedModelId;
+  }, [selectedModelId]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showScrollBtn, setShowScrollBtn] = useState(false);
