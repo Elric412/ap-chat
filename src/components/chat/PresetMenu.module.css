@@ -276,7 +276,8 @@
 @media (max-width: 768px) {
   .menu {
     width: 92vw;
-    max-height: 60vh;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
     border-radius: var(--radius-lg);
   }
 

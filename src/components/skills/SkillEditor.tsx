@@ -106,19 +106,6 @@ export function SkillEditor(): JSX.Element {
             </div>
           </div>
 
-          {/* Description */}
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Description</label>
-            <textarea
-              className={styles.textarea}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="One to two sentences explaining what this skill covers. The LLM reads this to decide relevance."
-              maxLength={300}
-              rows={2}
-              aria-label="Skill description"
-            />
-          </div>
 
           {/* Category + Tags */}
           <div className={styles.field}>
