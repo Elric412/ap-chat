@@ -252,20 +252,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid transparent;
   background: transparent;
   color: var(--color-text-3);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-mechanical);
+  transition: all var(--duration-normal) var(--ease-silk);
   -webkit-tap-highlight-color: transparent;
+  position: relative;
 }
 
 .headerAction:hover {
-  background: var(--color-surface-hover);
+  background: var(--color-surface-2);
+  border-color: hsl(0, 0%, 100%, 0.08);
   color: var(--color-text-1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px hsl(0, 0%, 0%, 0.2);
 }
 
 .headerAction:active {
@@ -276,13 +280,20 @@
 .headerAction[data-active="true"] {
   color: var(--color-secondary-text);
   background: var(--color-secondary-ghost);
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 12px hsl(172, 52%, 46%, 0.15);
 }
 
 /* ── Divider ── */
 .divider {
   width: 1px;
-  height: 20px;
-  background: hsl(0, 0%, 100%, 0.06);
+  height: 22px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    hsl(0, 0%, 100%, 0.1),
+    transparent
+  );
   flex-shrink: 0;
 }
 
