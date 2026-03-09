@@ -90,6 +90,7 @@ export function useComparisonStream(): UseComparisonStreamReturn {
         messages: contextMessages,
         parameters: params,
         signal: abortController.signal,
+        webSearchEnabled: store.webSearchEnabled && model.capabilities.supportsWebSearch,
       });
 
       for await (const event of generator) {

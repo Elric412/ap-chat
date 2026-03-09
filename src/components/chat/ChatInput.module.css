@@ -252,6 +252,47 @@
   cursor: not-allowed;
 }
 
+
+.searchBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-3);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-snap);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.searchBtn:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  color: var(--color-text-1);
+}
+
+.searchBtn[data-active="true"] {
+  background: var(--color-ai-search-muted);
+  color: var(--color-ai-search-text);
+}
+
+.searchBtn[data-active="true"]:hover:not(:disabled) {
+  background: var(--color-ai-search);
+  color: var(--color-text-on-primary);
+}
+
+.searchBtn:active:not(:disabled) {
+  transform: scale(0.88);
+  transition-duration: var(--duration-instant);
+}
+
+.searchBtn:disabled {
+  opacity: var(--state-disabled-opacity);
+  cursor: not-allowed;
+}
+
 .attachCount {
   font-size: var(--text-micro);
   font-family: var(--font-mono);
@@ -412,7 +453,8 @@
     margin-top: var(--space-1);
   }
 
-  .attachBtn {
+  .attachBtn,
+  .searchBtn {
     width: 34px;
     height: 34px;
   }

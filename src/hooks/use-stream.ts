@@ -234,7 +234,7 @@ export function useStream(): UseStreamReturn {
     const accumulatedCitations: WebSearchResult[] = [];
 
     try {
-      const webSearchEnabled = useAppStore.getState().webSearchEnabled;
+      const webSearchEnabled = useAppStore.getState().webSearchEnabled && model.capabilities.supportsWebSearch;
 
       const generator = adapter.stream(apiKey, {
         model: model.id,
