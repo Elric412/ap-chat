@@ -588,8 +588,13 @@ Always prioritize type safety, developer experience, and build performance while
   {
     id: 'skill-docx',
     name: 'DOCX',
-    description: 'DOCX',
-    instructions: `# DOCX creation, editing, and analysis
+    description: 'Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx files).',
+    instructions: `---
+name: docx
+description: Use this skill whenever the user wants to create, read, edit, or manipulate Word documents (.docx files). Triggers include: any mention of 'Word doc', 'word document', '.docx', or requests to produce professional documents with formatting like tables of contents, headings, page numbers, or letterheads.
+---
+
+# DOCX creation, editing, and analysis
 
 ## Overview
 A .docx file is a ZIP archive containing XML files.
