@@ -135,7 +135,7 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
                 ))}
                 {/* Streaming skeleton — shown when waiting for first content */}
                 {isStreaming && visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1]?.role === 'user' && (
-                  <StreamingSkeleton />
+                  <StreamingSkeleton modelName={activeModelName} />
                 )}
                 <div className={styles.scrollAnchor} />
               </>
