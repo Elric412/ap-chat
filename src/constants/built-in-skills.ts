@@ -570,4 +570,90 @@ Always prioritize type safety, developer experience, and build performance while
     createdAt: 0,
     updatedAt: 0,
   },
+  {
+    id: 'skill-docx',
+    name: 'DOCX',
+    description: 'DOCX',
+    instructions: `# DOCX creation, editing, and analysis
+
+## Overview
+A .docx file is a ZIP archive containing XML files.
+
+## Quick Reference
+| Task | Approach |
+|------|----------|
+| Read/analyze content | pandoc or unpack for raw XML |
+| Create new document | Use docx-js - see Creating New Documents below |
+| Edit existing document | Unpack → edit XML → repack - see Editing Existing Documents below |
+
+### Converting .doc to .docx
+Legacy .doc files must be converted before editing:
+\`\`\`bash
+python scripts/office/soffice.py --headless --convert-to docx document.doc
+\`\`\`
+
+### Reading Content
+\`\`\`bash
+# Text extraction with tracked changes
+pandoc --track-changes=all document.docx -o output.md
+
+# Raw XML access
+python scripts/office/unpack.py document.docx unpacked/
+\`\`\`
+
+## Creating New Documents
+Generate .docx files with JavaScript, then validate. Install: npm install -g docx
+
+### Setup
+\`\`\`javascript
+const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, ImageRun,
+        Header, Footer, AlignmentType, PageOrientation, LevelFormat, ExternalHyperlink,
+        InternalHyperlink, Bookmark, FootnoteReferenceRun, PositionalTab,
+        PositionalTabAlignment, PositionalTabRelativeTo, PositionalTabLeader,
+        TabStopType, TabStopPosition, Column, SectionType,
+        TableOfContents, HeadingLevel, BorderStyle, WidthType, ShadingType,
+        VerticalAlign, PageNumber, PageBreak } = require('docx');
+const doc = new Document({ sections: [{ children: [/* content */] }] });
+Packer.toBuffer(doc).then(buffer => fs.writeFileSync("doc.docx", buffer));
+\`\`\`
+
+### Page Size
+CRITICAL: docx-js defaults to A4, not US Letter. Always set page size explicitly.
+Common page sizes (DXA units, 1440 DXA = 1 inch):
+- US Letter: 12,240 x 15,840 (content width with 1" margins: 9,360)
+- A4 (default): 11,906 x 16,838 (content width with 1" margins: 9,026)
+
+### Critical Rules for docx-js
+- Set page size explicitly - docx-js defaults to A4
+- Landscape: pass portrait dimensions - docx-js swaps width/height internally
+- Never use \\n - use separate Paragraph elements
+- Never use unicode bullets - use LevelFormat.BULLET with numbering config
+- PageBreak must be in Paragraph - standalone creates invalid XML
+- ImageRun requires type - always specify png/jpg/etc
+- Always set table width with DXA - never use WidthType.PERCENTAGE (breaks in Google Docs)
+- Tables need dual widths - columnWidths array AND cell width, both must match
+- Table width = sum of columnWidths - for DXA, ensure they add up exactly
+- Always add cell margins - use margins: { top: 80, bottom: 80, left: 120, right: 120 }
+- Use ShadingType.CLEAR - never SOLID for table shading
+- Never use tables as dividers/rules - use border on a Paragraph instead
+- TOC requires HeadingLevel only - no custom styles on heading paragraphs
+- Override built-in styles - use exact IDs: "Heading1", "Heading2", etc.
+- Include outlineLevel - required for TOC (0 for H1, 1 for H2, etc.)
+
+## Editing Existing Documents
+Follow all 3 steps in order:
+1. Unpack: python scripts/office/unpack.py document.docx unpacked/
+2. Edit XML: Edit files in unpacked/word/
+3. Pack: python scripts/office/pack.py unpacked/ output.docx --original document.docx
+
+Use "Claude" as the author for tracked changes and comments unless specified otherwise.
+Use smart quotes (XML entities) for professional typography.`,
+    category: 'general',
+    tags: ['docx', 'word', 'document', 'office', 'xml'],
+    icon: '📄',
+    isBuiltin: true,
+    enabled: true,
+    createdAt: 0,
+    updatedAt: 0,
+  },
 ];
