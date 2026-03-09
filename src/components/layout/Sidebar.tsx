@@ -125,6 +125,12 @@ export function Sidebar(): JSX.Element {
     }
 
     items.push({
+      icon: BookOpen,
+      label: `Skills${skillConfig.mode !== 'disabled' ? ' ●' : ''}`,
+      onClick: () => setSkillPanelOpen(true),
+    });
+
+    items.push({
       icon: vaultStatus === 'unlocked' ? Unlock : vaultStatus === 'locked' ? Lock : Settings,
       label: vaultStatus === 'unlocked' ? `Keys (${configuredCount})` : 'Settings',
       onClick: () => navigate('/settings'),
