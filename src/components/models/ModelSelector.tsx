@@ -112,15 +112,37 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
     );
   }, [search]);
 
-  const grouped = useMemo(() => {
-    const map = new Map<ProviderId, ModelEntry[]>();
+  const { currentModels, legacyModels } = useMemo(() => {
+    const current: ModelEntry[] = [];
+    const legacy: ModelEntry[] = [];
     for (const m of filteredModels) {
+      if (m.isLegacy) legacy.push(m);
+      else current.push(m);
+    }
+    return { currentModels: current, legacyModels: legacy };
+  }, [filteredModels]);
+
+  const currentGrouped = useMemo(() => {
+    const map = new Map<ProviderId, ModelEntry[]>();
+    for (const m of currentModels) {
       const list = map.get(m.providerId) ?? [];
       list.push(m);
       map.set(m.providerId, list);
     }
     return map;
-  }, [filteredModels]);
+  }, [currentModels]);
+
+  const legacyGrouped = useMemo(() => {
+    const map = new Map<ProviderId, ModelEntry[]>();
+    for (const m of legacyModels) {
+      const list = map.get(m.providerId) ?? [];
+      list.push(m);
+      map.set(m.providerId, list);
+    }
+    return map;
+  }, [legacyModels]);
+
+  const [showLegacy, setShowLegacy] = useState(false);
 
   const handleSelect = useCallback((modelId: string) => {
     setSelectedModelId(modelId);
