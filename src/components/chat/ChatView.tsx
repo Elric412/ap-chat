@@ -4,6 +4,7 @@ import { useAppStore } from '../../store';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
 import { EmptyState } from './EmptyState';
+import { StreamingSkeleton } from './StreamingSkeleton';
 import { ContextBar } from '../tokens/ContextBar';
 import { ArrowDown } from 'lucide-react';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
