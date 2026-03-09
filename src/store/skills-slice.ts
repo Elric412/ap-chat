@@ -56,6 +56,13 @@ export const createSkillsSlice: StateCreator<
     const stored = loadSkills();
     const config = loadSkillConfig();
 
+    // Deprecated skill IDs (replaced with new versions)
+    const DEPRECATED_IDS = new Set([
+      'skill-frontend-architect',
+      'skill-backend-engineer',
+      'skill-typescript-expert',
+    ]);
+
     // Merge builtin skills with stored overrides
     const builtinIds = new Set(BUILTIN_SKILLS.map((s) => s.id));
     const storedMap = new Map(stored.map((s) => [s.id, s]));
@@ -73,9 +80,9 @@ export const createSkillsSlice: StateCreator<
       }
     }
 
-    // Add user-created skills
+    // Add user-created skills (excluding deprecated builtins)
     for (const s of stored) {
-      if (!builtinIds.has(s.id)) {
+      if (!builtinIds.has(s.id) && !DEPRECATED_IDS.has(s.id)) {
         merged.push(s);
       }
     }
