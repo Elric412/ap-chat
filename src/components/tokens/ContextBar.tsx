@@ -31,12 +31,12 @@ export function ContextBar(): JSX.Element | null {
     [selectedModelId]
   );
 
-  const budget = (() => {
+  const budget = useMemo(() => {
     if (!model) return null;
     const messages = getActiveBranchMessages();
     if (messages.length === 0) return null;
     return calculateLiveTokenUsage(messages, model, contextConfig);
-  })();
+  }, [model, contextConfig, messageMap, getActiveBranchMessages]);
 
   if (!model || !budget) return null;
 

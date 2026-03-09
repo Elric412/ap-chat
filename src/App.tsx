@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect } from 'react';
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useAutoSave } from './hooks/use-auto-save';
 import { useTheme } from './hooks/use-theme';
@@ -6,19 +6,18 @@ import { useKeyboard } from './hooks/use-keyboard';
 import { useAppStore } from './store';
 import { AuthProvider } from './hooks/use-auth';
 import { AppShell } from './components/layout/AppShell';
+import { Sidebar } from './components/layout/Sidebar';
+import { Header } from './components/layout/Header';
+import { ChatPage } from './pages/ChatPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { AuthPage } from './pages/AuthPage';
+import { VaultSetupModal } from './components/vault/VaultSetupModal';
+import { VaultUnlockModal } from './components/vault/VaultUnlockModal';
 import { ToastStack } from './components/shared/ToastStack';
+import { ParameterDrawer } from './components/parameters/ParameterDrawer';
+import { CommandPalette } from './components/command/CommandPalette';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
 import { exportAsMarkdown, exportAsJson, downloadFile } from './engine/export-engine';
-
-const Sidebar = lazy(() => import('./components/layout/Sidebar').then((module) => ({ default: module.Sidebar })));
-const Header = lazy(() => import('./components/layout/Header').then((module) => ({ default: module.Header })));
-const ChatPage = lazy(() => import('./pages/ChatPage').then((module) => ({ default: module.ChatPage })));
-const SettingsPage = lazy(() => import('./pages/SettingsPage').then((module) => ({ default: module.SettingsPage })));
-const AuthPage = lazy(() => import('./pages/AuthPage').then((module) => ({ default: module.AuthPage })));
-const VaultSetupModal = lazy(() => import('./components/vault/VaultSetupModal').then((module) => ({ default: module.VaultSetupModal })));
-const VaultUnlockModal = lazy(() => import('./components/vault/VaultUnlockModal').then((module) => ({ default: module.VaultUnlockModal })));
-const ParameterDrawer = lazy(() => import('./components/parameters/ParameterDrawer').then((module) => ({ default: module.ParameterDrawer })));
-const CommandPalette = lazy(() => import('./components/command/CommandPalette').then((module) => ({ default: module.CommandPalette })));
 
 function AppInner(): JSX.Element {
   useTheme();
@@ -70,30 +69,26 @@ function AppInner(): JSX.Element {
 
   return (
     <>
-      <Suspense fallback={null}>
-        <AppShell
-          sidebar={<Sidebar />}
-          header={<Header />}
-        >
-          <Routes>
-            <Route path="/" element={<ChatPage />} />
-            <Route path="/chat/:conversationId" element={<ChatPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="*" element={<ChatPage />} />
-          </Routes>
-        </AppShell>
-        <VaultSetupModal />
-        <VaultUnlockModal />
-        <ParameterDrawer />
-      </Suspense>
+      <AppShell
+        sidebar={<Sidebar />}
+        header={<Header />}
+      >
+        <Routes>
+          <Route path="/" element={<ChatPage />} />
+          <Route path="/chat/:conversationId" element={<ChatPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="*" element={<ChatPage />} />
+        </Routes>
+      </AppShell>
+      <VaultSetupModal />
+      <VaultUnlockModal />
+      <ParameterDrawer />
       <ToastStack />
-      <Suspense fallback={null}>
-        <CommandPalette
-          open={commandPaletteOpen}
-          onClose={() => setCommandPaletteOpen(false)}
-        />
-      </Suspense>
+      <CommandPalette
+        open={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+      />
     </>
   );
 }

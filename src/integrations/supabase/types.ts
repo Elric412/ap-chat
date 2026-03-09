@@ -17,7 +17,7 @@ export type Database = {
       api_keys: {
         Row: {
           created_at: string
-          provider_api_key: string
+          encrypted_key: string
           id: string
           is_active: boolean | null
           key_hint: string | null
@@ -27,7 +27,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          provider_api_key: string
+          encrypted_key: string
           id?: string
           is_active?: boolean | null
           key_hint?: string | null
@@ -37,7 +37,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          provider_api_key?: string
+          encrypted_key?: string
           id?: string
           is_active?: boolean | null
           key_hint?: string | null
