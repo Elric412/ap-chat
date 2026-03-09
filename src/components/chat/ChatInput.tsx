@@ -17,6 +17,7 @@ import {
   FILE_INPUT_ACCEPT,
 } from '../../engine/attachment-processor';
 import { SlashCommandMenu } from '../command/SlashCommandMenu';
+import { PresetMenu } from './PresetMenu';
 import { getAllPresets } from '../../constants/presets';
 import { MODEL_REGISTRY } from '../../constants/model-registry';
 import { useAppStore } from '../../store';
