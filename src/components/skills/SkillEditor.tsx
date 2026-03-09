@@ -46,11 +46,12 @@ export function SkillEditor(): JSX.Element {
   const handleSave = () => {
     if (!canSave) return;
     const tags = tagsStr.split(',').map((t) => t.trim()).filter(Boolean);
+    const description = name.trim();
 
     if (isEditing && editingSkillId) {
-      updateSkill(editingSkillId, { icon, name: name.trim(), description: description.trim(), instructions: instructions.trim(), category, tags });
+      updateSkill(editingSkillId, { icon, name: name.trim(), description, instructions: instructions.trim(), category, tags });
     } else {
-      createSkill({ icon, name: name.trim(), description: description.trim(), instructions: instructions.trim(), category, tags, enabled: true });
+      createSkill({ icon, name: name.trim(), description, instructions: instructions.trim(), category, tags, enabled: true });
     }
     setSkillEditorOpen(false);
   };
