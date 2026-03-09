@@ -1,7 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   SettingsPage — Agency-Grade Premium Settings Interface
-   Editorial-luxe design with bento-grid layout, glassmorphism,
-   and sophisticated micro-interactions.
+   SettingsPage — Clean, focused settings
    ═══════════════════════════════════════════════════════════════ */
 
 .settingsPage {
@@ -16,270 +14,166 @@
 .settingsHeader {
   display: flex;
   align-items: center;
-  gap: var(--space-5);
-  padding: var(--space-5) var(--space-8);
-  border-bottom: 1px solid hsl(0, 0%, 100%, 0.05);
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-border-1);
   flex-shrink: 0;
-  background: linear-gradient(
-    180deg,
-    hsl(225, 18%, 8%, 0.9) 0%,
-    var(--color-surface-0) 100%
-  );
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  position: relative;
-}
-
-.settingsHeader::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: var(--space-8);
-  right: var(--space-8);
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    hsl(24, 82%, 52%, 0.2) 20%,
-    hsl(172, 52%, 46%, 0.15) 80%,
-    transparent 100%
-  );
 }
 
 .backBtn {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2-5) var(--space-4);
-  border: 1px solid hsl(0, 0%, 100%, 0.08);
+  gap: var(--space-1-5);
+  padding: var(--space-1-5) var(--space-3);
+  border: 1px solid var(--color-border-1);
   border-radius: var(--radius-full);
-  background: hsl(0, 0%, 100%, 0.03);
+  background: transparent;
   color: var(--color-text-2);
   font-family: var(--font-sans);
   font-size: var(--text-caption);
   font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: all var(--duration-normal) var(--ease-silk);
+  transition: all var(--duration-fast) var(--ease-silk);
 }
 
 .backBtn:hover {
-  background: hsl(0, 0%, 100%, 0.06);
+  background: var(--color-surface-hover);
   color: var(--color-text-1);
-  border-color: hsl(0, 0%, 100%, 0.12);
-  transform: translateX(-4px);
-  box-shadow: 0 4px 16px hsl(225, 18%, 2%, 0.3);
+  border-color: var(--color-border-2);
 }
 
 .backBtn:active {
-  transform: translateX(-2px) scale(0.98);
+  transform: scale(0.97);
   transition-duration: var(--duration-instant);
 }
 
 .pageTitle {
-  font-family: var(--font-display);
-  font-size: var(--text-h1);
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: var(--text-h2);
+  font-weight: var(--weight-semibold);
   color: var(--color-text-1);
-  letter-spacing: var(--tracking-display);
-  background: linear-gradient(135deg, var(--color-text-1) 0%, var(--color-text-2) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: var(--tracking-heading);
 }
 
 /* ── Content ── */
 .settingsContent {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-8) var(--space-10);
-  max-width: 880px;
+  padding: var(--space-6) var(--space-8);
+  max-width: 720px;
   margin: 0 auto;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  gap: var(--space-6);
 }
 
-/* ── Section Cards ── */
+/* ── Sections ── */
 .section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  animation: sectionFadeIn var(--duration-slow) var(--ease-silk) backwards;
-}
-
-.section:nth-child(1) { animation-delay: 0ms; }
-.section:nth-child(2) { animation-delay: 60ms; }
-.section:nth-child(3) { animation-delay: 120ms; }
-.section:nth-child(4) { animation-delay: 180ms; }
-.section:nth-child(5) { animation-delay: 240ms; }
-
-@keyframes sectionFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  gap: var(--space-3);
 }
 
 .sectionHeader {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding-left: var(--space-1);
+  gap: var(--space-2);
 }
 
 .sectionHeader svg {
-  color: var(--color-primary-text);
-  opacity: 0.8;
+  color: var(--color-text-3);
 }
 
 .sectionTitle {
-  font-family: var(--font-display);
-  font-size: var(--text-h3);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-lg);
   font-weight: var(--weight-semibold);
   color: var(--color-text-1);
-  letter-spacing: var(--tracking-heading);
+  letter-spacing: var(--tracking-body);
 }
 
-/* ── Option Cards (Premium Glass) ── */
+/* ── Option Rows ── */
 .optionRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-5) var(--space-6);
-  background: linear-gradient(
-    135deg,
-    hsl(225, 14%, 10%, 0.6) 0%,
-    hsl(225, 14%, 8%, 0.8) 100%
-  );
-  border: 1px solid hsl(0, 0%, 100%, 0.05);
-  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-lg);
   gap: var(--space-4);
-  transition: all var(--duration-normal) var(--ease-silk);
-  position: relative;
-  overflow: hidden;
-}
-
-.optionRow::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    hsl(24, 82%, 52%, 0.02) 0%,
-    transparent 50%
-  );
-  opacity: 0;
-  transition: opacity var(--duration-normal) var(--ease-silk);
-  pointer-events: none;
+  transition: border-color var(--duration-fast) var(--ease-silk);
 }
 
 .optionRow:hover {
-  border-color: hsl(0, 0%, 100%, 0.1);
-  box-shadow: 0 8px 32px hsl(225, 18%, 2%, 0.4);
-  transform: translateY(-2px);
-}
-
-.optionRow:hover::before {
-  opacity: 1;
+  border-color: var(--color-border-2);
 }
 
 .optionLabel {
   display: block;
   font-size: var(--text-body);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-medium);
   color: var(--color-text-1);
-  letter-spacing: -0.01em;
 }
 
 .optionDescription {
   display: block;
   font-size: var(--text-caption);
   color: var(--color-text-3);
-  margin-top: var(--space-1);
-  line-height: var(--leading-body);
+  margin-top: var(--space-0-5);
 }
 
 .optionDescription kbd {
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
+  padding: 1px 6px;
   font-family: var(--font-mono);
   font-size: var(--text-micro);
-  background: hsl(0, 0%, 100%, 0.05);
-  border: 1px solid hsl(0, 0%, 100%, 0.08);
-  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-xs);
   color: var(--color-text-2);
   margin: 0 2px;
 }
 
 .optionButton {
   flex-shrink: 0;
-  padding: var(--space-2-5) var(--space-5);
-  border: 1px solid hsl(0, 0%, 100%, 0.08);
+  padding: var(--space-1-5) var(--space-4);
+  border: 1px solid var(--color-border-1);
   border-radius: var(--radius-full);
-  background: linear-gradient(
-    135deg,
-    hsl(0, 0%, 100%, 0.06) 0%,
-    hsl(0, 0%, 100%, 0.02) 100%
-  );
+  background: transparent;
   color: var(--color-text-1);
   font-family: var(--font-sans);
   font-size: var(--text-caption);
   font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: all var(--duration-normal) var(--ease-snap);
-  position: relative;
-  overflow: hidden;
-}
-
-.optionButton::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  opacity: 0;
-  transition: opacity var(--duration-normal) var(--ease-silk);
+  transition: all var(--duration-fast) var(--ease-silk);
 }
 
 .optionButton span {
   position: relative;
-  z-index: 1;
 }
 
 .optionButton:hover {
-  border-color: hsl(24, 82%, 52%, 0.3);
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 4px 16px hsl(24, 82%, 52%, 0.15);
-  color: var(--color-text-on-primary);
-}
-
-.optionButton:hover::before {
-  opacity: 1;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-contrast);
 }
 
 .optionButton:active {
-  transform: translateY(0) scale(0.98);
+  transform: scale(0.97);
   transition-duration: var(--duration-instant);
 }
 
-/* ── Stats Grid ── */
+/* ── Stats ── */
 .statRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--space-4) var(--space-6);
+  padding: var(--space-3) var(--space-4);
   font-size: var(--text-body);
-  border-bottom: 1px solid hsl(0, 0%, 100%, 0.03);
-  transition: background var(--duration-fast) var(--ease-silk);
-}
-
-.statRow:hover {
-  background: hsl(0, 0%, 100%, 0.02);
+  border-bottom: 1px solid var(--color-border-1);
 }
 
 .statRow:last-child {
@@ -288,25 +182,20 @@
 
 .statLabel {
   color: var(--color-text-2);
-  font-weight: var(--weight-regular);
 }
 
 .statValue {
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-medium);
   font-family: var(--font-mono);
-  color: var(--color-secondary-text);
-  font-size: var(--text-body);
+  color: var(--color-text-1);
   font-variant-numeric: tabular-nums;
-  padding: var(--space-1) var(--space-2);
-  background: var(--color-secondary-ghost);
-  border-radius: var(--radius-sm);
 }
 
-/* ── About Bento Grid ── */
+/* ── About Grid ── */
 .aboutGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .aboutCard {
@@ -314,51 +203,22 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--space-8) var(--space-5);
-  background: linear-gradient(
-    160deg,
-    hsl(225, 14%, 12%, 0.7) 0%,
-    hsl(225, 14%, 8%, 0.9) 100%
-  );
-  border: 1px solid hsl(0, 0%, 100%, 0.05);
-  border-radius: var(--radius-xl);
-  transition: all var(--duration-normal) var(--ease-silk);
-  position: relative;
-  overflow: hidden;
-}
-
-.aboutCard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    hsl(172, 52%, 46%, 0.3) 50%,
-    transparent 100%
-  );
+  padding: var(--space-6) var(--space-4);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border-1);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--duration-fast) var(--ease-silk);
 }
 
 .aboutCard:hover {
-  border-color: hsl(0, 0%, 100%, 0.1);
-  transform: translateY(-4px);
-  box-shadow: 
-    0 12px 40px hsl(225, 18%, 2%, 0.5),
-    0 0 30px hsl(172, 52%, 46%, 0.05);
+  border-color: var(--color-border-2);
 }
 
 .aboutValue {
   font-family: var(--font-display);
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--color-secondary-text) 0%, var(--color-primary-text) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-text-1);
   letter-spacing: var(--tracking-display);
   line-height: 1;
 }
@@ -366,9 +226,9 @@
 .aboutLabel {
   font-size: var(--text-caption);
   color: var(--color-text-3);
-  margin-top: var(--space-2);
+  margin-top: var(--space-1);
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.08em;
   font-weight: var(--weight-medium);
 }
 
@@ -376,30 +236,19 @@
   font-size: var(--text-body);
   color: var(--color-text-2);
   line-height: var(--leading-body);
-  max-width: 520px;
+  max-width: 480px;
 }
 
 .securityNote {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
-  background: linear-gradient(
-    135deg,
-    hsl(152, 30%, 10%, 0.6) 0%,
-    hsl(152, 30%, 8%, 0.4) 100%
-  );
-  border: 1px solid hsl(152, 52%, 42%, 0.15);
-  border-radius: var(--radius-lg);
-  font-size: var(--text-body);
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-success-ghost);
+  border: 1px solid hsl(142, 40%, 20%);
+  border-radius: var(--radius-md);
+  font-size: var(--text-caption);
   color: var(--color-success-text);
-  font-weight: var(--weight-medium);
-  transition: all var(--duration-normal) var(--ease-silk);
-}
-
-.securityNote:hover {
-  border-color: hsl(152, 52%, 42%, 0.25);
-  box-shadow: 0 4px 20px hsl(152, 52%, 42%, 0.08);
 }
 
 .securityNote svg {
@@ -409,23 +258,23 @@
 /* ── Mobile ── */
 @media (max-width: 768px) {
   .settingsContent {
-    padding: var(--space-5);
-    gap: var(--space-6);
+    padding: var(--space-4);
+    gap: var(--space-5);
   }
 
   .settingsHeader {
-    padding: var(--space-4) var(--space-5);
+    padding: var(--space-3) var(--space-4);
     gap: var(--space-3);
   }
 
   .pageTitle {
-    font-size: var(--text-h2);
+    font-size: var(--text-h3);
   }
 
   .optionRow {
     flex-direction: column;
     align-items: flex-start;
-    padding: var(--space-4);
+    padding: var(--space-3);
   }
 
   .optionButton {
@@ -438,6 +287,6 @@
   }
 
   .aboutValue {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
 }

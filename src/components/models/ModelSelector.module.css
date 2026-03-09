@@ -1,3 +1,7 @@
+/* ═══════════════════════════════════════════════════════════════
+   ModelSelector — Clean dropdown panel
+   ═══════════════════════════════════════════════════════════════ */
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -11,18 +15,18 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  background: hsl(0, 0%, 0%, 0.35);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: hsl(0, 0%, 0%, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .panel {
   position: relative;
-  width: 440px;
+  width: 400px;
   max-width: calc(100vw - var(--space-8));
-  max-height: 58vh;
+  max-height: 55vh;
   background: var(--color-surface-1);
-  border: 1px solid hsl(0, 0%, 100%, 0.06);
+  border: 1px solid var(--color-border-1);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
   overflow: hidden;
@@ -30,22 +34,9 @@
   flex-direction: column;
 }
 
-/* Glass inner highlight */
-.panel::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, hsl(0, 0%, 100%, 0.05), transparent);
-  pointer-events: none;
-  z-index: 1;
-}
-
 .searchWrapper {
-  padding: var(--space-3) var(--space-3);
-  border-bottom: 1px solid hsl(0, 0%, 100%, 0.04);
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border-1);
 }
 
 .searchInput {
@@ -57,8 +48,7 @@
   color: var(--color-text-1);
   font-family: var(--font-sans);
   font-size: var(--text-body);
-  transition: border-color var(--duration-fast) var(--ease-silk),
-              box-shadow var(--duration-fast) var(--ease-silk);
+  transition: border-color var(--duration-fast) var(--ease-silk);
 }
 
 .searchInput::placeholder {
@@ -68,31 +58,29 @@
 
 .searchInput:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px hsl(24, 82%, 52%, 0.08);
+  border-color: var(--color-border-3);
 }
 
 .list {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-1-5);
+  padding: var(--space-1);
 }
 
 .providerGroup {
-  margin-bottom: var(--space-1-5);
+  margin-bottom: var(--space-1);
 }
 
 .providerLabel {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-1-5) var(--space-3);
-  font-size: 10px;
-  font-weight: var(--weight-semibold);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-micro);
+  font-weight: var(--weight-medium);
   color: var(--color-text-3);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  opacity: 0.6;
+  letter-spacing: 0.05em;
 }
 
 .providerDot {
@@ -117,7 +105,7 @@
   cursor: pointer;
   text-align: left;
   transition: all var(--duration-fast) var(--ease-silk);
-  min-height: 38px;
+  min-height: 36px;
 }
 
 .modelItem:hover {
@@ -126,17 +114,10 @@
 
 .modelItem:active {
   background: var(--color-surface-active);
-  transition-duration: var(--duration-instant);
 }
 
 .modelItem[data-selected="true"] {
   background: var(--color-surface-selected);
-  box-shadow: inset 2px 0 0 var(--color-primary);
-}
-
-.modelItem:focus-visible {
-  outline: none;
-  box-shadow: var(--state-focus-ring);
 }
 
 .modelInfo {
@@ -177,8 +158,7 @@
 }
 
 .capDot[data-active="true"] {
-  background: var(--color-secondary);
-  box-shadow: 0 0 4px var(--color-secondary);
+  background: var(--color-success);
 }
 
 .noKey {
@@ -195,9 +175,9 @@
 }
 
 .legacySection {
-  margin-top: var(--space-4);
-  padding-top: var(--space-4);
-  border-top: 1px solid hsl(0, 0%, 100%, 0.04);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-1);
 }
 
 .legacyToggle {
@@ -208,12 +188,12 @@
   padding: var(--space-2) var(--space-3);
   background: transparent;
   border: none;
-  color: var(--color-text-2);
+  color: var(--color-text-3);
   font-family: var(--font-sans);
   font-size: var(--text-micro);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-medium);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   cursor: pointer;
   border-radius: var(--radius-md);
   transition: all var(--duration-fast) var(--ease-silk);
@@ -221,17 +201,13 @@
 
 .legacyToggle:hover {
   background: var(--color-surface-hover);
-  color: var(--color-text-1);
-}
-
-.legacyToggle:active {
-  background: var(--color-surface-active);
+  color: var(--color-text-2);
 }
 
 .chevron {
   flex-shrink: 0;
   color: var(--color-text-3);
-  transition: transform var(--duration-normal) var(--ease-snap);
+  transition: transform var(--duration-fast) var(--ease-silk);
 }
 
 .chevron[data-open="true"] {

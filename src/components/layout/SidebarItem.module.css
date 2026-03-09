@@ -1,3 +1,7 @@
+/* ═══════════════════════════════════════════════════════════════
+   SidebarItem — Clean, Vercel-style list item
+   ═══════════════════════════════════════════════════════════════ */
+
 .sidebarItem {
   display: flex;
   align-items: center;
@@ -8,8 +12,8 @@
   color: var(--color-text-2);
   font-family: var(--font-sans);
   font-size: var(--text-caption);
-  font-weight: var(--weight-medium);
-  letter-spacing: var(--tracking-caption);
+  font-weight: var(--weight-regular);
+  letter-spacing: var(--tracking-body);
   line-height: var(--leading-caption);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -22,24 +26,23 @@
   position: relative;
   gap: var(--space-2);
   -webkit-tap-highlight-color: transparent;
-  min-height: 34px;
+  min-height: 32px;
 }
 
 .chatIcon {
   flex-shrink: 0;
   color: var(--color-text-3);
-  opacity: 0.25;
-  transition: all var(--duration-normal) var(--ease-silk);
+  opacity: 0.2;
+  transition: all var(--duration-fast) var(--ease-silk);
 }
 
 .sidebarItem:hover .chatIcon {
-  opacity: 0.6;
-  color: var(--color-text-2);
+  opacity: 0.5;
 }
 
 .sidebarItem[data-active="true"] .chatIcon {
   opacity: 1;
-  color: var(--color-primary-text);
+  color: var(--color-text-1);
 }
 
 .sidebarItem:hover {
@@ -49,37 +52,25 @@
 
 .sidebarItem:active {
   background: var(--color-surface-active);
-  transform: scale(0.98);
   transition-duration: var(--duration-instant);
 }
 
 .sidebarItem[data-active="true"] {
   background: var(--color-surface-selected);
   color: var(--color-text-1);
+  font-weight: var(--weight-medium);
 }
 
+/* Active indicator — thin left bar */
 .sidebarItem[data-active="true"]::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 7px;
-  bottom: 7px;
+  top: 8px;
+  bottom: 8px;
   width: 2px;
   border-radius: 0 var(--radius-full) var(--radius-full) 0;
-  background: var(--color-primary);
-  box-shadow: 0 0 8px hsl(24, 82%, 52%, 0.15);
-  animation: indicatorIn 0.35s var(--ease-bounce) both;
-}
-
-@keyframes indicatorIn {
-  from {
-    opacity: 0;
-    transform: scaleY(0) translateX(-2px);
-  }
-  to {
-    opacity: 1;
-    transform: scaleY(1) translateX(0);
-  }
+  background: var(--color-text-1);
 }
 
 .title {
@@ -101,15 +92,13 @@
   flex: 1;
   min-width: 0;
   padding: var(--space-0-5) var(--space-2);
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--color-border-2);
   border-radius: var(--radius-sm);
   background: var(--color-surface-0);
   color: var(--color-text-1);
   font-family: var(--font-sans);
   font-size: var(--text-caption);
-  font-weight: var(--weight-medium);
   outline: none;
-  box-shadow: 0 0 0 2px hsl(24, 82%, 52%, 0.1);
 }
 
 .confirmBtn {
@@ -119,18 +108,17 @@
   width: 18px;
   height: 18px;
   border: none;
-  background: var(--color-primary-ghost);
-  color: var(--color-primary-text);
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
   border-radius: var(--radius-xs);
   cursor: pointer;
   flex-shrink: 0;
-  transition: all var(--duration-fast) var(--ease-snap);
+  transition: all var(--duration-fast) var(--ease-silk);
 }
 
 .confirmBtn:hover {
   background: var(--color-primary);
   color: var(--color-primary-contrast);
-  transform: scale(1.1);
 }
 
 .deleteButton {
@@ -146,7 +134,7 @@
   cursor: pointer;
   flex-shrink: 0;
   margin-left: var(--space-1);
-  transition: all var(--duration-fast) var(--ease-snap);
+  transition: all var(--duration-fast) var(--ease-silk);
 }
 
 .sidebarItem:hover .deleteButton {
@@ -156,7 +144,6 @@
 .deleteButton:hover {
   color: var(--color-error-text);
   background: var(--color-error-ghost);
-  transform: scale(1.1);
 }
 
 .deleteButton:active {
@@ -164,11 +151,11 @@
   transition-duration: var(--duration-instant);
 }
 
-/* ── Mobile — always show delete ── */
+/* ── Mobile ── */
 @media (max-width: 768px) {
   .sidebarItem {
     padding: var(--space-2-5) var(--space-3);
-    min-height: 38px;
+    min-height: 36px;
   }
 
   .deleteButton {

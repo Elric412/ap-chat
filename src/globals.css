@@ -1,16 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════════
-   BYOK Chat — Global Design Tokens
-   Source of truth: design-system.md
-   All visual values in components must reference these tokens.
+   BYOK Chat — World-Class Design System
+   Inspired by Apple, Vercel, Stripe
    ═══════════════════════════════════════════════════════════════ */
-
-/* ── Font Loading ── */
 
 /* ── Reset ── */
 *,
@@ -25,6 +22,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
 body {
@@ -42,120 +40,125 @@ body {
 :root {
   color-scheme: dark;
 
-  /* ── Fonts ── */
-  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
-  --font-display: 'Space Grotesk', 'Outfit', sans-serif;
+  /* ── Fonts — Apple/Vercel style ── */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  --font-display: 'Space Grotesk', 'Inter', sans-serif;
 
-  /* ── Surfaces ── */
-  --color-surface-0: hsl(225, 18%, 5%);
-  --color-surface-1: hsl(225, 14%, 8%);
-  --color-surface-2: hsl(224, 11%, 12%);
-  --color-surface-3: hsl(222, 10%, 16%);
-  --color-surface-4: hsl(220, 9%, 20%);
+  /* ── Surfaces — Vercel-inspired depth ── */
+  --color-surface-0: hsl(0, 0%, 0%);
+  --color-surface-1: hsl(0, 0%, 5%);
+  --color-surface-2: hsl(0, 0%, 8.5%);
+  --color-surface-3: hsl(0, 0%, 12%);
+  --color-surface-4: hsl(0, 0%, 16%);
 
-  --color-surface-user:      hsl(225, 16%, 14%);
+  --color-surface-user:      hsl(0, 0%, 7%);
   --color-surface-assistant:  transparent;
-  --color-surface-system:    hsl(225, 10%, 8%);
-  --color-surface-thinking:  hsl(42, 14%, 10%);
-  --color-surface-tool:      hsl(186, 12%, 10%);
-  --color-surface-search:    hsl(32, 12%, 10%);
+  --color-surface-system:    hsl(0, 0%, 5%);
+  --color-surface-thinking:  hsl(45, 8%, 6%);
+  --color-surface-tool:      hsl(180, 6%, 6%);
+  --color-surface-search:    hsl(35, 6%, 6%);
 
-  --color-surface-hover: hsl(225, 10%, 15%);
-  --color-surface-active: hsl(225, 10%, 11%);
-  --color-surface-selected: hsl(186, 14%, 12%);
+  --color-surface-hover: hsl(0, 0%, 10%);
+  --color-surface-active: hsl(0, 0%, 7%);
+  --color-surface-selected: hsl(0, 0%, 10%);
 
-  /* ── Glass ── */
-  --glass-bg: hsl(228, 14%, 10%, 0.72);
-  --glass-border: hsl(0, 0%, 100%, 0.06);
-  --glass-blur: 16px;
-  --glass-bg-subtle: hsl(228, 14%, 10%, 0.5);
+  /* ── Glass — Stripe-inspired frosted ── */
+  --glass-bg: hsl(0, 0%, 4%, 0.8);
+  --glass-border: hsl(0, 0%, 100%, 0.08);
+  --glass-blur: 20px;
+  --glass-bg-subtle: hsl(0, 0%, 4%, 0.5);
 
-  /* ── Text ── */
-  --color-text-1: hsl(210, 12%, 93%);
-  --color-text-2: hsl(210, 8%, 56%);
-  --color-text-3: hsl(210, 6%, 38%);
-  --color-text-inverse: hsl(230, 15%, 6%);
+  /* ── Text — High contrast hierarchy ── */
+  --color-text-1: hsl(0, 0%, 93%);
+  --color-text-2: hsl(0, 0%, 56%);
+  --color-text-3: hsl(0, 0%, 40%);
+  --color-text-inverse: hsl(0, 0%, 0%);
   --color-text-on-primary: hsl(0, 0%, 100%);
 
-  /* ── Borders ── */
-  --color-border-1: hsl(225, 10%, 14%);
-  --color-border-2: hsl(225, 10%, 20%);
-  --color-border-3: hsl(225, 10%, 26%);
-  --color-border-focus: hsl(210, 20%, 40%);
+  /* ── Borders — Vercel ultra-subtle ── */
+  --color-border-1: hsl(0, 0%, 14%);
+  --color-border-2: hsl(0, 0%, 20%);
+  --color-border-3: hsl(0, 0%, 26%);
+  --color-border-focus: hsl(0, 0%, 50%);
   --color-border-error: var(--color-error);
 
-  /* ── Primary Accent — Warm Amber ── */
-  --color-primary:            hsl(24, 82%, 52%);
-  --color-primary-hover:      hsl(24, 82%, 46%);
-  --color-primary-active:     hsl(24, 82%, 40%);
-  --color-primary-text:       hsl(24, 85%, 62%);
-  --color-primary-ghost:      hsl(24, 50%, 12%);
-  --color-primary-ghost-hover: hsl(24, 50%, 18%);
-  --color-primary-muted:      hsl(24, 30%, 22%);
-  --color-primary-contrast:   hsl(0, 0%, 100%);
+  /* ── Primary — Warm White/Amber (Vercel-like) ── */
+  --color-primary:            hsl(0, 0%, 100%);
+  --color-primary-hover:      hsl(0, 0%, 85%);
+  --color-primary-active:     hsl(0, 0%, 75%);
+  --color-primary-text:       hsl(0, 0%, 100%);
+  --color-primary-ghost:      hsl(0, 0%, 100%, 0.06);
+  --color-primary-ghost-hover: hsl(0, 0%, 100%, 0.1);
+  --color-primary-muted:      hsl(0, 0%, 20%);
+  --color-primary-contrast:   hsl(0, 0%, 0%);
 
-  /* ── Secondary Accent — Cool Teal ── */
-  --color-secondary:            hsl(172, 52%, 46%);
-  --color-secondary-hover:      hsl(172, 52%, 40%);
-  --color-secondary-active:     hsl(172, 52%, 34%);
-  --color-secondary-text:       hsl(172, 60%, 56%);
-  --color-secondary-ghost:      hsl(172, 30%, 12%);
-  --color-secondary-ghost-hover: hsl(172, 30%, 18%);
-  --color-secondary-muted:      hsl(172, 20%, 20%);
+  /* ── Secondary — Blue (Stripe-like) ── */
+  --color-secondary:            hsl(220, 70%, 55%);
+  --color-secondary-hover:      hsl(220, 70%, 48%);
+  --color-secondary-active:     hsl(220, 70%, 42%);
+  --color-secondary-text:       hsl(220, 80%, 68%);
+  --color-secondary-ghost:      hsl(220, 50%, 12%);
+  --color-secondary-ghost-hover: hsl(220, 50%, 18%);
+  --color-secondary-muted:      hsl(220, 20%, 20%);
+
+  /* ── Accent — Amber for highlights ── */
+  --color-accent-amber: hsl(36, 100%, 50%);
+  --color-accent-amber-text: hsl(36, 90%, 65%);
+  --color-accent-amber-ghost: hsl(36, 50%, 10%);
 
   /* ── Semantic ── */
-  --color-error:         hsl(354, 70%, 52%);
-  --color-error-text:    hsl(354, 76%, 64%);
-  --color-error-ghost:   hsl(354, 40%, 14%);
-  --color-error-surface: hsl(354, 30%, 12%);
+  --color-error:         hsl(0, 72%, 51%);
+  --color-error-text:    hsl(0, 76%, 64%);
+  --color-error-ghost:   hsl(0, 40%, 10%);
+  --color-error-surface: hsl(0, 30%, 8%);
 
-  --color-warning:         hsl(38, 92%, 50%);
-  --color-warning-text:    hsl(38, 88%, 62%);
-  --color-warning-ghost:   hsl(38, 40%, 14%);
-  --color-warning-surface: hsl(38, 30%, 12%);
+  --color-warning:         hsl(45, 93%, 47%);
+  --color-warning-text:    hsl(45, 88%, 62%);
+  --color-warning-ghost:   hsl(45, 40%, 10%);
+  --color-warning-surface: hsl(45, 30%, 8%);
 
-  --color-success:         hsl(152, 52%, 42%);
-  --color-success-text:    hsl(152, 52%, 56%);
-  --color-success-ghost:   hsl(152, 28%, 14%);
-  --color-success-surface: hsl(152, 22%, 12%);
+  --color-success:         hsl(142, 71%, 45%);
+  --color-success-text:    hsl(142, 52%, 56%);
+  --color-success-ghost:   hsl(142, 28%, 10%);
+  --color-success-surface: hsl(142, 22%, 8%);
 
-  --color-info:            hsl(210, 56%, 52%);
-  --color-info-text:       hsl(210, 60%, 64%);
-  --color-info-ghost:      hsl(210, 30%, 14%);
-  --color-info-surface:    hsl(210, 24%, 12%);
+  --color-info:            hsl(220, 70%, 55%);
+  --color-info-text:       hsl(220, 70%, 68%);
+  --color-info-ghost:      hsl(220, 30%, 10%);
+  --color-info-surface:    hsl(220, 24%, 8%);
 
   /* ── AI-Specific ── */
-  --color-ai-thinking:         hsl(42, 70%, 50%);
-  --color-ai-thinking-text:    hsl(42, 72%, 62%);
-  --color-ai-thinking-muted:   hsl(42, 30%, 22%);
+  --color-ai-thinking:         hsl(45, 70%, 50%);
+  --color-ai-thinking-text:    hsl(45, 72%, 62%);
+  --color-ai-thinking-muted:   hsl(45, 30%, 16%);
   --color-ai-thinking-surface: var(--color-surface-thinking);
 
-  --color-ai-tool:             hsl(172, 52%, 46%);
-  --color-ai-tool-text:        hsl(172, 56%, 56%);
-  --color-ai-tool-muted:       hsl(172, 24%, 18%);
+  --color-ai-tool:             hsl(220, 70%, 55%);
+  --color-ai-tool-text:        hsl(220, 60%, 65%);
+  --color-ai-tool-muted:       hsl(220, 24%, 14%);
   --color-ai-tool-surface:     var(--color-surface-tool);
 
-  --color-ai-cached:           hsl(162, 40%, 42%);
-  --color-ai-cached-text:      hsl(162, 42%, 56%);
-  --color-ai-cached-muted:     hsl(162, 20%, 18%);
+  --color-ai-cached:           hsl(142, 40%, 42%);
+  --color-ai-cached-text:      hsl(142, 42%, 56%);
+  --color-ai-cached-muted:     hsl(142, 20%, 14%);
 
-  --color-ai-search:           hsl(32, 52%, 50%);
-  --color-ai-search-text:      hsl(32, 54%, 62%);
-  --color-ai-search-muted:     hsl(32, 24%, 20%);
+  --color-ai-search:           hsl(36, 52%, 50%);
+  --color-ai-search-text:      hsl(36, 54%, 62%);
+  --color-ai-search-muted:     hsl(36, 24%, 14%);
   --color-ai-search-surface:   var(--color-surface-search);
 
-  --color-ai-cursor:           var(--color-primary);
-  --color-ai-cursor-glow:      hsl(24, 85%, 52%, 0.3);
+  --color-ai-cursor:           hsl(0, 0%, 100%);
+  --color-ai-cursor-glow:      hsl(0, 0%, 100%, 0.2);
 
-  --color-ai-cost:             hsl(38, 44%, 56%);
-  --color-ai-cost-text:        hsl(38, 44%, 64%);
+  --color-ai-cost:             hsl(45, 44%, 56%);
+  --color-ai-cost-text:        hsl(45, 44%, 64%);
 
   /* ── Provider Identity ── */
-  --color-provider-openai:    hsl(168, 52%, 46%);
-  --color-provider-anthropic: hsl(24, 82%, 56%);
+  --color-provider-openai:    hsl(160, 60%, 48%);
+  --color-provider-anthropic: hsl(24, 70%, 56%);
   --color-provider-google:    hsl(217, 76%, 56%);
-  --color-provider-mistral:   hsl(35, 85%, 54%);
+  --color-provider-mistral:   hsl(36, 85%, 54%);
   --color-provider-groq:      hsl(262, 60%, 58%);
   --color-provider-cohere:    hsl(338, 66%, 56%);
   --color-provider-together:  hsl(220, 65%, 55%);
@@ -164,18 +167,18 @@ body {
   /* ── Interactive State Layering ── */
   --state-hover-overlay:    hsl(0, 0%, 100%, 0.04);
   --state-active-overlay:   hsl(0, 0%, 0%, 0.06);
-  --state-focus-ring:       0 0 0 2px var(--color-border-focus);
-  --state-focus-ring-offset: 0 0 0 4px var(--color-surface-1);
+  --state-focus-ring:       0 0 0 2px hsl(0, 0%, 100%, 0.2);
+  --state-focus-ring-offset: 0 0 0 4px var(--color-surface-0);
   --state-disabled-opacity: 0.38;
 
   /* ── Typography Scale ── */
-  --text-display:    3rem;
-  --text-h1:         2rem;
+  --text-display:    2.5rem;
+  --text-h1:         1.875rem;
   --text-h2:         1.5rem;
   --text-h3:         1.125rem;
   --text-h4:         0.9375rem;
   --text-body:       0.875rem;
-  --text-body-lg:    1rem;
+  --text-body-lg:    0.9375rem;
   --text-caption:    0.75rem;
   --text-micro:      0.6875rem;
   --text-label:      0.8125rem;
@@ -189,23 +192,23 @@ body {
   --weight-bold:     700;
 
   /* ── Line Heights ── */
-  --leading-display: 1.0;
-  --leading-heading: 1.2;
+  --leading-display: 1.1;
+  --leading-heading: 1.25;
   --leading-body:    1.6;
   --leading-caption: 1.4;
   --leading-code:    1.65;
   --leading-mono:    1.5;
 
   /* ── Letter Spacing ── */
-  --tracking-display: -0.04em;
-  --tracking-heading: -0.025em;
-  --tracking-body:     0em;
-  --tracking-caption:  0.01em;
-  --tracking-micro:    0.03em;
-  --tracking-label:    0.01em;
+  --tracking-display: -0.03em;
+  --tracking-heading: -0.02em;
+  --tracking-body:    -0.011em;
+  --tracking-caption:  0em;
+  --tracking-micro:    0.02em;
+  --tracking-label:    0em;
   --tracking-code:     0em;
 
-  /* ── Spacing (8px base grid) ── */
+  /* ── Spacing (4px base grid) ── */
   --space-0:    0px;
   --space-0-5:  2px;
   --space-1:    4px;
@@ -222,46 +225,45 @@ body {
   --space-16:   64px;
   --space-20:   80px;
 
-  /* ── Border Radius ── */
+  /* ── Border Radius — Apple-clean ── */
   --radius-xs:   2px;
   --radius-sm:   4px;
   --radius-md:   8px;
   --radius-lg:   12px;
   --radius-xl:   16px;
-  --radius-2xl:  24px;
+  --radius-2xl:  20px;
   --radius-full: 9999px;
 
-  /* ── Shadows (Dark) ── */
-  --shadow-xs:  0 1px 2px hsl(230, 20%, 2%, 0.5),
-                0 0 0 1px hsl(0, 0%, 100%, 0.03);
-  --shadow-sm:  0 2px 6px hsl(230, 20%, 2%, 0.5),
+  /* ── Shadows — Vercel/Stripe depth system ── */
+  --shadow-xs:  0 1px 2px hsl(0, 0%, 0%, 0.5);
+  --shadow-sm:  0 2px 4px hsl(0, 0%, 0%, 0.3),
                 0 0 0 1px hsl(0, 0%, 100%, 0.04);
-  --shadow-md:  0 4px 16px hsl(230, 20%, 2%, 0.6),
+  --shadow-md:  0 4px 12px hsl(0, 0%, 0%, 0.4),
                 0 0 0 1px hsl(0, 0%, 100%, 0.04);
-  --shadow-lg:  0 8px 32px hsl(230, 20%, 2%, 0.7),
+  --shadow-lg:  0 8px 30px hsl(0, 0%, 0%, 0.5),
                 0 0 0 1px hsl(0, 0%, 100%, 0.05);
-  --shadow-xl:  0 20px 60px hsl(230, 20%, 2%, 0.8),
+  --shadow-xl:  0 20px 60px hsl(0, 0%, 0%, 0.6),
                 0 0 0 1px hsl(0, 0%, 100%, 0.05);
 
-  /* ── Glow Shadows ── */
-  --glow-primary: 0 0 40px hsl(24, 82%, 52%, 0.12), 0 0 80px hsl(24, 82%, 52%, 0.06);
-  --glow-secondary: 0 0 40px hsl(172, 52%, 46%, 0.12), 0 0 80px hsl(172, 52%, 46%, 0.06);
-  --glow-input: 0 4px 24px hsl(230, 20%, 2%, 0.6), 0 0 0 1px hsl(0, 0%, 100%, 0.06);
+  /* ── Glow — Refined, not aggressive ── */
+  --glow-primary: 0 0 30px hsl(0, 0%, 100%, 0.05);
+  --glow-secondary: 0 0 30px hsl(220, 70%, 55%, 0.1);
+  --glow-input: 0 4px 20px hsl(0, 0%, 0%, 0.4), 0 0 0 1px hsl(0, 0%, 100%, 0.06);
 
   /* ── Layout Dimensions ── */
-  --layout-sidebar-width:       272px;
+  --layout-sidebar-width:       260px;
   --layout-sidebar-collapsed:   56px;
   --layout-sidebar-min:         200px;
   --layout-sidebar-max:         360px;
-  --layout-chat-max-width:      768px;
+  --layout-chat-max-width:      720px;
   --layout-chat-padding-x:      var(--space-6);
   --layout-canvas-default:      480px;
   --layout-canvas-min:          360px;
   --layout-canvas-max:          50vw;
   --layout-params-width:        320px;
-  --layout-header-height:       52px;
-  --layout-input-max-width:     768px;
-  --layout-input-min-height:    56px;
+  --layout-header-height:       48px;
+  --layout-input-max-width:     720px;
+  --layout-input-min-height:    52px;
   --layout-input-max-height:    240px;
   --layout-split-min-pane:      320px;
   --layout-split-divider:       1px;
@@ -279,203 +281,197 @@ body {
   --z-modal:          60;
   --z-toast:          70;
 
-  /* ── Breakpoints (reference only — use in @media) ── */
+  /* ── Breakpoints (reference only) ── */
   --bp-sm:   640px;
   --bp-md:   768px;
   --bp-lg:   1024px;
   --bp-xl:   1280px;
   --bp-2xl:  1536px;
 
-  /* ═══════════════════════════════════════════════════════════════
-     MOTION DESIGN LANGUAGE
-     Bespoke curves reflecting editorial-luxe personality.
-     No linear or generic easing — every motion has intention.
-     ═══════════════════════════════════════════════════════════════ */
-
-  /* ── Durations — Breath-like pacing ── */
+  /* ── Motion — Apple-caliber curves ── */
   --duration-instant:  60ms;
-  --duration-fast:     140ms;
-  --duration-normal:   280ms;
-  --duration-slow:     420ms;
-  --duration-glacial:  640ms;
-  --duration-cinematic: 900ms;
+  --duration-fast:     120ms;
+  --duration-normal:   200ms;
+  --duration-slow:     350ms;
+  --duration-glacial:  500ms;
+  --duration-cinematic: 800ms;
 
-  /* ── Signature Easings — "Velvet Mechanical" family ── */
   --ease-out:             cubic-bezier(0.16, 1, 0.3, 1);
   --ease-snap:            cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-spring:          cubic-bezier(0.175, 0.885, 0.32, 1.275);
   --ease-dramatic:        cubic-bezier(0.7, 0, 0.15, 1);
-  --ease-silk:            cubic-bezier(0.19, 1, 0.22, 1);
-  --ease-mechanical:      cubic-bezier(0.22, 0.68, 0.28, 1.0);
-  --ease-mechanical-in:   cubic-bezier(0.60, 0.00, 0.78, 0.32);
-  --ease-mechanical-out:  cubic-bezier(0.22, 0.68, 0.00, 1.0);
-  --ease-mechanical-in-out: cubic-bezier(0.45, 0.00, 0.22, 1.0);
+  --ease-silk:            cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-mechanical:      cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-mechanical-in:   cubic-bezier(0.4, 0, 1, 1);
+  --ease-mechanical-out:  cubic-bezier(0, 0, 0.2, 1);
+  --ease-mechanical-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-breath:          cubic-bezier(0.37, 0, 0.63, 1);
   --ease-bounce:          cubic-bezier(0.34, 1.7, 0.64, 1);
 
   /* ── shadcn/ui overrides ── */
-  --radius: 12px;
-  --background: 225 18% 5%;
-  --foreground: 210 12% 93%;
-  --card: 225 14% 8%;
-  --card-foreground: 210 12% 93%;
-  --popover: 224 11% 12%;
-  --popover-foreground: 210 12% 93%;
-  --primary: 24 82% 52%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 172 52% 46%;
+  --radius: 10px;
+  --background: 0 0% 0%;
+  --foreground: 0 0% 93%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 93%;
+  --popover: 0 0% 8.5%;
+  --popover-foreground: 0 0% 93%;
+  --primary: 0 0% 100%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 220 70% 55%;
   --secondary-foreground: 0 0% 100%;
-  --muted: 222 10% 16%;
-  --muted-foreground: 210 8% 56%;
-  --accent: 225 10% 15%;
-  --accent-foreground: 210 12% 93%;
-  --destructive: 354 70% 52%;
+  --muted: 0 0% 12%;
+  --muted-foreground: 0 0% 56%;
+  --accent: 0 0% 10%;
+  --accent-foreground: 0 0% 93%;
+  --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
-  --border: 225 10% 14%;
-  --input: 225 10% 20%;
-  --ring: 172 52% 46%;
-  --sidebar-background: 225 14% 8%;
-  --sidebar-foreground: 210 12% 93%;
-  --sidebar-primary: 24 82% 52%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 225 10% 15%;
-  --sidebar-accent-foreground: 210 12% 93%;
-  --sidebar-border: 225 10% 14%;
-  --sidebar-ring: 172 52% 46%;
+  --border: 0 0% 14%;
+  --input: 0 0% 20%;
+  --ring: 220 70% 55%;
+  --sidebar-background: 0 0% 5%;
+  --sidebar-foreground: 0 0% 93%;
+  --sidebar-primary: 0 0% 100%;
+  --sidebar-primary-foreground: 0 0% 0%;
+  --sidebar-accent: 0 0% 10%;
+  --sidebar-accent-foreground: 0 0% 93%;
+  --sidebar-border: 0 0% 14%;
+  --sidebar-ring: 220 70% 55%;
 }
 
 /* ── Light mode ── */
 [data-theme="light"] {
   color-scheme: light;
 
-  --color-surface-0: hsl(40, 12%, 97%);
-  --color-surface-1: hsl(38, 10%, 94%);
-  --color-surface-2: hsl(36, 8%, 91%);
-  --color-surface-3: hsl(30, 6%, 87%);
+  --color-surface-0: hsl(0, 0%, 100%);
+  --color-surface-1: hsl(0, 0%, 98%);
+  --color-surface-2: hsl(0, 0%, 96%);
+  --color-surface-3: hsl(0, 0%, 93%);
   --color-surface-4: hsl(0, 0%, 100%);
 
-  --color-surface-user:      hsl(225, 18%, 93%);
+  --color-surface-user:      hsl(0, 0%, 96%);
   --color-surface-assistant:  transparent;
-  --color-surface-system:    hsl(225, 8%, 95%);
-  --color-surface-thinking:  hsl(42, 20%, 94%);
-  --color-surface-tool:      hsl(172, 16%, 93%);
-  --color-surface-search:    hsl(32, 16%, 94%);
+  --color-surface-system:    hsl(0, 0%, 97%);
+  --color-surface-thinking:  hsl(45, 10%, 96%);
+  --color-surface-tool:      hsl(220, 10%, 96%);
+  --color-surface-search:    hsl(36, 10%, 96%);
 
-  --color-surface-hover: hsl(225, 8%, 89%);
-  --color-surface-active: hsl(225, 8%, 87%);
-  --color-surface-selected: hsl(172, 18%, 91%);
+  --color-surface-hover: hsl(0, 0%, 94%);
+  --color-surface-active: hsl(0, 0%, 92%);
+  --color-surface-selected: hsl(0, 0%, 94%);
 
-  --glass-bg: hsl(40, 12%, 97%, 0.8);
+  --glass-bg: hsl(0, 0%, 100%, 0.85);
   --glass-border: hsl(0, 0%, 0%, 0.06);
-  --glass-bg-subtle: hsl(40, 12%, 97%, 0.6);
+  --glass-bg-subtle: hsl(0, 0%, 100%, 0.6);
 
-  --color-text-1: hsl(225, 22%, 10%);
-  --color-text-2: hsl(225, 12%, 38%);
-  --color-text-3: hsl(225, 8%, 54%);
+  --color-text-1: hsl(0, 0%, 9%);
+  --color-text-2: hsl(0, 0%, 40%);
+  --color-text-3: hsl(0, 0%, 56%);
   --color-text-inverse: hsl(0, 0%, 100%);
   --color-text-on-primary: hsl(0, 0%, 100%);
 
-  --color-border-1: hsl(225, 10%, 87%);
-  --color-border-2: hsl(225, 10%, 79%);
-  --color-border-3: hsl(225, 10%, 71%);
+  --color-border-1: hsl(0, 0%, 90%);
+  --color-border-2: hsl(0, 0%, 84%);
+  --color-border-3: hsl(0, 0%, 76%);
 
-  --color-primary:            hsl(24, 82%, 46%);
-  --color-primary-hover:      hsl(24, 82%, 40%);
-  --color-primary-active:     hsl(24, 82%, 34%);
-  --color-primary-text:       hsl(24, 82%, 40%);
-  --color-primary-ghost:      hsl(24, 70%, 95%);
-  --color-primary-ghost-hover: hsl(24, 70%, 90%);
-  --color-primary-muted:      hsl(24, 40%, 88%);
+  --color-primary:            hsl(0, 0%, 0%);
+  --color-primary-hover:      hsl(0, 0%, 15%);
+  --color-primary-active:     hsl(0, 0%, 25%);
+  --color-primary-text:       hsl(0, 0%, 0%);
+  --color-primary-ghost:      hsl(0, 0%, 0%, 0.04);
+  --color-primary-ghost-hover: hsl(0, 0%, 0%, 0.08);
+  --color-primary-muted:      hsl(0, 0%, 88%);
   --color-primary-contrast:   hsl(0, 0%, 100%);
 
-  --color-secondary:            hsl(172, 52%, 36%);
-  --color-secondary-hover:      hsl(172, 52%, 30%);
-  --color-secondary-active:     hsl(172, 52%, 26%);
-  --color-secondary-text:       hsl(172, 60%, 30%);
-  --color-secondary-ghost:      hsl(172, 40%, 93%);
-  --color-secondary-ghost-hover: hsl(172, 40%, 87%);
-  --color-secondary-muted:      hsl(172, 24%, 86%);
+  --color-secondary:            hsl(220, 70%, 50%);
+  --color-secondary-hover:      hsl(220, 70%, 42%);
+  --color-secondary-active:     hsl(220, 70%, 36%);
+  --color-secondary-text:       hsl(220, 70%, 42%);
+  --color-secondary-ghost:      hsl(220, 60%, 96%);
+  --color-secondary-ghost-hover: hsl(220, 60%, 92%);
+  --color-secondary-muted:      hsl(220, 24%, 88%);
 
-  --color-error:         hsl(354, 70%, 48%);
-  --color-error-text:    hsl(354, 70%, 42%);
-  --color-error-ghost:   hsl(354, 60%, 96%);
-  --color-error-surface: hsl(354, 50%, 96%);
+  --color-error:         hsl(0, 72%, 48%);
+  --color-error-text:    hsl(0, 72%, 42%);
+  --color-error-ghost:   hsl(0, 60%, 97%);
+  --color-error-surface: hsl(0, 50%, 97%);
 
-  --color-warning:         hsl(38, 82%, 44%);
-  --color-warning-text:    hsl(38, 82%, 36%);
-  --color-warning-ghost:   hsl(38, 60%, 94%);
-  --color-warning-surface: hsl(38, 50%, 95%);
+  --color-warning:         hsl(45, 82%, 44%);
+  --color-warning-text:    hsl(45, 82%, 36%);
+  --color-warning-ghost:   hsl(45, 60%, 96%);
+  --color-warning-surface: hsl(45, 50%, 96%);
 
-  --color-success:         hsl(152, 52%, 36%);
-  --color-success-text:    hsl(152, 52%, 30%);
-  --color-success-ghost:   hsl(152, 40%, 94%);
-  --color-success-surface: hsl(152, 34%, 94%);
+  --color-success:         hsl(142, 60%, 38%);
+  --color-success-text:    hsl(142, 52%, 30%);
+  --color-success-ghost:   hsl(142, 40%, 96%);
+  --color-success-surface: hsl(142, 34%, 96%);
 
-  --color-info:            hsl(210, 56%, 44%);
-  --color-info-text:       hsl(210, 56%, 38%);
-  --color-info-ghost:      hsl(210, 44%, 94%);
-  --color-info-surface:    hsl(210, 38%, 95%);
+  --color-info:            hsl(220, 70%, 48%);
+  --color-info-text:       hsl(220, 70%, 40%);
+  --color-info-ghost:      hsl(220, 44%, 96%);
+  --color-info-surface:    hsl(220, 38%, 96%);
 
-  --color-ai-thinking:         hsl(42, 70%, 44%);
-  --color-ai-thinking-text:    hsl(42, 70%, 34%);
-  --color-ai-thinking-muted:   hsl(42, 30%, 86%);
+  --color-ai-thinking:         hsl(45, 70%, 44%);
+  --color-ai-thinking-text:    hsl(45, 70%, 34%);
+  --color-ai-thinking-muted:   hsl(45, 30%, 90%);
 
-  --color-ai-tool:             hsl(172, 52%, 36%);
-  --color-ai-tool-text:        hsl(172, 56%, 28%);
-  --color-ai-tool-muted:       hsl(172, 24%, 86%);
+  --color-ai-tool:             hsl(220, 60%, 42%);
+  --color-ai-tool-text:        hsl(220, 56%, 34%);
+  --color-ai-tool-muted:       hsl(220, 24%, 90%);
 
-  --color-ai-cached:           hsl(162, 40%, 34%);
-  --color-ai-cached-text:      hsl(162, 42%, 28%);
-  --color-ai-cached-muted:     hsl(162, 20%, 90%);
+  --color-ai-cached:           hsl(142, 40%, 34%);
+  --color-ai-cached-text:      hsl(142, 42%, 28%);
+  --color-ai-cached-muted:     hsl(142, 20%, 92%);
 
-  --color-ai-search:           hsl(32, 52%, 42%);
-  --color-ai-search-text:      hsl(32, 54%, 34%);
-  --color-ai-search-muted:     hsl(32, 24%, 90%);
+  --color-ai-search:           hsl(36, 52%, 42%);
+  --color-ai-search-text:      hsl(36, 54%, 34%);
+  --color-ai-search-muted:     hsl(36, 24%, 92%);
 
   --color-ai-cursor:           var(--color-primary);
-  --color-ai-cursor-glow:      hsl(24, 85%, 52%, 0.15);
+  --color-ai-cursor-glow:      hsl(0, 0%, 0%, 0.1);
 
-  --color-ai-cost:             hsl(38, 44%, 42%);
-  --color-ai-cost-text:        hsl(38, 44%, 34%);
+  --color-ai-cost:             hsl(45, 44%, 42%);
+  --color-ai-cost-text:        hsl(45, 44%, 34%);
 
-  --state-hover-overlay:    hsl(0, 0%, 0%, 0.04);
-  --state-active-overlay:   hsl(0, 0%, 0%, 0.08);
+  --state-hover-overlay:    hsl(0, 0%, 0%, 0.03);
+  --state-active-overlay:   hsl(0, 0%, 0%, 0.06);
+  --state-focus-ring:       0 0 0 2px hsl(0, 0%, 0%, 0.1);
   --state-focus-ring-offset: 0 0 0 4px var(--color-surface-0);
 
-  --shadow-xs:  0 1px 2px hsl(225, 16%, 50%, 0.06);
-  --shadow-sm:  0 1px 3px hsl(225, 16%, 50%, 0.08),
-                0 1px 2px hsl(225, 16%, 50%, 0.04);
-  --shadow-md:  0 4px 12px hsl(225, 16%, 50%, 0.08),
-                0 2px 4px hsl(225, 16%, 50%, 0.04);
-  --shadow-lg:  0 8px 28px hsl(225, 16%, 50%, 0.1),
-                0 4px 8px hsl(225, 16%, 50%, 0.05);
-  --shadow-xl:  0 24px 56px hsl(225, 16%, 50%, 0.14),
-                0 8px 16px hsl(225, 16%, 50%, 0.06);
+  --shadow-xs:  0 1px 2px hsl(0, 0%, 0%, 0.05);
+  --shadow-sm:  0 1px 3px hsl(0, 0%, 0%, 0.06),
+                0 1px 2px hsl(0, 0%, 0%, 0.04);
+  --shadow-md:  0 4px 12px hsl(0, 0%, 0%, 0.06),
+                0 1px 3px hsl(0, 0%, 0%, 0.04);
+  --shadow-lg:  0 8px 24px hsl(0, 0%, 0%, 0.08),
+                0 2px 6px hsl(0, 0%, 0%, 0.04);
+  --shadow-xl:  0 20px 48px hsl(0, 0%, 0%, 0.1),
+                0 4px 12px hsl(0, 0%, 0%, 0.06);
 
-  --glow-primary: 0 0 40px hsl(24, 82%, 46%, 0.08), 0 0 80px hsl(24, 82%, 46%, 0.04);
-  --glow-secondary: 0 0 40px hsl(172, 52%, 36%, 0.08), 0 0 80px hsl(172, 52%, 36%, 0.04);
-  --glow-input: 0 4px 24px hsl(225, 16%, 50%, 0.1), 0 0 0 1px hsl(0, 0%, 0%, 0.05);
+  --glow-primary: 0 0 20px hsl(0, 0%, 0%, 0.04);
+  --glow-secondary: 0 0 20px hsl(220, 70%, 50%, 0.06);
+  --glow-input: 0 4px 16px hsl(0, 0%, 0%, 0.06), 0 0 0 1px hsl(0, 0%, 0%, 0.06);
 
   /* ── shadcn light overrides ── */
-  --background: 40 12% 97%;
-  --foreground: 225 22% 10%;
-  --card: 38 10% 94%;
-  --card-foreground: 225 22% 10%;
-  --popover: 36 8% 91%;
-  --popover-foreground: 225 22% 10%;
-  --primary: 24 82% 46%;
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
+  --card: 0 0% 98%;
+  --card-foreground: 0 0% 9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 9%;
+  --primary: 0 0% 0%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 172 52% 36%;
+  --secondary: 220 70% 50%;
   --secondary-foreground: 0 0% 100%;
-  --muted: 30 6% 87%;
-  --muted-foreground: 225 12% 38%;
-  --accent: 225 8% 89%;
-  --accent-foreground: 225 22% 10%;
-  --destructive: 354 70% 48%;
+  --muted: 0 0% 93%;
+  --muted-foreground: 0 0% 40%;
+  --accent: 0 0% 94%;
+  --accent-foreground: 0 0% 9%;
+  --destructive: 0 72% 48%;
   --destructive-foreground: 0 0% 100%;
-  --border: 225 10% 87%;
-  --input: 225 10% 79%;
-  --ring: 172 52% 36%;
+  --border: 0 0% 90%;
+  --input: 0 0% 84%;
+  --ring: 220 70% 50%;
 }
 
 /* ── Reduced Motion ── */
@@ -490,16 +486,16 @@ body {
   }
 }
 
-/* ── Focus Visible ── */
+/* ── Focus Visible — Apple-style ring ── */
 :focus-visible {
   outline: none;
   box-shadow: var(--state-focus-ring);
 }
 
-/* ── Scrollbar Styling ── */
+/* ── Scrollbar — Near-invisible ── */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -507,23 +503,22 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border-2);
+  background: hsl(0, 0%, 100%, 0.08);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-3);
+  background: hsl(0, 0%, 100%, 0.14);
 }
 
-/* ── Selection ── */
+/* ── Selection — Vercel blue ── */
 ::selection {
-  background: hsl(172, 52%, 46%, 0.25);
+  background: hsl(220, 70%, 55%, 0.25);
   color: var(--color-text-1);
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   KEYFRAME LIBRARY — Cinematic, distinctive, bespoke
-   Every animation tells a micro-story.
+   KEYFRAMES — Refined, purposeful
    ═══════════════════════════════════════════════════════════════ */
 
 @keyframes radarSweep {
@@ -533,48 +528,42 @@ body {
 
 @keyframes cursorPulse {
   0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 1.0; transform: scale(1.1); }
+  50% { opacity: 1; transform: scale(1.05); }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeInSubtle {
-  from { opacity: 0; transform: translateY(3px); }
+  from { opacity: 0; transform: translateY(2px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(16px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-12px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(24px); }
+  from { opacity: 0; transform: translateX(16px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-24px); }
+  from { opacity: 0; transform: translateX(-16px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.92); }
+  from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes scaleInBounce {
-  0% { opacity: 0; transform: scale(0.8); }
-  70% { opacity: 1; transform: scale(1.04); }
-  100% { opacity: 1; transform: scale(1); }
 }
 
 @keyframes shimmer {
@@ -584,7 +573,7 @@ body {
 
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-4px); }
 }
 
 @keyframes orbitalSpin {
@@ -599,28 +588,13 @@ body {
 }
 
 @keyframes breathe {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.02); }
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
 }
 
 @keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 20px hsl(24, 82%, 52%, 0.1); }
-  50% { box-shadow: 0 0 40px hsl(24, 82%, 52%, 0.25); }
-}
-
-@keyframes ripple {
-  0% { transform: scale(0.8); opacity: 1; }
-  100% { transform: scale(2.4); opacity: 0; }
-}
-
-@keyframes typewriter {
-  from { width: 0; }
-  to { width: 100%; }
-}
-
-@keyframes morphIn {
-  0% { clip-path: inset(10% 50% 90% 50% round var(--radius-lg)); opacity: 0; }
-  100% { clip-path: inset(0% 0% 0% 0% round var(--radius-lg)); opacity: 1; }
+  0%, 100% { box-shadow: 0 0 16px hsl(0, 0%, 100%, 0.04); }
+  50% { box-shadow: 0 0 32px hsl(0, 0%, 100%, 0.08); }
 }
 
 /* ── Theme Transition ── */
@@ -631,30 +605,30 @@ body {
               box-shadow var(--duration-slow) var(--ease-silk);
 }
 
-/* ── Accessible focus for all interactive elements ── */
+/* ── Focus for interactive elements — Clean ring ── */
 button:focus-visible,
 a:focus-visible,
 [role="button"]:focus-visible,
 [tabindex]:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--color-surface-0), 0 0 0 4px hsl(210, 30%, 50%, 0.3);
+  box-shadow: 0 0 0 2px var(--color-surface-0), 0 0 0 4px hsl(0, 0%, 100%, 0.2);
 }
 
-/* Input/textarea focus — subtle premium glow instead of harsh teal ring */
+/* Input focus — subtle, clean ── */
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
   outline: none;
-  border-color: hsl(0, 0%, 100%, 0.12) !important;
-  box-shadow: 0 0 0 1px hsl(0, 0%, 100%, 0.08), 0 4px 20px hsl(225, 18%, 2%, 0.5) !important;
+  border-color: hsl(0, 0%, 100%, 0.2) !important;
+  box-shadow: 0 0 0 1px hsl(0, 0%, 100%, 0.1) !important;
 }
 
-/* ── Noise Texture Overlay ── */
+/* ── Noise Texture — Very subtle grain ── */
 .noise-overlay::before {
   content: '';
   position: fixed;
   inset: 0;
-  opacity: 0.025;
+  opacity: 0.018;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 256px;
   pointer-events: none;
@@ -663,106 +637,55 @@ select:focus-visible {
 }
 
 [data-theme="light"] .noise-overlay::before {
-  opacity: 0.02;
+  opacity: 0.012;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SVG & Icon Quality Enhancements
+   SVG & Icon — Crisp, geometric
    ═══════════════════════════════════════════════════════════════ */
 
-/* Sharp, crisp SVG rendering across all icons */
 svg {
   shape-rendering: geometricPrecision;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Lucide icons — optimized stroke rendering */
 svg[class*="lucide"] {
   stroke-linecap: round;
   stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
 }
 
-/* Icon hover micro-interactions */
+/* Icon transitions — subtle, not flashy */
 button svg,
 a svg,
 [role="button"] svg {
   transition: 
-    transform var(--duration-fast) var(--ease-snap),
-    color var(--duration-fast) var(--ease-silk),
-    filter var(--duration-fast) var(--ease-silk);
-}
-
-button:hover svg,
-a:hover svg,
-[role="button"]:hover svg {
-  filter: drop-shadow(0 0 3px currentColor);
+    transform var(--duration-fast) var(--ease-silk),
+    color var(--duration-fast) var(--ease-silk);
 }
 
 button:active svg,
 a:active svg,
 [role="button"]:active svg {
-  transform: scale(0.92);
+  transform: scale(0.94);
   transition-duration: var(--duration-instant);
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Premium Micro-Interactions
+   Utility Classes — Minimal set
    ═══════════════════════════════════════════════════════════════ */
 
-/* Smooth button press feedback */
 .micro-press {
-  transition: transform var(--duration-fast) var(--ease-snap);
+  transition: transform var(--duration-fast) var(--ease-silk);
 }
 
 .micro-press:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
   transition-duration: var(--duration-instant);
 }
 
-/* Hover lift effect */
-.micro-lift {
-  transition: transform var(--duration-normal) var(--ease-snap),
-              box-shadow var(--duration-normal) var(--ease-silk);
-}
-
-.micro-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px hsl(0, 0%, 0%, 0.3);
-}
-
-/* Subtle glow on hover */
-.micro-glow {
-  transition: box-shadow var(--duration-normal) var(--ease-silk);
-}
-
-.micro-glow:hover {
-  box-shadow: 0 0 20px hsl(172, 52%, 46%, 0.15);
-}
-
-/* Shimmer effect for premium elements */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 25%,
-    hsl(0, 0%, 100%, 0.08) 50%,
-    transparent 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 3s infinite;
-}
-
 /* ═══════════════════════════════════════════════════════════════
-   shadcn/ui COMPONENT OVERRIDES — Premium, non-default styling
+   shadcn/ui Layer
    ═══════════════════════════════════════════════════════════════ */
 
-/* Override default Tailwind layer for shadcn */
 @layer base {
   * {
     border-color: hsl(var(--border));

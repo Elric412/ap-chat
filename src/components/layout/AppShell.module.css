@@ -1,3 +1,7 @@
+/* ═══════════════════════════════════════════════════════════════
+   AppShell — Clean grid layout
+   ═══════════════════════════════════════════════════════════════ */
+
 .shell {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -7,18 +11,6 @@
   overflow: hidden;
   background: var(--color-surface-0);
   position: relative;
-}
-
-/* Ambient gradient mesh — subtle, warm-tinted */
-.shell::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 70% 50% at 10% 90%, hsl(24, 82%, 52%, 0.03) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 40% at 90% 15%, hsl(172, 52%, 46%, 0.02) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 0;
 }
 
 .shell[data-focus-mode="true"] {
@@ -44,15 +36,14 @@
   color: var(--color-primary-contrast);
   border-radius: var(--radius-md);
   font-size: var(--text-body);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-medium);
   text-decoration: none;
-  transition: top var(--duration-fast) var(--ease-mechanical);
+  transition: top var(--duration-fast) var(--ease-silk);
 }
 
 .skipLink:focus {
   top: var(--space-2);
   outline: none;
-  box-shadow: var(--state-focus-ring);
 }
 
 /* ── Screen Reader Only ── */
@@ -72,16 +63,16 @@
 .sidebarOverlay {
   position: fixed;
   inset: 0;
-  background: hsl(0, 0%, 0%, 0.55);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: hsl(0, 0%, 0%, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: calc(var(--z-sidebar) - 1);
 }
 
 .sidebarRegion {
   width: var(--layout-sidebar-width);
-  transition: width var(--duration-normal) var(--ease-mechanical),
-              transform var(--duration-normal) var(--ease-mechanical);
+  transition: width var(--duration-normal) var(--ease-silk),
+              transform var(--duration-normal) var(--ease-silk);
   overflow: hidden;
   flex-shrink: 0;
   position: relative;
@@ -116,6 +107,7 @@
   overflow: hidden;
   flex-shrink: 0;
   z-index: var(--z-raised);
+  border-left: 1px solid var(--color-border-1);
 }
 
 /* Responsive */

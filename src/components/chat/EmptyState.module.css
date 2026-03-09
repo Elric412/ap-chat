@@ -1,3 +1,7 @@
+/* ═══════════════════════════════════════════════════════════════
+   EmptyState — Stripe-inspired landing
+   ═══════════════════════════════════════════════════════════════ */
+
 .emptyState {
   display: flex;
   flex-direction: column;
@@ -10,72 +14,51 @@
   min-height: 60vh;
 }
 
-/* Ambient background gradient */
-.emptyState::before {
-  content: '';
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(circle, hsl(24, 82%, 52%, 0.06) 0%, transparent 70%);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -60%);
-  pointer-events: none;
-  animation: ambientPulse 8s var(--ease-breath) infinite;
-}
-
-@keyframes ambientPulse {
-  0%, 100% { opacity: 0.6; transform: translate(-50%, -60%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -60%) scale(1.1); }
-}
-
 .hero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-5);
+  gap: var(--space-4);
   position: relative;
   z-index: 1;
 }
 
-/* ── Orbital ring decoration ── */
+/* ── Orbital ring ── */
 .orbitalContainer {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 96px;
+  height: 96px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-2);
 }
 
 .orbitalRing {
   position: absolute;
   inset: 0;
   border-radius: var(--radius-full);
-  border: 1px solid hsl(0, 0%, 100%, 0.06);
-  animation: orbitalSpin 24s linear infinite;
+  border: 1px solid var(--color-border-1);
+  animation: orbitalSpin 30s linear infinite;
 }
 
 .orbitalRing::before {
   content: '';
   position: absolute;
-  top: -4px;
+  top: -3px;
   left: 50%;
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: var(--radius-full);
-  background: var(--color-primary);
-  box-shadow: 0 0 16px var(--color-ai-cursor-glow), 0 0 40px hsl(24, 82%, 52%, 0.1);
+  background: var(--color-text-2);
 }
 
 .orbitalRingInner {
   position: absolute;
-  inset: 22px;
+  inset: 18px;
   border-radius: var(--radius-full);
-  border: 1px dashed hsl(0, 0%, 100%, 0.04);
-  animation: orbitalSpin 16s linear infinite reverse;
+  border: 1px dashed hsl(0, 0%, 100%, 0.05);
+  animation: orbitalSpin 20s linear infinite reverse;
 }
 
 .orbitalRingInner::before {
@@ -83,100 +66,72 @@
   position: absolute;
   bottom: -3px;
   left: 50%;
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: var(--radius-full);
-  background: var(--color-secondary);
-  box-shadow: 0 0 12px var(--color-secondary);
+  background: var(--color-text-3);
 }
 
 .iconContainer {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-xl);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-lg);
   background: var(--color-surface-2);
-  border: 1px solid hsl(0, 0%, 100%, 0.06);
-  color: var(--color-primary-text);
-  box-shadow: var(--shadow-lg), var(--glow-primary);
+  border: 1px solid var(--color-border-1);
+  color: var(--color-text-2);
   position: relative;
   z-index: 1;
 }
 
-/* True glassmorphism on icon container */
-.iconContainer::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(135deg, hsl(0, 0%, 100%, 0.08), transparent);
-  pointer-events: none;
-}
-
 .title {
   font-family: var(--font-display);
-  font-size: var(--text-display);
+  font-size: var(--text-h1);
   font-weight: 700;
-  line-height: var(--leading-display);
+  line-height: var(--leading-heading);
   letter-spacing: var(--tracking-display);
-  background: linear-gradient(135deg, var(--color-text-1) 0%, var(--color-primary-text) 40%, var(--color-secondary-text) 100%);
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradientShift 8s ease infinite;
+  color: var(--color-text-1);
   text-wrap: balance;
 }
 
 .subtitle {
-  font-size: var(--text-body-lg);
+  font-size: var(--text-body);
   font-weight: var(--weight-regular);
   line-height: var(--leading-body);
   color: var(--color-text-3);
   text-align: center;
-  max-width: 360px;
+  max-width: 340px;
   text-wrap: pretty;
 }
 
-/* ── Setup CTA ── */
+/* ── Setup CTA — Vercel solid button ── */
 .setupCta {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-8);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  gap: var(--space-2);
+  padding: var(--space-2-5) var(--space-6);
+  background: var(--color-primary);
   border: none;
   border-radius: var(--radius-full);
   color: var(--color-primary-contrast);
   font-family: var(--font-sans);
   font-size: var(--text-body);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: all var(--duration-normal) var(--ease-spring);
-  box-shadow: var(--shadow-lg), 0 0 40px hsl(24, 82%, 52%, 0.15);
-  letter-spacing: var(--tracking-label);
+  transition: all var(--duration-fast) var(--ease-silk);
   position: relative;
   z-index: 1;
 }
 
-.setupCta::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(135deg, hsl(0, 0%, 100%, 0.15), transparent 50%);
-  pointer-events: none;
-}
-
 .setupCta:hover {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: var(--shadow-xl), 0 0 60px hsl(24, 82%, 52%, 0.25);
+  opacity: 0.9;
 }
 
 .setupCta:active {
-  transform: translateY(0) scale(0.98);
+  transform: scale(0.97);
+  transition-duration: var(--duration-instant);
 }
 
 /* ── Prompt Grid ── */
@@ -184,7 +139,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--space-3);
-  max-width: 560px;
+  max-width: 520px;
   width: 100%;
   position: relative;
   z-index: 1;
@@ -193,7 +148,7 @@
 @media (max-width: 540px) {
   .promptGrid {
     grid-template-columns: 1fr;
-    max-width: 320px;
+    max-width: 300px;
   }
 }
 
@@ -202,74 +157,31 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-2);
-  padding: var(--space-4) var(--space-5);
-  border: 1px solid hsl(0, 0%, 100%, 0.04);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-1);
   border-radius: var(--radius-lg);
-  background: var(--color-surface-1);
+  background: transparent;
   cursor: pointer;
   text-align: left;
   font-family: var(--font-sans);
-  transition: all var(--duration-normal) var(--ease-mechanical);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Top accent line */
-.promptCard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  opacity: 0;
-  transition: opacity var(--duration-normal) var(--ease-silk);
-}
-
-/* Inner highlight (glassmorphism) */
-.promptCard::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(135deg, hsl(0, 0%, 100%, 0.03), transparent 60%);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--duration-normal) var(--ease-silk);
+  transition: all var(--duration-fast) var(--ease-silk);
 }
 
 .promptCard:hover {
-  border-color: hsl(0, 0%, 100%, 0.08);
-  background: var(--color-surface-2);
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-}
-
-.promptCard:hover::before {
-  opacity: 1;
-}
-
-.promptCard:hover::after {
-  opacity: 1;
+  border-color: var(--color-border-2);
+  background: var(--color-surface-1);
 }
 
 .promptCard:active {
-  transform: translateY(-1px);
-  transition-duration: var(--duration-fast);
+  transform: scale(0.98);
+  transition-duration: var(--duration-instant);
 }
 
-/* Color variants */
-.promptCard[data-color="primary"] .promptIcon { color: var(--color-primary-text); }
-.promptCard[data-color="primary"]::before { background: linear-gradient(90deg, var(--color-primary), transparent); }
-
+/* Color variants — subtle icon tinting */
+.promptCard[data-color="primary"] .promptIcon { color: var(--color-text-2); }
 .promptCard[data-color="secondary"] .promptIcon { color: var(--color-secondary-text); }
-.promptCard[data-color="secondary"]::before { background: linear-gradient(90deg, var(--color-secondary), transparent); }
-
 .promptCard[data-color="warning"] .promptIcon { color: var(--color-warning-text); }
-.promptCard[data-color="warning"]::before { background: linear-gradient(90deg, var(--color-warning), transparent); }
-
 .promptCard[data-color="info"] .promptIcon { color: var(--color-info-text); }
-.promptCard[data-color="info"]::before { background: linear-gradient(90deg, var(--color-info), transparent); }
 
 .promptIcon {
   flex-shrink: 0;
@@ -277,9 +189,8 @@
 
 .promptLabel {
   font-size: var(--text-caption);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-medium);
   color: var(--color-text-1);
-  letter-spacing: var(--tracking-caption);
 }
 
 .promptText {
@@ -308,10 +219,8 @@
   align-items: center;
   gap: var(--space-1-5);
   font-size: var(--text-caption);
-  font-weight: var(--weight-medium);
   color: var(--color-text-3);
-  letter-spacing: var(--tracking-caption);
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 /* ── Mobile ── */
@@ -322,23 +231,18 @@
     min-height: 50vh;
   }
 
-  .emptyState::before {
-    width: 300px;
-    height: 300px;
-  }
-
   .title {
-    font-size: var(--text-h1);
+    font-size: var(--text-h2);
   }
 
   .orbitalContainer {
-    width: 80px;
-    height: 80px;
+    width: 72px;
+    height: 72px;
   }
 
   .iconContainer {
-    width: 42px;
-    height: 42px;
+    width: 36px;
+    height: 36px;
   }
 
   .orbitalRingInner {
@@ -351,7 +255,7 @@
   }
 
   .promptCard {
-    padding: var(--space-3) var(--space-4);
+    padding: var(--space-3);
   }
 
   .shortcuts {
@@ -361,6 +265,5 @@
   .setupCta {
     width: 100%;
     justify-content: center;
-    padding: var(--space-3) var(--space-4);
   }
 }
