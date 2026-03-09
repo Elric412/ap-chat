@@ -8,7 +8,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search, MessageSquare, Plus, Sun, Moon, Settings, Download,
-  Columns2, PanelRight, Eye, SlidersHorizontal, FileJson, FileText,
+  Columns2, PanelRight, Eye, SlidersHorizontal, FileJson, FileText, BookOpen,
 } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { MODEL_REGISTRY } from '../../constants/model-registry';
