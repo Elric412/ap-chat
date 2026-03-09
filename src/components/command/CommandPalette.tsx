@@ -119,6 +119,25 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps): JSX.Elem
       action: () => setComparisonMode(true),
     });
 
+    // Skills
+    list.push({
+      id: 'open-skills',
+      label: 'Open Skill Library',
+      category: 'Actions',
+      icon: <BookOpen size={16} />,
+      keywords: ['skills', 'library', 'expertise'],
+      action: () => setSkillPanelOpen(true),
+    });
+
+    list.push({
+      id: 'toggle-skills',
+      label: skillConfig.mode === 'disabled' ? 'Enable Skill Library' : 'Disable Skill Library',
+      category: 'Actions',
+      icon: <BookOpen size={16} />,
+      keywords: ['skills', 'toggle', 'enable', 'disable'],
+      action: () => setSkillMode(skillConfig.mode === 'disabled' ? 'all' : 'disabled'),
+    });
+
     list.push({
       id: 'export-md',
       label: 'Export as Markdown',
