@@ -29,10 +29,12 @@ function AppInner(): JSX.Element {
   const location = useLocation();
 
   const initVault = useAppStore((s) => s.initVault);
+  const initSkills = useAppStore((s) => s.initSkills);
 
   useEffect(() => {
     initVault();
-  }, [initVault]);
+    initSkills();
+  }, [initVault, initSkills]);
 
   // Listen for export events dispatched from command palette
   useEffect(() => {
