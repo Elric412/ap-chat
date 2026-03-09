@@ -72,6 +72,7 @@ export interface ModelEntry {
   transportMode: 'sse' | 'chunked' | 'websocket';
   defaultSafeParams: Partial<InferenceParametersBase>;
   deprecated: boolean;
+  isLegacy?: boolean;
   releaseDate: string;
   knownIssues?: string[];
 }
