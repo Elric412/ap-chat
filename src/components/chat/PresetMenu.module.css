@@ -1,0 +1,398 @@
+/* ═══════════════════════════════════════════════════════
+   PresetMenu — Agency-grade preset selector
+   Glassmorphism floating panel with categorized presets,
+   parameter badges, and keyboard navigation.
+   ═══════════════════════════════════════════════════════ */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-dropdown) - 1);
+}
+
+.menu {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  margin-bottom: var(--space-3);
+  background: linear-gradient(
+    168deg,
+    hsl(225, 18%, 10%, 0.92) 0%,
+    hsl(225, 14%, 7%, 0.96) 100%
+  );
+  backdrop-filter: blur(40px) saturate(1.6);
+  -webkit-backdrop-filter: blur(40px) saturate(1.6);
+  border: 1px solid hsl(0, 0%, 100%, 0.07);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    0 -4px 32px hsl(225, 18%, 2%, 0.5),
+    0 -1px 6px hsl(225, 18%, 2%, 0.3),
+    inset 0 1px 0 hsl(0, 0%, 100%, 0.04);
+  max-height: 420px;
+  overflow: hidden;
+  z-index: var(--z-dropdown);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top shine line ── */
+.menu::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--space-6);
+  right: var(--space-6);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(24, 82%, 52%, 0.15) 30%,
+    hsl(172, 52%, 46%, 0.12) 70%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid hsl(0, 0%, 100%, 0.04);
+  flex-shrink: 0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.headerIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, hsl(24, 82%, 52%, 0.12), hsl(24, 82%, 52%, 0.04));
+  color: var(--color-primary-text);
+}
+
+.headerTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-body);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-1);
+  letter-spacing: var(--tracking-display);
+}
+
+.headerHint {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-text-3);
+  opacity: 0.5;
+  letter-spacing: 0.03em;
+}
+
+/* ── Scrollable body ── */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2) var(--space-2) var(--space-3);
+  scrollbar-width: thin;
+  scrollbar-color: hsl(0, 0%, 100%, 0.06) transparent;
+}
+
+.body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.body::-webkit-scrollbar-thumb {
+  background: hsl(0, 0%, 100%, 0.06);
+  border-radius: var(--radius-full);
+}
+
+.body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ── Category ── */
+.category {
+  margin-bottom: var(--space-1);
+}
+
+.category:last-child {
+  margin-bottom: 0;
+}
+
+.categoryLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+  user-select: none;
+}
+
+.categoryLine {
+  flex: 1;
+  height: 1px;
+  background: hsl(0, 0%, 100%, 0.03);
+}
+
+/* ── Preset item ── */
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2-5) var(--space-3);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-1);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  text-align: left;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-silk),
+    border-color var(--duration-fast) var(--ease-silk),
+    transform var(--duration-fast) var(--ease-snap);
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: linear-gradient(
+    135deg,
+    hsl(24, 82%, 52%, 0.04) 0%,
+    transparent 60%
+  );
+  transition: opacity var(--duration-fast) var(--ease-silk);
+  pointer-events: none;
+}
+
+.item:hover,
+.item[data-selected="true"] {
+  background: hsl(0, 0%, 100%, 0.03);
+  border-color: hsl(0, 0%, 100%, 0.05);
+}
+
+.item:hover::before,
+.item[data-selected="true"]::before {
+  opacity: 1;
+}
+
+.item[data-selected="true"] {
+  background: hsl(24, 82%, 52%, 0.06);
+  border-color: hsl(24, 82%, 52%, 0.12);
+}
+
+.item:active {
+  transform: scale(0.99);
+  transition-duration: var(--duration-instant);
+}
+
+/* ── Shortcut key indicator ── */
+.shortcutKey {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  border-radius: var(--radius-sm);
+  background: hsl(0, 0%, 100%, 0.04);
+  border: 1px solid hsl(0, 0%, 100%, 0.06);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: var(--weight-medium);
+  color: var(--color-text-3);
+  transition: all var(--duration-fast) var(--ease-silk);
+}
+
+.item:hover .shortcutKey,
+.item[data-selected="true"] .shortcutKey {
+  background: hsl(24, 82%, 52%, 0.1);
+  border-color: hsl(24, 82%, 52%, 0.2);
+  color: var(--color-primary-text);
+}
+
+/* ── Content area ── */
+.itemContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.itemName {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-body);
+  color: var(--color-text-1);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.itemDesc {
+  font-size: var(--text-caption);
+  color: var(--color-text-3);
+  line-height: var(--leading-caption);
+  opacity: 0.7;
+}
+
+/* ── Parameter badges ── */
+.badges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.02em;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Temperature badge — warm amber */
+.badge[data-type="temp"] {
+  background: hsl(24, 60%, 12%);
+  color: hsl(24, 85%, 62%);
+  border: 1px solid hsl(24, 60%, 18%);
+}
+
+/* TopP badge — blue info */
+.badge[data-type="topp"] {
+  background: hsl(210, 30%, 12%);
+  color: hsl(210, 60%, 64%);
+  border: 1px solid hsl(210, 30%, 18%);
+}
+
+/* Tokens badge — teal */
+.badge[data-type="tokens"] {
+  background: hsl(172, 30%, 10%);
+  color: hsl(172, 60%, 56%);
+  border: 1px solid hsl(172, 30%, 16%);
+}
+
+/* Thinking badge — gold */
+.badge[data-type="thinking"] {
+  background: hsl(42, 30%, 12%);
+  color: hsl(42, 72%, 62%);
+  border: 1px solid hsl(42, 30%, 18%);
+}
+
+/* Seed badge */
+.badge[data-type="seed"] {
+  background: hsl(262, 24%, 14%);
+  color: hsl(262, 50%, 66%);
+  border: 1px solid hsl(262, 24%, 20%);
+}
+
+/* ── Footer ── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid hsl(0, 0%, 100%, 0.04);
+  flex-shrink: 0;
+}
+
+.footerHint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.footerKbd {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-text-3);
+  opacity: 0.5;
+}
+
+.kbdKey {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 3px;
+  background: hsl(0, 0%, 100%, 0.05);
+  border: 1px solid hsl(0, 0%, 100%, 0.08);
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: var(--color-text-2);
+  line-height: 1;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .menu {
+    max-height: 340px;
+    margin-bottom: var(--space-2);
+  }
+
+  .header {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .body {
+    padding: var(--space-1-5);
+  }
+
+  .item {
+    padding: var(--space-2) var(--space-2-5);
+  }
+
+  .shortcutKey {
+    display: none;
+  }
+
+  .footer {
+    display: none;
+  }
+
+  .badges {
+    gap: 3px;
+  }
+
+  .badge {
+    font-size: 8px;
+    padding: 1px 4px;
+  }
+}
