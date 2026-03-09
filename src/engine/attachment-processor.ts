@@ -324,7 +324,7 @@ function tryDecodeBase64Text(base64: string): string | null {
   try {
     const decoded = atob(base64);
     // Check if it looks like text (no control chars except newlines/tabs)
-    const isText = /^[\x09\x0A\x0D\x20-\x7E\x80-\xFF]*$/.test(decoded.slice(0, 500));
+    const isText = /^[\t\n\r -~\u0080-\u00FF]*$/.test(decoded.slice(0, 500));
     return isText ? decoded : null;
   } catch {
     return null;
