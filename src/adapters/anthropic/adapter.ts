@@ -214,15 +214,6 @@ export const anthropicAdapter: ProviderAdapter = {
               break;
             }
 
-              if (blockType === 'tool_use') {
-                inToolUse = true;
-                currentToolUseId = (block.id as string) ?? '';
-                currentToolUseName = (block.name as string) ?? '';
-                currentToolUseArgs = '';
-              }
-              break;
-            }
-
             case 'content_block_delta': {
               const delta = parsed.delta as Record<string, unknown>;
               if (delta?.type === 'text_delta' && typeof delta.text === 'string') {
