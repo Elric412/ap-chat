@@ -148,18 +148,6 @@ export function ChatInput({
     });
   }, [inferenceParams, setInferenceParams, setSelectedModelId]);
 
-  // Close preset menu on click outside
-  useEffect(() => {
-    if (!showPresets) return;
-    const handler = (e: MouseEvent) => {
-      if (presetRef.current && !presetRef.current.contains(e.target as Node)) {
-        setShowPresets(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [showPresets]);
-
   /** Process and add files */
   const addFiles = useCallback(async (files: File[]) => {
     if (files.length === 0) return;
