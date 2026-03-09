@@ -199,7 +199,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps): JSX.Elem
   }, [
     conversations, createConversation, navigate, resolvedTheme, toggleTheme,
     toggleCanvas, toggleFocusMode, setParamDrawerOpen, paramDrawerOpen,
-    setSelectedModelId, setComparisonMode,
+    setSelectedModelId, setComparisonMode, setSkillPanelOpen, skillConfig.mode, setSkillMode,
   ]);
 
   const filtered = useMemo(() => {
