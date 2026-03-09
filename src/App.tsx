@@ -1,5 +1,6 @@
 import { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useAutoSave } from './hooks/use-auto-save';
 import { useTheme } from './hooks/use-theme';
 import { useKeyboard } from './hooks/use-keyboard';
@@ -24,6 +25,7 @@ function AppInner(): JSX.Element {
   useTheme();
   const { commandPaletteOpen, setCommandPaletteOpen } = useKeyboard();
   useAutoSave();
+  const location = useLocation();
 
   const initVault = useAppStore((s) => s.initVault);
 
@@ -75,13 +77,24 @@ function AppInner(): JSX.Element {
           sidebar={<Sidebar />}
           header={<Header />}
         >
-          <Routes>
-            <Route path="/" element={<ChatPage />} />
-            <Route path="/chat/:conversationId" element={<ChatPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="*" element={<ChatPage />} />
-          </Routes>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname.startsWith('/settings') ? 'settings' : location.pathname}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              style={{ display: 'contents' }}
+            >
+              <Routes location={location}>
+                <Route path="/" element={<ChatPage />} />
+                <Route path="/chat/:conversationId" element={<ChatPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="*" element={<ChatPage />} />
+              </Routes>
+            </motion.div>
+          </AnimatePresence>
         </AppShell>
         <VaultSetupModal />
         <VaultUnlockModal />
