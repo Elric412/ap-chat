@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { useTheme } from '../../hooks/use-theme';
 import { useAuth } from '../../hooks/use-auth';
-import { Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare, LogIn, User, Search, X } from 'lucide-react';
+import { Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare, LogIn, User, Search, X, BookOpen } from 'lucide-react';
 import { SidebarItem } from './SidebarItem';
 import type { Conversation } from '../../types/conversations';
 import styles from './Sidebar.module.css';
