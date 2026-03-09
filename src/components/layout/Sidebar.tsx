@@ -52,6 +52,8 @@ function useDockMagnification(itemCount: number) {
 }
 
 export function Sidebar(): JSX.Element {
+  const skillConfig = useAppStore((s) => s.skillConfig);
+  const setSkillPanelOpen = useAppStore((s) => s.setSkillPanelOpen);
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
   const vaultStatus = useAppStore((s) => s.vaultStatus);
   const keyRecords = useAppStore((s) => s.keyRecords);
