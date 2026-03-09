@@ -36,22 +36,22 @@ export function SkillEditor(): JSX.Element {
 
   const [icon, setIcon] = useState(existingSkill?.icon ?? '🧠');
   const [name, setName] = useState(existingSkill?.name ?? '');
-  const [description, setDescription] = useState(existingSkill?.description ?? '');
   const [instructions, setInstructions] = useState(existingSkill?.instructions ?? '');
   const [category, setCategory] = useState<SkillCategory>(existingSkill?.category ?? 'general');
   const [tagsStr, setTagsStr] = useState(existingSkill?.tags.join(', ') ?? '');
 
   const tokenEstimate = useMemo(() => Math.ceil(instructions.length / 4), [instructions]);
-  const canSave = name.trim().length > 0 && description.trim().length > 0 && instructions.trim().length > 0;
+  const canSave = name.trim().length > 0 && instructions.trim().length > 0;
 
   const handleSave = () => {
     if (!canSave) return;
     const tags = tagsStr.split(',').map((t) => t.trim()).filter(Boolean);
+    const description = name.trim();
 
     if (isEditing && editingSkillId) {
-      updateSkill(editingSkillId, { icon, name: name.trim(), description: description.trim(), instructions: instructions.trim(), category, tags });
+      updateSkill(editingSkillId, { icon, name: name.trim(), description, instructions: instructions.trim(), category, tags });
     } else {
-      createSkill({ icon, name: name.trim(), description: description.trim(), instructions: instructions.trim(), category, tags, enabled: true });
+      createSkill({ icon, name: name.trim(), description, instructions: instructions.trim(), category, tags, enabled: true });
     }
     setSkillEditorOpen(false);
   };
@@ -106,19 +106,6 @@ export function SkillEditor(): JSX.Element {
             </div>
           </div>
 
-          {/* Description */}
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Description</label>
-            <textarea
-              className={styles.textarea}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="One to two sentences explaining what this skill covers. The LLM reads this to decide relevance."
-              maxLength={300}
-              rows={2}
-              aria-label="Skill description"
-            />
-          </div>
 
           {/* Category + Tags */}
           <div className={styles.field}>

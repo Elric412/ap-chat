@@ -44,7 +44,6 @@ export function SkillCard({ skill, mode, isCustomSelected }: SkillCardProps): JS
           <span className={styles.name}>{skill.name}</span>
           {skill.isBuiltin && <span className={styles.builtinBadge}>Built-in</span>}
         </div>
-        <div className={styles.description}>{skill.description}</div>
         {skill.tags.length > 0 && (
           <div className={styles.tags}>
             {skill.tags.slice(0, 5).map((tag) => (
