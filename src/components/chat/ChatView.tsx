@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { MessageBubble } from './MessageBubble';
@@ -7,6 +7,7 @@ import { EmptyState } from './EmptyState';
 import { StreamingSkeleton } from './StreamingSkeleton';
 import { ContextBar } from '../tokens/ContextBar';
 import { ArrowDown } from 'lucide-react';
+import { MODEL_REGISTRY } from '../../constants/model-registry';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import styles from './ChatView.module.css';
 
