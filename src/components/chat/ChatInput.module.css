@@ -276,34 +276,40 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: none;
-  border-radius: var(--radius-md);
+  width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
   background: transparent;
   color: var(--color-text-3);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-snap);
+  transition: all var(--duration-normal) var(--ease-silk);
   -webkit-tap-highlight-color: transparent;
+  position: relative;
 }
 
 .searchBtn:hover:not(:disabled) {
-  background: var(--color-surface-hover);
+  background: var(--color-surface-2);
+  border-color: hsl(0, 0%, 100%, 0.08);
   color: var(--color-text-1);
+  transform: translateY(-1px);
 }
 
 .searchBtn[data-active="true"] {
-  background: var(--color-ai-search-muted);
+  background: linear-gradient(135deg, var(--color-ai-search-muted), hsl(217, 60%, 25%, 0.3));
   color: var(--color-ai-search-text);
+  border-color: var(--color-ai-search);
+  box-shadow: 0 0 16px hsl(217, 76%, 56%, 0.2);
 }
 
 .searchBtn[data-active="true"]:hover:not(:disabled) {
   background: var(--color-ai-search);
   color: var(--color-text-on-primary);
+  transform: translateY(-1px) scale(1.02);
 }
 
 .searchBtn:active:not(:disabled) {
-  transform: scale(0.88);
+  transform: scale(0.92);
   transition-duration: var(--duration-instant);
 }
 
