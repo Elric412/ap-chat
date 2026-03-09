@@ -183,7 +183,7 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
               />
             </div>
             <div className={styles.list}>
-              {grouped.size === 0 && (
+              {currentGrouped.size === 0 && legacyGrouped.size === 0 && (
                 <motion.div
                   className={styles.emptySearch}
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -193,7 +193,7 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
                   No models match your search
                 </motion.div>
               )}
-              {Array.from(grouped.entries()).map(([providerId, models], groupIdx) => {
+              {Array.from(currentGrouped.entries()).map(([providerId, models], groupIdx) => {
                 const meta = PROVIDER_META[providerId];
                 const hasKey = providerHasKey.has(providerId);
                 return (
@@ -251,6 +251,91 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
                   </motion.div>
                 );
               })}
+
+              {legacyGrouped.size > 0 && (
+                <div className={styles.legacySection}>
+                  <button
+                    className={styles.legacyToggle}
+                    onClick={() => setShowLegacy(!showLegacy)}
+                    type="button"
+                    aria-expanded={showLegacy}
+                  >
+                    <svg
+                      className={styles.chevron}
+                      data-open={showLegacy}
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3 4.5L6 7.5L9 4.5"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <span>Legacy Models</span>
+                    <span className={styles.legacyCount}>({legacyModels.length})</span>
+                  </button>
+                  <AnimatePresence>
+                    {showLegacy && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25, ease: EASE_OUT }}
+                        style={{ overflow: 'hidden' }}
+                      >
+                        {Array.from(legacyGrouped.entries()).map(([providerId, models], groupIdx) => {
+                          const meta = PROVIDER_META[providerId];
+                          const hasKey = providerHasKey.has(providerId);
+                          return (
+                            <div key={providerId} className={styles.providerGroup}>
+                              <div className={styles.providerLabel}>
+                                <span
+                                  className={styles.providerDot}
+                                  style={{ background: `var(${meta.colorVar})` }}
+                                  aria-hidden="true"
+                                />
+                                {meta.displayName}
+                                {!hasKey && <span className={styles.noKey}>No key</span>}
+                              </div>
+                              {models.map((model) => (
+                                <button
+                                  key={model.id}
+                                  className={styles.modelItem}
+                                  data-selected={model.id === selectedModelId}
+                                  onClick={() => handleSelect(model.id)}
+                                  role="option"
+                                  aria-selected={model.id === selectedModelId}
+                                  type="button"
+                                >
+                                  <div className={styles.modelInfo}>
+                                    <div className={styles.modelName}>{model.displayName}</div>
+                                    <div className={styles.modelMeta}>
+                                      <span>{Math.round(model.contextWindow / 1000)}K ctx</span>
+                                      <span>${model.pricing.inputPerMillionTokens}/M in</span>
+                                    </div>
+                                  </div>
+                                  <div className={styles.capDots} aria-label="Capabilities">
+                                    <span className={styles.capDot} data-active={model.capabilities.supportsVision} title="Vision" />
+                                    <span className={styles.capDot} data-active={model.capabilities.supportsThinking} title="Thinking" />
+                                    <span className={styles.capDot} data-active={model.capabilities.supportsToolUse} title="Tools" />
+                                    <span className={styles.capDot} data-active={model.capabilities.supportsWebSearch} title="Search" />
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>

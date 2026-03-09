@@ -316,7 +316,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsCaching: true, supportsTopK: true, supportsPresencePenalty: true,
     },
     thinkingConfig: { parameterName: 'thinkingBudget', levels: { low: 2048, medium: 8192, high: 32768 } },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2025-03-25', defaultSafeParams: { temperature: 1 },
   },
   {
@@ -335,7 +335,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsCaching: true, supportsTopK: true, supportsPresencePenalty: true,
     },
     thinkingConfig: { parameterName: 'thinkingBudget', levels: { low: 1024, medium: 4096, high: 16384 } },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2025-04-17', defaultSafeParams: { temperature: 1 },
   },
   {
@@ -353,7 +353,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsWebSearch: true, supportsJsonMode: true, supportsStructuredOutput: true,
       supportsTopK: true, supportsPresencePenalty: true,
     },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2025-02-05', defaultSafeParams: { temperature: 1 },
   },
 
