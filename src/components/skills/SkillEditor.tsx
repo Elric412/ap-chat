@@ -65,8 +65,9 @@ export function SkillEditor(): JSX.Element {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
     >
-      <div className={styles.backdrop} onClick={(e) => { e.stopPropagation(); handleClose(); }} aria-hidden="true" />
+      <div className={styles.backdrop} onClick={(e) => { e.stopPropagation(); handleClose(); }} onMouseDown={(e) => e.stopPropagation()} aria-hidden="true" />
       <motion.div
         className={styles.editor}
         initial={{ opacity: 0, scale: 0.96, y: 12 }}
