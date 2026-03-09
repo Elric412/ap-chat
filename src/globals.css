@@ -82,7 +82,7 @@ body {
   --color-border-1: hsl(225, 10%, 14%);
   --color-border-2: hsl(225, 10%, 20%);
   --color-border-3: hsl(225, 10%, 26%);
-  --color-border-focus: var(--color-secondary);
+  --color-border-focus: hsl(210, 20%, 40%);
   --color-border-error: var(--color-error);
 
   /* ── Primary Accent — Warm Amber ── */
