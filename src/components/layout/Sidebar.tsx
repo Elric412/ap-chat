@@ -144,7 +144,7 @@ export function Sidebar(): JSX.Element {
     });
 
     return items;
-  }, [user, signOut, navigate, vaultStatus, configuredCount, location.pathname, resolvedTheme, toggleTheme]);
+  }, [user, signOut, navigate, vaultStatus, configuredCount, location.pathname, resolvedTheme, toggleTheme, skillConfig.mode, setSkillPanelOpen]);
 
   const { hoveredIndex, setHoveredIndex, getScale } = useDockMagnification(dockItems.length);
   const [tooltipIndex, setTooltipIndex] = useState<number | null>(null);
