@@ -257,7 +257,7 @@ export function ParameterDrawer(): JSX.Element {
                 <div className={styles.paramGroup}>
                   <span className={styles.paramLabel}>Thinking Level</span>
                   <div className={styles.thinkingLevels}>
-                    {(['low', 'medium', 'high'] as const).map((level) => (
+                    {(['low', 'medium', 'high', 'x-high'] as const).map((level) => (
                       <button
                         key={level}
                         className={styles.levelButton}
