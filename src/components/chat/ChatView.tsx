@@ -126,6 +126,10 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
                     onDenyToolCall={onDenyToolCall}
                   />
                 ))}
+                {/* Streaming skeleton — shown when waiting for first content */}
+                {isStreaming && visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1]?.role === 'user' && (
+                  <StreamingSkeleton />
+                )}
                 <div className={styles.scrollAnchor} />
               </>
             )}
