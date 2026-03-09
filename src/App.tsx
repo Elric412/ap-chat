@@ -25,6 +25,7 @@ function AppInner(): JSX.Element {
   useTheme();
   const { commandPaletteOpen, setCommandPaletteOpen } = useKeyboard();
   useAutoSave();
+  const location = useLocation();
 
   const initVault = useAppStore((s) => s.initVault);
 
