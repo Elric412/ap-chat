@@ -1,12 +1,13 @@
 /**
  * PresetMenu — Premium categorized preset selector
  * 
- * Agency-grade floating panel with grouped presets,
+ * Agency-grade modal panel with grouped presets,
  * parameter badges, keyboard navigation (↑↓ Enter Esc, 1-9),
- * and framer-motion entrance/exit.
+ * and framer-motion entrance/exit. Uses portal to avoid z-index issues.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Thermometer, Brain, Hash } from 'lucide-react';
 import { getAllPresets, type Preset } from '../../constants/presets';
