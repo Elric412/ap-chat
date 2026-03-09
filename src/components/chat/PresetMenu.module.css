@@ -21,8 +21,8 @@
   border: 1px solid var(--color-border-1);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
-  max-height: min(420px, calc(100vh - 48px));
-  max-height: min(420px, calc(100dvh - 48px));
+  max-height: min(420px, calc(100vh - 64px));
+  max-height: min(420px, calc(100dvh - 64px));
   overflow: hidden;
   z-index: calc(var(--z-modal) + 1);
   display: flex;
