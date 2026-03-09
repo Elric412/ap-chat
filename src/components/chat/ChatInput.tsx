@@ -8,7 +8,7 @@
 
 import { useState, useRef, useCallback, useEffect, forwardRef, type KeyboardEvent, type ChangeEvent, type DragEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUp, Square, Paperclip, X, FileText, Music, Film, File, Upload, Zap } from 'lucide-react';
+import { ArrowUp, Square, Paperclip, X, FileText, Music, Film, File, Upload, Zap, Search } from 'lucide-react';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import {
   processFiles,
@@ -18,6 +18,7 @@ import {
 } from '../../engine/attachment-processor';
 import { SlashCommandMenu } from '../command/SlashCommandMenu';
 import { getAllPresets } from '../../constants/presets';
+import { MODEL_REGISTRY } from '../../constants/model-registry';
 import { useAppStore } from '../../store';
 import styles from './ChatInput.module.css';
 
@@ -57,6 +58,12 @@ export function ChatInput({
   const setInferenceParams = useAppStore((s) => s.setInferenceParams);
   const setSelectedModelId = useAppStore((s) => s.setSelectedModelId);
   const inferenceParams = useAppStore((s) => s.inferenceParams);
+  const webSearchEnabled = useAppStore((s) => s.webSearchEnabled);
+  const setWebSearchEnabled = useAppStore((s) => s.setWebSearchEnabled);
+  const selectedModelId = useAppStore((s) => s.selectedModelId);
+
+  const selectedModel = MODEL_REGISTRY.find((model) => model.id === selectedModelId);
+  const supportsWebSearch = selectedModel?.capabilities.supportsWebSearch ?? false;
 
   const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
@@ -300,6 +307,19 @@ export function ChatInput({
           title="Presets"
         >
           <Zap size={16} aria-hidden="true" />
+        </button>
+
+        {/* Web search toggle */}
+        <button
+          className={styles.searchBtn}
+          data-active={webSearchEnabled && supportsWebSearch}
+          onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+          type="button"
+          aria-label="Toggle web search"
+          title={supportsWebSearch ? 'Web search' : 'Web search is not supported by this model'}
+          disabled={disabled || !supportsWebSearch}
+        >
+          <Search size={16} aria-hidden="true" />
         </button>
 
         <input
