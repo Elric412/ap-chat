@@ -45,7 +45,7 @@ export interface ModelCapabilities {
 
 export interface ThinkingConfig {
   parameterName: string;
-  levels: Record<'low' | 'medium' | 'high' | 'x-high', number | string>;
+  levels: Record<'low' | 'medium' | 'high', number | string> & Partial<Record<'x-high', number | string>>;
   minBudgetTokens?: number;
   maxBudgetTokens?: number;
 }
