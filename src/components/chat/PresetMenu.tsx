@@ -1,12 +1,13 @@
 /**
  * PresetMenu — Premium categorized preset selector
  * 
- * Agency-grade floating panel with grouped presets,
+ * Agency-grade modal panel with grouped presets,
  * parameter badges, keyboard navigation (↑↓ Enter Esc, 1-9),
- * and framer-motion entrance/exit.
+ * and framer-motion entrance/exit. Uses portal to avoid z-index issues.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Thermometer, Brain, Hash } from 'lucide-react';
 import { getAllPresets, type Preset } from '../../constants/presets';
@@ -137,24 +138,30 @@ export function PresetMenu({ open, onClose, onApply }: PresetMenuProps) {
 
   let globalIdx = 0;
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
-          <div className={styles.backdrop} />
+          <motion.div 
+            className={styles.backdrop}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          />
           <motion.div
             ref={menuRef}
             className={styles.menu}
-            initial={{ opacity: 0, y: 12, scale: 0.97 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.98 }}
-            transition={{ duration: 0.22, ease: [0.22, 0.68, 0, 1] }}
+            exit={{ opacity: 0, y: 10, scale: 0.97 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Header */}
             <div className={styles.header}>
               <div className={styles.headerLeft}>
                 <div className={styles.headerIcon}>
-                  <Zap size={14} />
+                  <Zap size={16} />
                 </div>
                 <span className={styles.headerTitle}>Quick Presets</span>
               </div>
@@ -176,7 +183,7 @@ export function PresetMenu({ open, onClose, onApply }: PresetMenuProps) {
                       const idx = globalIdx++;
                       const badges = buildBadges(preset.parameters);
                       return (
-                        <button
+                        <motion.button
                           key={preset.id}
                           className={styles.item}
                           data-selected={selectedIdx === idx}
@@ -184,6 +191,9 @@ export function PresetMenu({ open, onClose, onApply }: PresetMenuProps) {
                           onClick={() => onApply(preset.id)}
                           onMouseEnter={() => setSelectedIdx(idx)}
                           type="button"
+                          initial={{ opacity: 0, x: -8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.2, delay: idx * 0.02 }}
                         >
                           <span className={styles.shortcutKey}>
                             {idx < 9 ? idx + 1 : '·'}
@@ -195,16 +205,16 @@ export function PresetMenu({ open, onClose, onApply }: PresetMenuProps) {
                               <div className={styles.badges}>
                                 {badges.map((b, i) => (
                                   <span key={i} className={styles.badge} data-type={b.type}>
-                                    {b.type === 'temp' && <Thermometer size={8} />}
-                                    {b.type === 'thinking' && <Brain size={8} />}
-                                    {b.type === 'seed' && <Hash size={8} />}
+                                    {b.type === 'temp' && <Thermometer size={9} />}
+                                    {b.type === 'thinking' && <Brain size={9} />}
+                                    {b.type === 'seed' && <Hash size={9} />}
                                     {b.label}
                                   </span>
                                 ))}
                               </div>
                             )}
                           </div>
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>
@@ -237,6 +247,7 @@ export function PresetMenu({ open, onClose, onApply }: PresetMenuProps) {
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

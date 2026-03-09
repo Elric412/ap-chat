@@ -6,26 +6,48 @@
   display: flex;
   align-items: center;
   height: var(--layout-header-height);
-  padding: 0 var(--space-4);
-  background: var(--glass-bg);
-  border-bottom: 1px solid hsl(0, 0%, 100%, 0.04);
+  padding: 0 var(--space-5);
+  background: linear-gradient(
+    180deg,
+    hsl(220, 15%, 10%, 0.8) 0%,
+    hsl(220, 15%, 8%, 0.6) 100%
+  );
+  border-bottom: 1px solid hsl(0, 0%, 100%, 0.05);
   gap: var(--space-3);
   flex-shrink: 0;
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  backdrop-filter: blur(24px) saturate(1.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
   position: relative;
   z-index: var(--z-raised);
 }
 
-/* Subtle inner highlight for glass effect */
-.header::after {
+/* Top highlight line */
+.header::before {
   content: '';
   position: absolute;
   top: 0;
+  left: var(--space-8);
+  right: var(--space-8);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(172, 52%, 46%, 0.15) 30%,
+    hsl(24, 82%, 52%, 0.15) 70%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+/* Bottom subtle gradient line */
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, hsl(0, 0%, 100%, 0.04), transparent);
+  background: linear-gradient(90deg, transparent, hsl(0, 0%, 100%, 0.05), transparent);
   pointer-events: none;
 }
 
@@ -121,27 +143,29 @@
 .modelTrigger {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1-5) var(--space-3);
-  border: 1px solid hsl(0, 0%, 100%, 0.06);
+  gap: var(--space-2-5);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid hsl(0, 0%, 100%, 0.08);
   border-radius: var(--radius-full);
-  background: var(--color-surface-1);
+  background: linear-gradient(135deg, var(--color-surface-1), var(--color-surface-2));
   color: var(--color-text-1);
   font-size: var(--text-label);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-semibold);
   font-family: var(--font-sans);
   letter-spacing: var(--tracking-label);
   cursor: pointer;
-  transition: all var(--duration-normal) var(--ease-mechanical);
+  transition: all var(--duration-normal) var(--ease-silk);
   min-width: 0;
   -webkit-tap-highlight-color: transparent;
-  height: 34px;
+  height: 36px;
+  box-shadow: 0 2px 8px hsl(0, 0%, 0%, 0.15);
 }
 
 .modelTrigger:hover {
-  border-color: hsl(0, 0%, 100%, 0.1);
+  border-color: hsl(0, 0%, 100%, 0.14);
   background: var(--color-surface-2);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 16px hsl(0, 0%, 0%, 0.25);
+  transform: translateY(-1px);
 }
 
 .modelName {
@@ -151,16 +175,18 @@
 }
 
 .providerDot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
 }
 
 .chevron {
   color: var(--color-text-3);
-  transition: transform var(--duration-fast) var(--ease-mechanical);
+  transition: transform var(--duration-normal) var(--ease-silk);
   flex-shrink: 0;
+  opacity: 0.6;
 }
 
 .spacer {
@@ -226,20 +252,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid transparent;
   background: transparent;
   color: var(--color-text-3);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-mechanical);
+  transition: all var(--duration-normal) var(--ease-silk);
   -webkit-tap-highlight-color: transparent;
+  position: relative;
 }
 
 .headerAction:hover {
-  background: var(--color-surface-hover);
+  background: var(--color-surface-2);
+  border-color: hsl(0, 0%, 100%, 0.08);
   color: var(--color-text-1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px hsl(0, 0%, 0%, 0.2);
 }
 
 .headerAction:active {
@@ -250,13 +280,20 @@
 .headerAction[data-active="true"] {
   color: var(--color-secondary-text);
   background: var(--color-secondary-ghost);
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 12px hsl(172, 52%, 46%, 0.15);
 }
 
 /* ── Divider ── */
 .divider {
   width: 1px;
-  height: 20px;
-  background: hsl(0, 0%, 100%, 0.06);
+  height: 22px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    hsl(0, 0%, 100%, 0.1),
+    transparent
+  );
   flex-shrink: 0;
 }
 

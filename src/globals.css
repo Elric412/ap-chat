@@ -667,6 +667,98 @@ select:focus-visible {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   SVG & Icon Quality Enhancements
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Sharp, crisp SVG rendering across all icons */
+svg {
+  shape-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Lucide icons — optimized stroke rendering */
+svg[class*="lucide"] {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Icon hover micro-interactions */
+button svg,
+a svg,
+[role="button"] svg {
+  transition: 
+    transform var(--duration-fast) var(--ease-snap),
+    color var(--duration-fast) var(--ease-silk),
+    filter var(--duration-fast) var(--ease-silk);
+}
+
+button:hover svg,
+a:hover svg,
+[role="button"]:hover svg {
+  filter: drop-shadow(0 0 3px currentColor);
+}
+
+button:active svg,
+a:active svg,
+[role="button"]:active svg {
+  transform: scale(0.92);
+  transition-duration: var(--duration-instant);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Premium Micro-Interactions
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Smooth button press feedback */
+.micro-press {
+  transition: transform var(--duration-fast) var(--ease-snap);
+}
+
+.micro-press:active {
+  transform: scale(0.96);
+  transition-duration: var(--duration-instant);
+}
+
+/* Hover lift effect */
+.micro-lift {
+  transition: transform var(--duration-normal) var(--ease-snap),
+              box-shadow var(--duration-normal) var(--ease-silk);
+}
+
+.micro-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px hsl(0, 0%, 0%, 0.3);
+}
+
+/* Subtle glow on hover */
+.micro-glow {
+  transition: box-shadow var(--duration-normal) var(--ease-silk);
+}
+
+.micro-glow:hover {
+  box-shadow: 0 0 20px hsl(172, 52%, 46%, 0.15);
+}
+
+/* Shimmer effect for premium elements */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    hsl(0, 0%, 100%, 0.08) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    shadcn/ui COMPONENT OVERRIDES — Premium, non-default styling
    ═══════════════════════════════════════════════════════════════ */
 
