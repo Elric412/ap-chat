@@ -302,14 +302,6 @@ export function ChatInput({
 
         {/* Skill indicator */}
         <SkillIndicator />
-          onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-          type="button"
-          aria-label="Toggle web search"
-          title={supportsWebSearch ? 'Web search' : 'Web search is not supported by this model'}
-          disabled={disabled || !supportsWebSearch}
-        >
-          <Search size={16} aria-hidden="true" />
-        </button>
 
         <input
           ref={fileInputRef}
