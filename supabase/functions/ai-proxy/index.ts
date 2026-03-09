@@ -179,7 +179,7 @@ Deno.serve(async (req) => {
       return errorResponse(400, 'UNKNOWN_PROVIDER', `Unknown provider: ${provider}. Supported: ${Object.keys(PROVIDER_ENDPOINTS).join(', ')}`, false);
     }
 
-    // ── Key retrieval (service role — clients can't SELECT api_keys) ──
+    // ── Key retrieval (service role — clients cannot SELECT api_keys) ──
     const serviceClient = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -187,7 +187,7 @@ Deno.serve(async (req) => {
 
     const { data: keyRecord, error: keyError } = await serviceClient
       .from('api_keys')
-      .select('encrypted_key')
+      .select('provider_api_key')
       .eq('user_id', userId)
       .eq('provider_id', provider)
       .eq('is_active', true)
@@ -197,7 +197,7 @@ Deno.serve(async (req) => {
       return errorResponse(400, 'NO_API_KEY', `No API key configured for ${provider}. Add one in Settings.`, false, { provider });
     }
 
-    const apiKey = keyRecord.encrypted_key;
+    const apiKey = keyRecord.provider_api_key;
     const startTime = Date.now();
 
     // ── Build provider request ──

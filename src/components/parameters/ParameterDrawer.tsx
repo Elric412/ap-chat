@@ -268,16 +268,6 @@ export function ParameterDrawer(): JSX.Element {
                         {level}
                       </button>
                     ))}
-                    {(model?.providerId === 'openai' || model?.providerId === 'anthropic') && (
-                      <button
-                        className={styles.levelButton}
-                        data-active={params.thinkingLevel === 'x-high'}
-                        onClick={() => update({ thinkingLevel: 'x-high' })}
-                        type="button"
-                      >
-                        x-high
-                      </button>
-                    )}
                   </div>
                 </div>
               )}
