@@ -12,6 +12,6 @@ export interface InferenceParameters {
   responseFormat: 'text' | 'json' | 'structured';
   structuredOutputSchema?: Record<string, unknown>;
   thinkingEnabled: boolean;
-  thinkingLevel: 'low' | 'medium' | 'high' | 'auto';
+  thinkingLevel: 'low' | 'medium' | 'high' | 'x-high' | 'auto';
   streamEnabled: boolean;
 }
