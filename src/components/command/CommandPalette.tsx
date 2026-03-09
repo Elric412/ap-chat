@@ -46,7 +46,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps): JSX.Elem
   const setParamDrawerOpen = useAppStore((s) => s.setParamDrawerOpen);
   const paramDrawerOpen = useAppStore((s) => s.paramDrawerOpen);
   const setComparisonMode = useAppStore((s) => s.setComparisonMode);
-
+  const setSkillPanelOpen = useAppStore((s) => s.setSkillPanelOpen);
+  const skillConfig = useAppStore((s) => s.skillConfig);
+  const setSkillMode = useAppStore((s) => s.setSkillMode);
   const actions = useMemo((): CommandAction[] => {
     const list: CommandAction[] = [];
 
