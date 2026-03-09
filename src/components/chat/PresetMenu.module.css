@@ -276,8 +276,7 @@
 @media (max-width: 768px) {
   .menu {
     width: 92vw;
-    max-height: calc(100vh - 32px);
-    max-height: calc(100dvh - 32px);
+    max-height: min(380px, calc(100dvh - 48px));
     border-radius: var(--radius-lg);
   }
 
@@ -301,5 +300,16 @@
     gap: var(--space-2);
     flex-wrap: wrap;
     justify-content: center;
+  }
+}
+
+/* ── Extra small screens ── */
+@media (max-height: 600px) {
+  .menu {
+    max-height: calc(100dvh - 32px);
+  }
+  
+  .footer {
+    display: none;
   }
 }

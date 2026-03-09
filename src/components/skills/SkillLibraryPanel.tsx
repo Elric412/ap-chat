@@ -86,7 +86,7 @@ export function SkillLibraryPanel(): JSX.Element | null {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          <div className={styles.backdrop} onClick={handleClose} aria-hidden="true" />
+          <div className={styles.backdrop} onClick={handleBackdropClick} aria-hidden="true" />
           <motion.div
             className={styles.panel}
             initial={{ x: '100%' }}
