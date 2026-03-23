@@ -94,15 +94,16 @@
   letter-spacing: var(--tracking-display);
   color: var(--color-text-1);
   text-wrap: balance;
+  font-synthesis: none;
 }
 
 .subtitle {
   font-size: var(--text-body);
   font-weight: var(--weight-regular);
-  line-height: var(--leading-body);
+  line-height: 1.7;
   color: var(--color-text-3);
   text-align: center;
-  max-width: 340px;
+  max-width: 38ch;
   text-wrap: pretty;
 }
 
