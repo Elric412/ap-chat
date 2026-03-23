@@ -91,7 +91,7 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, ease: EASE_SILK }}
+          transition={{ duration: 0.35, ease: EASE_OUT_QUART }}
         >
           <EmptyState />
         </motion.div>
