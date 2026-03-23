@@ -49,9 +49,9 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
     <div className={styles.emptyState}>
       <motion.div
         className={styles.hero}
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+        transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
       >
         <div className={styles.orbitalContainer}>
           <div className={styles.orbitalRing} />
@@ -72,11 +72,11 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
           className={styles.setupCta}
           onClick={() => navigate('/settings')}
           type="button"
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-          whileHover={{ scale: 1.05, y: -2 }}
-          whileTap={{ scale: 0.95 }}
+          transition={{ delay: 0.25, duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+          whileHover={{ scale: 1.03, y: -1 }}
+          whileTap={{ scale: 0.97 }}
         >
           <Key size={14} aria-hidden="true" />
           Add your first API key
@@ -91,11 +91,11 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
               data-color={sp.color}
               onClick={() => handlePromptClick(sp.prompt)}
               type="button"
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + i * 0.08, duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-              whileHover={{ y: -3, scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
+              transition={{ delay: 0.15 + i * 0.06, duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+              whileHover={{ y: -2, scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
             >
               <sp.icon size={16} className={styles.promptIcon} aria-hidden="true" />
               <span className={styles.promptLabel}>{sp.label}</span>

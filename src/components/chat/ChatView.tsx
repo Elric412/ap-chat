@@ -12,9 +12,9 @@ import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import styles from './ChatView.module.css';
 
 type Ease4 = [number, number, number, number];
-const EASE_SILK: Ease4 = [0.19, 1, 0.22, 1];
-const EASE_OUT: Ease4 = [0.16, 1, 0.3, 1];
-const EASE_SNAP: Ease4 = [0.34, 1.56, 0.64, 1];
+const EASE_OUT_QUART: Ease4 = [0.25, 1, 0.5, 1];
+const EASE_OUT_EXPO: Ease4 = [0.16, 1, 0.3, 1];
+const EASE_OUT_QUINT: Ease4 = [0.22, 1, 0.36, 1];
 
 interface ChatViewProps {
   conversationId: string;
@@ -91,7 +91,7 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, ease: EASE_SILK }}
+          transition={{ duration: 0.35, ease: EASE_OUT_QUART }}
         >
           <EmptyState />
         </motion.div>
@@ -115,10 +115,10 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
             {visibleMessages.length === 0 ? (
               <motion.div
                 key="empty"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5, ease: EASE_OUT }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.35, ease: EASE_OUT_EXPO }}
               >
                 <EmptyState onSend={handleSend} />
               </motion.div>
@@ -152,12 +152,12 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
             onClick={scrollToBottom}
             type="button"
             aria-label="Scroll to bottom"
-            initial={{ opacity: 0, scale: 0.6, y: 16 }}
+            initial={{ opacity: 0, scale: 0.8, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.6, y: 16 }}
-            transition={{ duration: 0.3, ease: EASE_SNAP }}
-            whileHover={{ scale: 1.15, boxShadow: '0 8px 32px hsl(230, 20%, 2%, 0.5)' }}
-            whileTap={{ scale: 0.88 }}
+            exit={{ opacity: 0, scale: 0.8, y: 8 }}
+            transition={{ duration: 0.2, ease: EASE_OUT_QUART }}
+            whileHover={{ scale: 1.1, boxShadow: '0 8px 24px hsl(0, 0%, 0%, 0.4)' }}
+            whileTap={{ scale: 0.92 }}
           >
             <ArrowDown size={16} />
           </motion.button>
@@ -166,9 +166,9 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
 
       <motion.div
         className={styles.inputWrapper}
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1, ease: EASE_OUT }}
+        transition={{ duration: 0.4, delay: 0.05, ease: EASE_OUT_EXPO }}
       >
         <div className={styles.inputInner}>
           <ChatInput
