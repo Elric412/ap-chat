@@ -19,6 +19,8 @@ import { detectArtifacts } from '../engine/artifact-detector';
 import { MODEL_REGISTRY } from '../constants/model-registry';
 import { uuidv7 } from '../lib/uuid';
 import { putMessages } from '../db/messages-repo';
+import { sanitizeMessageText, sanitizeErrorMessage } from '../engine/input-sanitizer';
+import { getProviderCircuit } from '../engine/resilience';
 import type { MessageNode, ContentPart, TokenCounts, CostEstimate, ToolCall, WebSearchResult } from '../types/messages';
 import type { StreamMessage } from '../adapters/types';
 import type { TokenUsage } from '../types/adapters';
@@ -113,6 +115,14 @@ export function useStream(): UseStreamReturn {
     rootNodeId: string,
     attachments?: ProcessedAttachment[]
   ): Promise<void> => {
+    // Input validation (ECC security-reviewer: validate at system boundaries)
+    const validation = sanitizeMessageText(text);
+    if (!validation.valid) {
+      showToast('error', validation.error ?? 'Invalid message');
+      return;
+    }
+    const sanitizedText = validation.sanitized;
+
     const store = useAppStore.getState();
     const selectedModelId = store.selectedModelId;
     const model = MODEL_REGISTRY.find((m) => m.id === selectedModelId);
@@ -144,7 +154,7 @@ export function useStream(): UseStreamReturn {
     const now = Date.now();
 
     // Build user content with attachments
-    const userContent: ContentPart[] = [{ type: 'text', text }];
+    const userContent: ContentPart[] = [{ type: 'text', text: sanitizedText }];
     const attachmentIds: string[] = [];
     if (attachments?.length) {
       for (const pa of attachments) {
@@ -321,7 +331,8 @@ export function useStream(): UseStreamReturn {
           case 'error': {
             const errType = event.error?.type ?? 'unknown';
             const mappedType = errType === 'provider_outage' ? 'server' as const : errType;
-            const errMsg = event.error?.message ?? 'Stream error';
+            // Security: sanitize error messages to prevent leaking API keys/tokens
+            const errMsg = sanitizeErrorMessage(event.error?.message ?? 'Stream error');
             useAppStore.setState((state) => {
               const node = state.messageMap.get(assistantNodeId);
               if (node) {
@@ -342,7 +353,7 @@ export function useStream(): UseStreamReturn {
       }
     } catch (err: unknown) {
       if (!(err instanceof DOMException && err.name === 'AbortError')) {
-        const errMsg = err instanceof Error ? err.message : 'Network error';
+        const errMsg = sanitizeErrorMessage(err instanceof Error ? err.message : 'Network error');
         useAppStore.setState((state) => {
           const node = state.messageMap.get(assistantNodeId);
           if (node) {
@@ -361,7 +372,7 @@ export function useStream(): UseStreamReturn {
 
     const tokenCounts: TokenCounts = tokenUsage
       ? { input: tokenUsage.inputTokens, output: tokenUsage.outputTokens, thinking: tokenUsage.thinkingTokens, cached: tokenUsage.cachedTokens }
-      : { input: Math.ceil(text.length / 4), output: Math.ceil(accumulatedText.length / 4), thinking: 0, cached: 0 };
+      : { input: Math.ceil(sanitizedText.length / 4), output: Math.ceil(accumulatedText.length / 4), thinking: 0, cached: 0 };
 
     const costEstimate: CostEstimate = calculateCost(tokenCounts, model.pricing);
     const wasAborted = abortController.signal.aborted;

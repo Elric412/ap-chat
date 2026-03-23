@@ -55,9 +55,12 @@ export async function getVaultStatus(): Promise<VaultStatus> {
 
 /** Initialize the vault with a new master password (first-time setup) */
 export async function setupVault(password: string): Promise<void> {
-  // Security: Enforce minimum password length
-  if (password.length < 8) {
+  // Security: Enforce password requirements
+  if (!password || password.length < 8) {
     throw new Error('Master password must be at least 8 characters');
+  }
+  if (password.length > 256) {
+    throw new Error('Master password exceeds maximum length');
   }
   const salt = generateSalt();
   const key = await deriveKey(password, salt);
@@ -128,13 +131,16 @@ export async function addKey(
 ): Promise<EncryptedKeyRecord> {
   if (!masterKey) throw new Error('Vault is locked');
 
+  // Security: validate key format before encryption
+  if (!rawKey || rawKey.trim().length === 0) {
+    throw new Error('API key cannot be empty');
+  }
+  if (rawKey.length > 4096) {
+    throw new Error('API key exceeds maximum length');
+  }
+
   const displayHint = createDisplayHint(rawKey);
   const { ciphertext, iv } = await encrypt(masterKey, rawKey);
-
-  // Zeroize the raw key variable
-  let keyRef: string | null = rawKey;
-  keyRef = null;
-  void keyRef;
 
   const record: EncryptedKeyRecord = {
     providerId,
