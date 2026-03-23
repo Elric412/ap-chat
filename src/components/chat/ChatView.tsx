@@ -152,12 +152,12 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
             onClick={scrollToBottom}
             type="button"
             aria-label="Scroll to bottom"
-            initial={{ opacity: 0, scale: 0.6, y: 16 }}
+            initial={{ opacity: 0, scale: 0.8, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.6, y: 16 }}
-            transition={{ duration: 0.3, ease: EASE_SNAP }}
-            whileHover={{ scale: 1.15, boxShadow: '0 8px 32px hsl(230, 20%, 2%, 0.5)' }}
-            whileTap={{ scale: 0.88 }}
+            exit={{ opacity: 0, scale: 0.8, y: 8 }}
+            transition={{ duration: 0.2, ease: EASE_OUT_QUART }}
+            whileHover={{ scale: 1.1, boxShadow: '0 8px 24px hsl(0, 0%, 0%, 0.4)' }}
+            whileTap={{ scale: 0.92 }}
           >
             <ArrowDown size={16} />
           </motion.button>
