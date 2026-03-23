@@ -372,7 +372,7 @@ export function useStream(): UseStreamReturn {
 
     const tokenCounts: TokenCounts = tokenUsage
       ? { input: tokenUsage.inputTokens, output: tokenUsage.outputTokens, thinking: tokenUsage.thinkingTokens, cached: tokenUsage.cachedTokens }
-      : { input: Math.ceil(text.length / 4), output: Math.ceil(accumulatedText.length / 4), thinking: 0, cached: 0 };
+      : { input: Math.ceil(sanitizedText.length / 4), output: Math.ceil(accumulatedText.length / 4), thinking: 0, cached: 0 };
 
     const costEstimate: CostEstimate = calculateCost(tokenCounts, model.pricing);
     const wasAborted = abortController.signal.aborted;
