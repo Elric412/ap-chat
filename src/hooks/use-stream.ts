@@ -154,7 +154,7 @@ export function useStream(): UseStreamReturn {
     const now = Date.now();
 
     // Build user content with attachments
-    const userContent: ContentPart[] = [{ type: 'text', text }];
+    const userContent: ContentPart[] = [{ type: 'text', text: sanitizedText }];
     const attachmentIds: string[] = [];
     if (attachments?.length) {
       for (const pa of attachments) {
