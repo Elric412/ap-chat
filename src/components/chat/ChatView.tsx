@@ -166,9 +166,9 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
 
       <motion.div
         className={styles.inputWrapper}
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1, ease: EASE_OUT }}
+        transition={{ duration: 0.4, delay: 0.05, ease: EASE_OUT_EXPO }}
       >
         <div className={styles.inputInner}>
           <ChatInput
