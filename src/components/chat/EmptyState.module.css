@@ -160,17 +160,23 @@
   gap: var(--space-2);
   padding: var(--space-4);
   border: 1px solid var(--color-border-1);
+  /* Concentric radius: outer 12px - 16px padding = inner should be ~8px, but since this is standalone, use lg */
   border-radius: var(--radius-lg);
   background: transparent;
   cursor: pointer;
   text-align: left;
   font-family: var(--font-sans);
-  transition: all var(--duration-fast) var(--ease-silk);
+  transition: border-color var(--duration-fast) var(--ease-out-quart),
+              background var(--duration-fast) var(--ease-out-quart),
+              transform var(--duration-fast) var(--ease-out-quart),
+              box-shadow var(--duration-fast) var(--ease-out-quart);
+  min-height: 44px; /* Fitts's law — minimum touch target */
 }
 
 .promptCard:hover {
   border-color: var(--color-border-2);
   background: var(--color-surface-1);
+  box-shadow: 0 2px 8px hsl(0, 0%, 0%, 0.08);
 }
 
 .promptCard:active {
