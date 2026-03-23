@@ -331,7 +331,8 @@ export function useStream(): UseStreamReturn {
           case 'error': {
             const errType = event.error?.type ?? 'unknown';
             const mappedType = errType === 'provider_outage' ? 'server' as const : errType;
-            const errMsg = event.error?.message ?? 'Stream error';
+            // Security: sanitize error messages to prevent leaking API keys/tokens
+            const errMsg = sanitizeErrorMessage(event.error?.message ?? 'Stream error');
             useAppStore.setState((state) => {
               const node = state.messageMap.get(assistantNodeId);
               if (node) {
