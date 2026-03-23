@@ -128,13 +128,16 @@ export async function addKey(
 ): Promise<EncryptedKeyRecord> {
   if (!masterKey) throw new Error('Vault is locked');
 
+  // Security: validate key format before encryption
+  if (!rawKey || rawKey.trim().length === 0) {
+    throw new Error('API key cannot be empty');
+  }
+  if (rawKey.length > 4096) {
+    throw new Error('API key exceeds maximum length');
+  }
+
   const displayHint = createDisplayHint(rawKey);
   const { ciphertext, iv } = await encrypt(masterKey, rawKey);
-
-  // Zeroize the raw key variable
-  let keyRef: string | null = rawKey;
-  keyRef = null;
-  void keyRef;
 
   const record: EncryptedKeyRecord = {
     providerId,
