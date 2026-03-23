@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp, Square, Paperclip, Upload, Zap, Search } from 'lucide-react';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import { SkillIndicator } from '../skills/SkillIndicator';
+import { AttachmentPreviewCard } from './AttachmentPreviewCard';
 import {
   processFiles,
   formatFileSize,
