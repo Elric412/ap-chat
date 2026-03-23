@@ -339,12 +339,12 @@ export function ChatInput({
               disabled={!canSend}
               type="button"
               aria-label="Send message"
-              initial={{ scale: 0, rotate: 90 }}
-              animate={{ scale: 1, rotate: 0 }}
-              exit={{ scale: 0, rotate: -90 }}
-              transition={{ duration: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
-              whileTap={{ scale: 0.85 }}
-              whileHover={canSend ? { scale: 1.1 } : undefined}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.15, ease: [0.25, 1, 0.5, 1] }}
+              whileTap={{ scale: 0.92 }}
+              whileHover={canSend ? { scale: 1.06 } : undefined}
             >
               <ArrowUp size={16} aria-hidden="true" />
             </motion.button>
