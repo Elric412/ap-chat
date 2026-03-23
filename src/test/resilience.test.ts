@@ -96,7 +96,12 @@ describe('withTimeout', () => {
 
   it('throws TimeoutError on expiry', async () => {
     await expect(
-      withTimeout(async () => new Promise((r) => setTimeout(r, 500)), 50, 'Test')
+      withTimeout(async (signal) => {
+        await new Promise((resolve, reject) => {
+          const timer = setTimeout(resolve, 500);
+          signal.addEventListener('abort', () => { clearTimeout(timer); reject(new DOMException('Aborted', 'AbortError')); }, { once: true });
+        });
+      }, 50, 'Test')
     ).rejects.toThrow(TimeoutError);
   });
 });
