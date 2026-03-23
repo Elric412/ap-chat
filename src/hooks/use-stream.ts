@@ -115,6 +115,14 @@ export function useStream(): UseStreamReturn {
     rootNodeId: string,
     attachments?: ProcessedAttachment[]
   ): Promise<void> => {
+    // Input validation (ECC security-reviewer: validate at system boundaries)
+    const validation = sanitizeMessageText(text);
+    if (!validation.valid) {
+      showToast('error', validation.error ?? 'Invalid message');
+      return;
+    }
+    const sanitizedText = validation.sanitized;
+
     const store = useAppStore.getState();
     const selectedModelId = store.selectedModelId;
     const model = MODEL_REGISTRY.find((m) => m.id === selectedModelId);
