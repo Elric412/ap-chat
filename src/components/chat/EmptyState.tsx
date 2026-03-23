@@ -91,11 +91,11 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
               data-color={sp.color}
               onClick={() => handlePromptClick(sp.prompt)}
               type="button"
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + i * 0.08, duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-              whileHover={{ y: -3, scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
+              transition={{ delay: 0.15 + i * 0.06, duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+              whileHover={{ y: -2, scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
             >
               <sp.icon size={16} className={styles.promptIcon} aria-hidden="true" />
               <span className={styles.promptLabel}>{sp.label}</span>
