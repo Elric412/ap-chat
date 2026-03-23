@@ -669,8 +669,8 @@ button svg,
 a svg,
 [role="button"] svg {
   transition: 
-    transform var(--duration-fast) var(--ease-silk),
-    color var(--duration-fast) var(--ease-silk);
+    transform var(--duration-fast) var(--ease-out-quart),
+    color var(--duration-fast) var(--ease-out-quart);
 }
 
 button:active svg,
@@ -681,16 +681,31 @@ a:active svg,
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Utility Classes — Minimal set
+   Utility Classes
    ═══════════════════════════════════════════════════════════════ */
 
 .micro-press {
-  transition: transform var(--duration-fast) var(--ease-silk);
+  transition: transform var(--duration-fast) var(--ease-out-quart);
 }
 
 .micro-press:active {
   transform: scale(0.97);
   transition-duration: var(--duration-instant);
+}
+
+/* ── Typography utilities — per userinterface-wiki ── */
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+p, li, dd, figcaption {
+  text-wrap: pretty;
+}
+
+/* Tabular nums for data contexts */
+[data-numeric],
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ═══════════════════════════════════════════════════════════════
