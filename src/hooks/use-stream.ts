@@ -19,6 +19,8 @@ import { detectArtifacts } from '../engine/artifact-detector';
 import { MODEL_REGISTRY } from '../constants/model-registry';
 import { uuidv7 } from '../lib/uuid';
 import { putMessages } from '../db/messages-repo';
+import { sanitizeMessageText, sanitizeErrorMessage } from '../engine/input-sanitizer';
+import { getProviderCircuit } from '../engine/resilience';
 import type { MessageNode, ContentPart, TokenCounts, CostEstimate, ToolCall, WebSearchResult } from '../types/messages';
 import type { StreamMessage } from '../adapters/types';
 import type { TokenUsage } from '../types/adapters';
