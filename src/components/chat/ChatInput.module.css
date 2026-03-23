@@ -293,7 +293,7 @@
   opacity: 0.3;
 }
 
-/* Send — Vercel-style solid button */
+/* Send — Polished button with layered shadow anatomy */
 .sendButton {
   display: flex;
   align-items: center;
@@ -305,17 +305,30 @@
   background: var(--color-primary);
   color: var(--color-primary-contrast);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-silk);
+  transition: opacity var(--duration-fast) var(--ease-out-quart),
+              transform var(--duration-fast) var(--ease-out-quart),
+              box-shadow var(--duration-fast) var(--ease-out-quart);
   -webkit-tap-highlight-color: transparent;
+  box-shadow: 
+    0 1px 2px hsl(0, 0%, 0%, 0.2),
+    0 0 0 1px hsl(0, 0%, 100%, 0.08) inset;
 }
 
 .sendButton:hover:not(:disabled) {
-  opacity: 0.85;
+  opacity: 0.88;
+  box-shadow: 
+    0 2px 6px hsl(0, 0%, 0%, 0.25),
+    0 0 0 1px hsl(0, 0%, 100%, 0.1) inset;
 }
 
 .sendButton:active:not(:disabled) {
   transform: scale(0.92);
   transition-duration: var(--duration-instant);
+}
+
+.sendButton:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
 }
 
 .sendButton:disabled {
