@@ -353,7 +353,7 @@ export function useStream(): UseStreamReturn {
       }
     } catch (err: unknown) {
       if (!(err instanceof DOMException && err.name === 'AbortError')) {
-        const errMsg = err instanceof Error ? err.message : 'Network error';
+        const errMsg = sanitizeErrorMessage(err instanceof Error ? err.message : 'Network error');
         useAppStore.setState((state) => {
           const node = state.messageMap.get(assistantNodeId);
           if (node) {
