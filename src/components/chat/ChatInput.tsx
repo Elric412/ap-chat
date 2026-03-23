@@ -194,9 +194,9 @@ export function ChatInput({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+      transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
     >
       {/* Drop overlay */}
       <AnimatePresence>
