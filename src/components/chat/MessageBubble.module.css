@@ -7,7 +7,8 @@
   border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-5);
   margin-bottom: var(--space-4);
-  transition: background var(--duration-fast) var(--ease-silk);
+  transition: background var(--duration-fast) var(--ease-out-quart),
+              border-color var(--duration-fast) var(--ease-out-quart);
 }
 
 /* ── Role variants ── */
