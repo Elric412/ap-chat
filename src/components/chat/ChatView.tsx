@@ -115,10 +115,10 @@ export function ChatView({ conversationId, rootNodeId, onSend, isStreaming, onAb
             {visibleMessages.length === 0 ? (
               <motion.div
                 key="empty"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5, ease: EASE_OUT }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.35, ease: EASE_OUT_EXPO }}
               >
                 <EmptyState onSend={handleSend} />
               </motion.div>
