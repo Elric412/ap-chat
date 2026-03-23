@@ -268,7 +268,7 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall, styl
           )}
           {message.status === 'error' && (
             <span className={styles.statusBadge} data-status="error">
-              {message.error?.message ?? 'Error'}
+              {sanitizeErrorMessage(message.error?.message ?? 'Error')}
             </span>
           )}
           {message.status === 'aborted' && (
