@@ -33,12 +33,6 @@ interface ChatInputProps {
   conversationId?: string;
 }
 
-const FILE_ICONS = {
-  document: FileText,
-  audio: Music,
-  video: Film,
-  file: File,
-} as const;
 
 export function ChatInput({
   onSend,
