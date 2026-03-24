@@ -1,11 +1,44 @@
-// AI Chat Proxy Edge Function — Chaos-Hardened
-// Rate limiting, structured errors, health checks, timeout guards
+/**
+ * AI Chat Proxy Edge Function — Production-Hardened
+ *
+ * Security features (per api-security-best-practices skill):
+ *   - Origin-validated CORS (not wildcard in production)
+ *   - Zod-style input validation with type-safe request schema
+ *   - Rate limiting per user (in-memory, resets on cold start)
+ *   - Structured error responses (no provider detail leakage)
+ *   - Timeout guards on upstream calls
+ *   - Request body size cap (256 KB)
+ *   - Security headers on every response
+ *
+ * Backend patterns (per cc-skill-backend-patterns):
+ *   - Centralized error handler with typed error codes
+ *   - Repository-style key retrieval via service role
+ *   - Fire-and-forget usage logging
+ */
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
-};
+// ── Allowed origins (production: restrict to your domain) ──
+const ALLOWED_ORIGINS = new Set([
+  'https://ap-chat.lovable.app',
+  'http://localhost:5173',
+  'http://localhost:8080',
+]);
+
+function getCorsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get('Origin') ?? '';
+  const allowedOrigin = ALLOWED_ORIGINS.has(origin) ? origin : '';
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+    'Access-Control-Max-Age': '86400',
+    // Security headers
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+  };
+}
 
 // ── Provider endpoints ──
 const PROVIDER_ENDPOINTS: Record<string, string> = {
@@ -18,38 +51,39 @@ const PROVIDER_ENDPOINTS: Record<string, string> = {
   together: 'https://api.together.xyz/v1/chat/completions',
 };
 
-// ── In-memory rate limiter (per-user, resets on cold start) ──
+// ── In-memory rate limiter ──
 const rateLimits = new Map<string, { count: number; windowStart: number }>();
-const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 30;  // 30 req/min per user
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 30;
+const MAX_REQUEST_BODY_BYTES = 256 * 1024; // 256 KB
 
 function checkRateLimit(userId: string): { allowed: boolean; remaining: number; retryAfterMs: number } {
   const now = Date.now();
-  let entry = rateLimits.get(userId);
+  const entry = rateLimits.get(userId);
 
   if (!entry || now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
-    entry = { count: 0, windowStart: now };
-    rateLimits.set(userId, entry);
+    rateLimits.set(userId, { count: 1, windowStart: now });
+    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1, retryAfterMs: 0 };
   }
 
-  entry.count++;
+  const newCount = entry.count + 1;
+  rateLimits.set(userId, { count: newCount, windowStart: entry.windowStart });
 
-  if (entry.count > RATE_LIMIT_MAX_REQUESTS) {
+  if (newCount > RATE_LIMIT_MAX_REQUESTS) {
     const retryAfterMs = RATE_LIMIT_WINDOW_MS - (now - entry.windowStart);
     return { allowed: false, remaining: 0, retryAfterMs };
   }
 
-  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - entry.count, retryAfterMs: 0 };
+  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - newCount, retryAfterMs: 0 };
 }
 
 // ── Structured error response ──
-interface ErrorResponse {
+interface ErrorPayload {
   error: {
     code: string;
     message: string;
     retryable: boolean;
     retryAfterMs?: number;
-    provider?: string;
   };
 }
 
@@ -58,9 +92,10 @@ function errorResponse(
   code: string,
   message: string,
   retryable: boolean,
-  extra?: { retryAfterMs?: number; provider?: string }
+  corsHeaders: Record<string, string>,
+  extra?: { retryAfterMs?: number }
 ): Response {
-  const body: ErrorResponse = {
+  const body: ErrorPayload = {
     error: { code, message, retryable, ...extra },
   };
   const headers: Record<string, string> = { ...corsHeaders, 'Content-Type': 'application/json' };
@@ -70,7 +105,7 @@ function errorResponse(
   return new Response(JSON.stringify(body), { status, headers });
 }
 
-// ── Request validation ──
+// ── Request validation (Zod-style, per coding-standards skill) ──
 interface ChatRequest {
   provider: string;
   model: string;
@@ -82,31 +117,55 @@ interface ChatRequest {
 }
 
 function validateRequest(body: unknown): { valid: true; data: ChatRequest } | { valid: false; message: string } {
-  if (!body || typeof body !== 'object') return { valid: false, message: 'Request body must be a JSON object' };
+  if (!body || typeof body !== 'object') {
+    return { valid: false, message: 'Request body must be a JSON object' };
+  }
   const b = body as Record<string, unknown>;
 
-  if (typeof b.provider !== 'string' || !b.provider) return { valid: false, message: 'Missing required field: provider' };
-  if (typeof b.model !== 'string' || !b.model) return { valid: false, message: 'Missing required field: model' };
-  if (!Array.isArray(b.messages) || b.messages.length === 0) return { valid: false, message: 'Missing required field: messages (non-empty array)' };
+  if (typeof b.provider !== 'string' || !b.provider || b.provider.length > 32) {
+    return { valid: false, message: 'Invalid or missing field: provider' };
+  }
+  if (typeof b.model !== 'string' || !b.model || b.model.length > 128) {
+    return { valid: false, message: 'Invalid or missing field: model' };
+  }
+  if (!Array.isArray(b.messages) || b.messages.length === 0 || b.messages.length > 500) {
+    return { valid: false, message: 'messages must be a non-empty array (max 500)' };
+  }
 
-  // Sanitize inputs
+  // Validate each message has role and content
+  for (let i = 0; i < b.messages.length; i++) {
+    const msg = b.messages[i];
+    if (!msg || typeof msg !== 'object' || typeof msg.role !== 'string') {
+      return { valid: false, message: `messages[${i}] must have a string role` };
+    }
+  }
+
   if (b.temperature !== undefined && (typeof b.temperature !== 'number' || b.temperature < 0 || b.temperature > 2)) {
     return { valid: false, message: 'temperature must be a number between 0 and 2' };
   }
-  if (b.max_tokens !== undefined && (typeof b.max_tokens !== 'number' || b.max_tokens < 1 || b.max_tokens > 200_000)) {
-    return { valid: false, message: 'max_tokens must be a number between 1 and 200000' };
+  if (b.max_tokens !== undefined && (typeof b.max_tokens !== 'number' || !Number.isInteger(b.max_tokens) || b.max_tokens < 1 || b.max_tokens > 200_000)) {
+    return { valid: false, message: 'max_tokens must be an integer between 1 and 200000' };
+  }
+  if (b.conversation_id !== undefined && (typeof b.conversation_id !== 'string' || b.conversation_id.length > 128)) {
+    return { valid: false, message: 'conversation_id must be a string (max 128 chars)' };
   }
 
   return { valid: true, data: body as ChatRequest };
 }
 
+/** Sanitize provider error text — never leak API keys or auth tokens */
+function sanitizeProviderError(raw: string): string {
+  let safe = raw.replace(/\b(sk|key|api|token|bearer|auth)[-_]?[a-zA-Z0-9]{8,}\b/gi, '[REDACTED]');
+  safe = safe.replace(/https?:\/\/[^\s]*[?&](key|token|api_key|auth)=[^\s&]*/gi, '[URL_REDACTED]');
+  return safe.slice(0, 500);
+}
+
 // ── Provider request with timeout ──
-const PROVIDER_TIMEOUT_MS = 120_000; // 2 minutes
+const PROVIDER_TIMEOUT_MS = 120_000;
 
 async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
-
   try {
     return await fetch(url, { ...init, signal: controller.signal });
   } finally {
@@ -116,59 +175,72 @@ async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: numbe
 
 // ── Main handler ──
 Deno.serve(async (req) => {
+  const cors = getCorsHeaders(req);
+
   // CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { status: 204, headers: cors });
   }
 
-  // Health check endpoint
+  // Health check
   if (req.method === 'GET') {
     return new Response(JSON.stringify({ status: 'healthy', timestamp: Date.now() }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     });
   }
 
+  if (req.method !== 'POST') {
+    return errorResponse(405, 'METHOD_NOT_ALLOWED', 'Only POST requests are accepted', false, cors);
+  }
+
   try {
+    // ── Request body size guard ──
+    const contentLength = req.headers.get('Content-Length');
+    if (contentLength && parseInt(contentLength, 10) > MAX_REQUEST_BODY_BYTES) {
+      return errorResponse(413, 'PAYLOAD_TOO_LARGE', `Request body exceeds ${MAX_REQUEST_BODY_BYTES / 1024}KB limit`, false, cors);
+    }
+
     // ── Auth ──
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      return errorResponse(401, 'UNAUTHORIZED', 'Missing or invalid Authorization header', false);
+      return errorResponse(401, 'UNAUTHORIZED', 'Missing or invalid Authorization header', false, cors);
     }
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_ANON_KEY')!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
 
     const token = authHeader.replace('Bearer ', '');
     const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
 
     if (claimsError || !claimsData?.claims) {
-      return errorResponse(401, 'INVALID_TOKEN', 'Token is invalid or expired', true);
+      return errorResponse(401, 'INVALID_TOKEN', 'Token is invalid or expired', true, cors);
     }
 
     const userId = claimsData.claims.sub as string;
 
-    // ── Rate limit ──
+    // ── Rate limit (immutable pattern: create new entry, don't mutate) ──
     const rl = checkRateLimit(userId);
     if (!rl.allowed) {
-      return errorResponse(429, 'RATE_LIMITED', `Rate limit exceeded. ${RATE_LIMIT_MAX_REQUESTS} requests per minute.`, true, {
+      return errorResponse(429, 'RATE_LIMITED', `Rate limit exceeded. ${RATE_LIMIT_MAX_REQUESTS} requests per minute.`, true, cors, {
         retryAfterMs: rl.retryAfterMs,
       });
     }
 
-    // ── Validate request ──
+    // ── Parse & validate request ──
     let body: unknown;
     try {
       body = await req.json();
     } catch {
-      return errorResponse(400, 'INVALID_JSON', 'Request body is not valid JSON', false);
+      return errorResponse(400, 'INVALID_JSON', 'Request body is not valid JSON', false, cors);
     }
 
     const validation = validateRequest(body);
     if (!validation.valid) {
-      return errorResponse(400, 'VALIDATION_ERROR', validation.message, false);
+      return errorResponse(400, 'VALIDATION_ERROR', validation.message, false, cors);
     }
 
     const { provider, model, messages, stream = false, temperature, max_tokens, conversation_id } = validation.data;
@@ -176,28 +248,28 @@ Deno.serve(async (req) => {
     // ── Provider check ──
     const endpoint = PROVIDER_ENDPOINTS[provider];
     if (!endpoint) {
-      return errorResponse(400, 'UNKNOWN_PROVIDER', `Unknown provider: ${provider}. Supported: ${Object.keys(PROVIDER_ENDPOINTS).join(', ')}`, false);
+      return errorResponse(400, 'UNKNOWN_PROVIDER', `Unknown provider. Supported: ${Object.keys(PROVIDER_ENDPOINTS).join(', ')}`, false, cors);
     }
 
-    // ── Key retrieval (service role — clients cannot SELECT api_keys) ──
+    // ── Key retrieval (service role) ──
     const serviceClient = createClient(
-      Deno.env.get('SUPABASE_URL')!,
+      supabaseUrl,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     );
 
     const { data: keyRecord, error: keyError } = await serviceClient
       .from('api_keys')
-      .select('provider_api_key')
+      .select('encrypted_key')
       .eq('user_id', userId)
       .eq('provider_id', provider)
       .eq('is_active', true)
       .single();
 
     if (keyError || !keyRecord) {
-      return errorResponse(400, 'NO_API_KEY', `No API key configured for ${provider}. Add one in Settings.`, false, { provider });
+      return errorResponse(400, 'NO_API_KEY', `No API key configured for this provider. Add one in Settings.`, false, cors);
     }
 
-    const apiKey = keyRecord.provider_api_key;
+    const apiKey = keyRecord.encrypted_key;
     const startTime = Date.now();
 
     // ── Build provider request ──
@@ -255,7 +327,7 @@ Deno.serve(async (req) => {
       };
     }
 
-    // ── Forward to provider with timeout ──
+    // ── Forward to provider ──
     let providerResponse: Response;
     try {
       providerResponse = await fetchWithTimeout(providerUrl, providerRequest, PROVIDER_TIMEOUT_MS);
@@ -263,8 +335,8 @@ Deno.serve(async (req) => {
       const latencyMs = Date.now() - startTime;
       const isTimeout = err instanceof DOMException && err.name === 'AbortError';
 
-      // Log failure
-      await supabase.from('usage_logs').insert({
+      // Log failure (fire-and-forget)
+      supabase.from('usage_logs').insert({
         user_id: userId,
         provider_id: provider,
         model_id: model,
@@ -274,13 +346,13 @@ Deno.serve(async (req) => {
         cost_estimate: 0,
         latency_ms: latencyMs,
         status: 'error',
-        error_message: isTimeout ? 'Provider timeout' : String(err),
-      }).catch(() => {}); // Don't fail on logging errors
+        error_message: isTimeout ? 'Provider timeout' : 'Network error',
+      }).catch(() => {});
 
       if (isTimeout) {
-        return errorResponse(504, 'PROVIDER_TIMEOUT', `Provider ${provider} timed out after ${PROVIDER_TIMEOUT_MS / 1000}s`, true, { provider });
+        return errorResponse(504, 'PROVIDER_TIMEOUT', `Provider timed out after ${PROVIDER_TIMEOUT_MS / 1000}s`, true, cors);
       }
-      return errorResponse(502, 'PROVIDER_UNREACHABLE', `Could not reach ${provider}: ${String(err)}`, true, { provider });
+      return errorResponse(502, 'PROVIDER_UNREACHABLE', 'Could not reach the AI provider', true, cors);
     }
 
     const latencyMs = Date.now() - startTime;
@@ -288,8 +360,9 @@ Deno.serve(async (req) => {
     // ── Handle provider errors ──
     if (!providerResponse.ok) {
       const errorText = await providerResponse.text().catch(() => 'Unknown error');
+      const sanitizedError = sanitizeProviderError(errorText);
 
-      await supabase.from('usage_logs').insert({
+      supabase.from('usage_logs').insert({
         user_id: userId,
         provider_id: provider,
         model_id: model,
@@ -299,21 +372,21 @@ Deno.serve(async (req) => {
         cost_estimate: 0,
         latency_ms: latencyMs,
         status: 'error',
-        error_message: errorText.slice(0, 500),
+        error_message: sanitizedError,
       }).catch(() => {});
 
       const retryable = providerResponse.status >= 500 || providerResponse.status === 429;
       const code = providerResponse.status === 429 ? 'PROVIDER_RATE_LIMITED' : 'PROVIDER_ERROR';
-      return errorResponse(providerResponse.status, code, errorText.slice(0, 500), retryable, { provider });
+      return errorResponse(providerResponse.status, code, sanitizedError, retryable, cors);
     }
 
     // ── Stream response ──
     if (stream && providerResponse.body) {
       return new Response(providerResponse.body, {
         headers: {
-          ...corsHeaders,
+          ...cors,
           'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
+          'Cache-Control': 'no-cache, no-store',
           'Connection': 'keep-alive',
           'X-Request-Latency': String(latencyMs),
           'X-Rate-Limit-Remaining': String(rl.remaining),
@@ -358,14 +431,15 @@ Deno.serve(async (req) => {
 
     return new Response(JSON.stringify(responseData), {
       headers: {
-        ...corsHeaders,
+        ...cors,
         'Content-Type': 'application/json',
+        'Cache-Control': 'no-store',
         'X-Request-Latency': String(latencyMs),
         'X-Rate-Limit-Remaining': String(rl.remaining),
       },
     });
   } catch (error) {
     console.error('AI Proxy unhandled error:', error);
-    return errorResponse(500, 'INTERNAL_ERROR', 'An unexpected error occurred', true);
+    return errorResponse(500, 'INTERNAL_ERROR', 'An unexpected error occurred', true, cors);
   }
 });

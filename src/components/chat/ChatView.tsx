@@ -11,10 +11,10 @@ import { MODEL_REGISTRY } from '../../constants/model-registry';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import styles from './ChatView.module.css';
 
+// Per UI wiki: easing-entrance-ease-out, duration-max-300ms
 type Ease4 = [number, number, number, number];
 const EASE_OUT_QUART: Ease4 = [0.25, 1, 0.5, 1];
 const EASE_OUT_EXPO: Ease4 = [0.16, 1, 0.3, 1];
-const EASE_OUT_QUINT: Ease4 = [0.22, 1, 0.36, 1];
 
 interface ChatViewProps {
   conversationId: string;
