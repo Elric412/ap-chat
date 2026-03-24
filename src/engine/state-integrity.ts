@@ -1,14 +1,11 @@
 /**
  * State Integrity Engine
  * 
- * Self-healing checks for store state corruption:
- * - Orphaned message nodes
- * - Broken parent-child links
- * - Missing root nodes
- * - Circular reference detection
- * - Duplicate node IDs
+ * Self-healing checks for store state corruption.
  * 
- * Runs periodically and on-demand after errors.
+ * Per coding-standards skill (CRITICAL immutability rule):
+ * Auto-repair returns NEW objects; original nodes are NEVER mutated.
+ * The caller is responsible for applying returned patches to the store.
  */
 
 import type { MessageNode } from '../types/messages';
@@ -17,6 +14,8 @@ import type { Conversation } from '../types/conversations';
 export interface IntegrityReport {
   healthy: boolean;
   issues: IntegrityIssue[];
+  /** Map of nodeId → patched node (only nodes that were repaired) */
+  patches: Map<string, Partial<Pick<MessageNode, 'childIds' | 'activeChildIndex'>>>;
   repaired: number;
   checkedAt: number;
 }
@@ -31,7 +30,9 @@ export interface IntegrityIssue {
 
 /**
  * Run full integrity check on a message map.
- * Returns report and optionally auto-repairs safe issues.
+ * 
+ * IMPORTANT: This function is PURE — it never mutates the input messageMap.
+ * Repairs are returned as a `patches` map that the caller applies via immer.
  */
 export function checkMessageIntegrity(
   messageMap: Map<string, MessageNode>,
@@ -40,6 +41,7 @@ export function checkMessageIntegrity(
 ): IntegrityReport {
   const issues: IntegrityIssue[] = [];
   let repaired = 0;
+  const patches = new Map<string, Partial<Pick<MessageNode, 'childIds' | 'activeChildIndex'>>>();
 
   // 1. Check all root nodes exist
   for (const conv of conversations) {
@@ -67,10 +69,13 @@ export function checkMessageIntegrity(
       });
     }
 
-    // Check children exist
+    // Check children exist — collect valid children without mutating
     const validChildren: string[] = [];
+    let hasBrokenChild = false;
+
     for (const childId of node.childIds) {
       if (!messageMap.has(childId)) {
+        hasBrokenChild = true;
         issues.push({
           type: 'broken_link',
           severity: 'warning',
@@ -84,18 +89,10 @@ export function checkMessageIntegrity(
       }
     }
 
-    // Auto-repair: remove broken child references
-    if (autoRepair && validChildren.length !== node.childIds.length) {
-      node.childIds = validChildren;
-      // Fix active child index if out of bounds
-      if (node.activeChildIndex >= node.childIds.length) {
-        node.activeChildIndex = Math.max(0, node.childIds.length - 1);
-      }
-    }
-
     // Check for duplicate children
-    const childSet = new Set(node.childIds);
-    if (childSet.size !== node.childIds.length) {
+    const childSet = new Set(validChildren);
+    const hasDuplicates = childSet.size !== validChildren.length;
+    if (hasDuplicates) {
       issues.push({
         type: 'duplicate_child',
         severity: 'warning',
@@ -103,25 +100,34 @@ export function checkMessageIntegrity(
         description: `Node ${nodeId.slice(0, 8)}… has duplicate children`,
         autoRepaired: autoRepair,
       });
-      if (autoRepair) {
-        node.childIds = [...childSet];
-        repaired++;
-      }
+      if (autoRepair) repaired++;
     }
 
+    // Compute repaired children list (deduplicated, only valid)
+    const repairedChildren = hasDuplicates ? [...childSet] : validChildren;
+
     // Check activeChildIndex bounds
-    if (node.childIds.length > 0 && node.activeChildIndex >= node.childIds.length) {
+    let repairedIndex = node.activeChildIndex;
+    if (repairedChildren.length > 0 && repairedIndex >= repairedChildren.length) {
       issues.push({
         type: 'invalid_index',
         severity: 'warning',
         nodeId,
-        description: `Node ${nodeId.slice(0, 8)}… activeChildIndex ${node.activeChildIndex} exceeds children count ${node.childIds.length}`,
+        description: `Node ${nodeId.slice(0, 8)}… activeChildIndex ${repairedIndex} exceeds children count ${repairedChildren.length}`,
         autoRepaired: autoRepair,
       });
       if (autoRepair) {
-        node.activeChildIndex = node.childIds.length - 1;
+        repairedIndex = repairedChildren.length - 1;
         repaired++;
       }
+    }
+
+    // Build patch if anything changed (immutable: never touch original)
+    if (autoRepair && (hasBrokenChild || hasDuplicates || repairedIndex !== node.activeChildIndex)) {
+      patches.set(nodeId, {
+        childIds: repairedChildren,
+        activeChildIndex: repairedIndex,
+      });
     }
   }
 
@@ -130,7 +136,7 @@ export function checkMessageIntegrity(
   const reachable = new Set<string>();
 
   function walk(nodeId: string, visited: Set<string>): void {
-    if (visited.has(nodeId)) return; // Circular protection
+    if (visited.has(nodeId)) return;
     visited.add(nodeId);
     reachable.add(nodeId);
     const node = messageMap.get(nodeId);
@@ -156,7 +162,7 @@ export function checkMessageIntegrity(
     }
   }
 
-  // 4. Circular reference detection (additional check)
+  // 4. Circular reference detection
   for (const rootId of rootIds) {
     const visited = new Set<string>();
     const stack = new Set<string>();
@@ -190,6 +196,7 @@ export function checkMessageIntegrity(
   return {
     healthy: issues.filter((i) => i.severity === 'error').length === 0,
     issues,
+    patches,
     repaired,
     checkedAt: Date.now(),
   };
@@ -198,6 +205,7 @@ export function checkMessageIntegrity(
 /**
  * Quick health check — fast path for periodic checks.
  * Only verifies root nodes and active branch integrity.
+ * Pure function — no side effects.
  */
 export function quickHealthCheck(
   messageMap: Map<string, MessageNode>,
@@ -206,11 +214,10 @@ export function quickHealthCheck(
   const root = messageMap.get(rootNodeId);
   if (!root) return false;
 
-  // Walk active branch to verify chain
   let current = root;
   const visited = new Set<string>();
   let depth = 0;
-  const MAX_DEPTH = 10_000; // Safety cap
+  const MAX_DEPTH = 10_000;
 
   while (current.childIds.length > 0 && depth < MAX_DEPTH) {
     if (visited.has(current.id)) return false; // Circular

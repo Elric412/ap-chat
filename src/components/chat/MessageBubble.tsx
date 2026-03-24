@@ -31,12 +31,13 @@ interface MessageBubbleProps {
 }
 
 // Bespoke motion variants — cinematic message entrances
+// Per UI wiki: timing-under-300ms, easing-entrance-ease-out, physics-subtle-deformation
 const bubbleVariants = {
   hidden: (isUser: boolean) => ({
     opacity: 0,
-    y: 16,
-    x: isUser ? 8 : -8,
-    scale: 0.97,
+    y: 12,
+    x: isUser ? 6 : -6,
+    scale: 0.98,
   }),
   visible: {
     opacity: 1,
@@ -44,8 +45,8 @@ const bubbleVariants = {
     x: 0,
     scale: 1,
     transition: {
-      duration: 0.45,
-      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+      duration: 0.25, // ≤300ms per UI wiki rule timing-under-300ms
+      ease: [0.16, 1, 0.3, 1] as [number, number, number, number], // ease-out for entrances
     },
   },
 };
