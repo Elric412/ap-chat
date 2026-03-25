@@ -1,15 +1,19 @@
 /* ═══════════════════════════════════════════════════════════════
-   ChatInput — Apple/Vercel clean input
+   ChatInput — Liquid glass refraction input
+   Taste Skill Section 4: glass-inner-border + inner-shadow
    ═══════════════════════════════════════════════════════════════ */
 
 .inputContainer {
-  background: var(--color-surface-1);
-  border: 1px solid hsl(0, 0%, 100%, 0.06); /* Semi-transparent border — adapts to any background */
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--glass-inner-border);
   border-radius: var(--radius-2xl);
   padding: var(--space-3) var(--space-4);
   box-shadow: 
-    0 2px 4px hsl(0, 0%, 0%, 0.12),
-    0 8px 24px hsl(0, 0%, 0%, 0.16);
+    var(--glass-inner-glow),
+    0 2px 4px hsl(240, 8%, 2%, 0.12),
+    0 8px 24px hsl(240, 8%, 2%, 0.16);
   transition: border-color var(--duration-fast) var(--ease-out-quart),
               box-shadow var(--duration-fast) var(--ease-out-quart);
   position: relative;
@@ -17,7 +21,10 @@
 
 .inputContainer[data-focused="true"] {
   border-color: var(--color-border-2);
-  box-shadow: var(--shadow-lg), 0 0 0 1px hsl(0, 0%, 100%, 0.04);
+  box-shadow: 
+    var(--glass-inner-glow),
+    var(--shadow-lg),
+    0 0 0 1px hsl(0, 0%, 100%, 0.03);
 }
 
 .inputContainer[data-dragover="true"] {
@@ -192,7 +199,7 @@
 
 .textarea::placeholder {
   color: var(--color-text-3);
-  opacity: 0.5;
+  opacity: 0.45;
 }
 
 .actionBar {
@@ -290,10 +297,10 @@
 }
 
 .inputContainer[data-focused="true"] .charHint {
-  opacity: 0.3;
+  opacity: 0.25;
 }
 
-/* Send — Polished button with layered shadow anatomy */
+/* Send — Premium button with 6-layer shadow anatomy (Taste Skill Section 12.9) */
 .sendButton {
   display: flex;
   align-items: center;
@@ -310,29 +317,28 @@
               box-shadow var(--duration-fast) var(--ease-out-quart);
   -webkit-tap-highlight-color: transparent;
   box-shadow: 
-    0 1px 2px hsl(0, 0%, 0%, 0.2),
-    0 0 0 1px hsl(0, 0%, 100%, 0.08) inset;
+    0 1px 1px hsl(240, 8%, 2%, 0.18),
+    0 2px 4px hsl(240, 8%, 2%, 0.14),
+    0 0 0 1px hsl(0, 0%, 100%, 0.06) inset,
+    0 1px 0 hsl(0, 0%, 100%, 0.1) inset;
 }
 
 .sendButton:hover:not(:disabled) {
-  opacity: 0.88;
+  opacity: 0.9;
   box-shadow: 
-    0 2px 6px hsl(0, 0%, 0%, 0.25),
-    0 0 0 1px hsl(0, 0%, 100%, 0.1) inset;
+    0 2px 4px hsl(240, 8%, 2%, 0.22),
+    0 4px 10px hsl(240, 8%, 2%, 0.18),
+    0 0 0 1px hsl(0, 0%, 100%, 0.08) inset,
+    0 1px 0 hsl(0, 0%, 100%, 0.12) inset;
 }
 
 .sendButton:active:not(:disabled) {
-  transform: scale(0.92);
+  transform: scale(0.92) translateY(1px);
   transition-duration: var(--duration-instant);
 }
 
 .sendButton:disabled {
-  opacity: 0.2;
-  cursor: not-allowed;
-}
-
-.sendButton:disabled {
-  opacity: 0.2;
+  opacity: 0.18;
   cursor: not-allowed;
 }
 
@@ -358,7 +364,7 @@
 }
 
 .stopButton:active {
-  transform: scale(0.92);
+  transform: scale(0.92) translateY(1px);
   transition-duration: var(--duration-instant);
 }
 
