@@ -30,13 +30,12 @@ interface MessageBubbleProps {
   index?: number;
 }
 
-// Bespoke motion variants — cinematic message entrances
-// Per UI wiki: timing-under-300ms, easing-entrance-ease-out, physics-subtle-deformation
+// Spring physics for message entrances (Taste Skill Section 4: premium spring feel)
 const bubbleVariants = {
   hidden: (isUser: boolean) => ({
     opacity: 0,
-    y: 12,
-    x: isUser ? 6 : -6,
+    y: 10,
+    x: isUser ? 4 : -4,
     scale: 0.98,
   }),
   visible: {
@@ -45,8 +44,9 @@ const bubbleVariants = {
     x: 0,
     scale: 1,
     transition: {
-      duration: 0.25, // ≤300ms per UI wiki rule timing-under-300ms
-      ease: [0.16, 1, 0.3, 1] as [number, number, number, number], // ease-out for entrances
+      type: 'spring' as const,
+      stiffness: 420,
+      damping: 30,
     },
   },
 };

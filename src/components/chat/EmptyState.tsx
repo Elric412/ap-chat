@@ -1,4 +1,4 @@
-import { MessageSquare, Key, ArrowRight, Sparkles, Code2, Lightbulb, PenTool } from 'lucide-react';
+import { Key, ArrowRight, Sparkles, Code2, Lightbulb, PenTool } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../store';
@@ -47,42 +47,55 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
 
   return (
     <div className={styles.emptyState}>
+      {/* Asymmetric hero — left-aligned (centered BANNED for DESIGN_VARIANCE > 4) */}
       <motion.div
         className={styles.hero}
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className={styles.orbitalContainer}>
-          <div className={styles.orbitalRing} />
-          <div className={styles.orbitalRingInner} />
-          <div className={styles.iconContainer}>
-            <MessageSquare size={24} aria-hidden="true" />
+        <div className={styles.heroContent}>
+          <div className={styles.tagline}>
+            <span className={styles.taglineDot} aria-hidden="true" />
+            <span>Your keys, your models</span>
           </div>
+          <h1 className={styles.title}>BYOK Chat</h1>
+          <p className={styles.subtitle}>
+            Private conversations with 30+ AI models across 8 providers. No data leaves your device.
+          </p>
+
+          {!hasKeys && (
+            <motion.button
+              className={styles.setupCta}
+              onClick={() => navigate('/settings')}
+              type="button"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                delay: 0.2,
+                type: 'spring',
+                stiffness: 400,
+                damping: 28,
+              }}
+              whileTap={{ scale: 0.97, y: 1 }}
+            >
+              <Key size={14} aria-hidden="true" />
+              Add your first API key
+              <ArrowRight size={14} aria-hidden="true" />
+            </motion.button>
+          )}
         </div>
 
-        <h1 className={styles.title}>BYOK Chat</h1>
-        <p className={styles.subtitle}>
-          Your keys. Your models. Private conversations with 30+ AI models from 8 providers.
-        </p>
+        {/* Decorative orbital — offset right */}
+        <div className={styles.orbitalContainer} aria-hidden="true">
+          <div className={styles.orbitalRing} />
+          <div className={styles.orbitalRingInner} />
+          <div className={styles.orbitalGlow} />
+        </div>
       </motion.div>
 
-      {!hasKeys ? (
-        <motion.button
-          className={styles.setupCta}
-          onClick={() => navigate('/settings')}
-          type="button"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.25, duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
-          whileHover={{ scale: 1.03, y: -1 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          <Key size={14} aria-hidden="true" />
-          Add your first API key
-          <ArrowRight size={14} aria-hidden="true" />
-        </motion.button>
-      ) : (
+      {/* Prompt grid — asymmetric 2-col zig-zag on desktop */}
+      {hasKeys && (
         <div className={styles.promptGrid}>
           {STARTER_PROMPTS.map((sp, i) => (
             <motion.button
@@ -91,15 +104,24 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
               data-color={sp.color}
               onClick={() => handlePromptClick(sp.prompt)}
               type="button"
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 + i * 0.06, duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
-              whileHover={{ y: -2, scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
+              transition={{
+                delay: 0.12 + i * 0.04,
+                type: 'spring',
+                stiffness: 380,
+                damping: 26,
+              }}
+              whileHover={{ y: -3, transition: { type: 'spring', stiffness: 500, damping: 30 } }}
+              whileTap={{ scale: 0.98, y: 1 }}
             >
-              <sp.icon size={16} className={styles.promptIcon} aria-hidden="true" />
-              <span className={styles.promptLabel}>{sp.label}</span>
-              <span className={styles.promptText}>{sp.prompt}</span>
+              <div className={styles.promptIconWrap}>
+                <sp.icon size={15} className={styles.promptIcon} aria-hidden="true" />
+              </div>
+              <div className={styles.promptBody}>
+                <span className={styles.promptLabel}>{sp.label}</span>
+                <span className={styles.promptText}>{sp.prompt}</span>
+              </div>
             </motion.button>
           ))}
         </div>
@@ -109,7 +131,7 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
         className={styles.shortcuts}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.4 }}
+        transition={{ delay: 0.5, duration: 0.3 }}
       >
         <span className={styles.shortcutHint}>
           <Kbd>⌘</Kbd><Kbd>K</Kbd> Command palette
