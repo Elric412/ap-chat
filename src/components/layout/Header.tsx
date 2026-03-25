@@ -65,8 +65,8 @@ export function Header(): JSX.Element {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.2, ease: EASE_SNAP }}
-              whileTap={buttonTap}
+              transition={{ duration: 0.2, ease: EASE_OUT }}
+              whileTap={springTap}
             >
               <Menu size={18} aria-hidden="true" />
             </motion.button>
@@ -80,7 +80,7 @@ export function Header(): JSX.Element {
           onClick={handleToggleSelector}
           whileHover={{ scale: 1.02, y: -1 }}
           whileTap={{ scale: 0.97 }}
-          transition={{ duration: 0.15, ease: EASE_SNAP }}
+          transition={{ duration: 0.15, ease: EASE_OUT }}
         >
           <motion.span
             className={styles.providerDot}
@@ -92,7 +92,7 @@ export function Header(): JSX.Element {
           <span className={styles.modelName}>{model?.displayName ?? 'Select model'}</span>
           <motion.span
             animate={{ rotate: selectorOpen ? 180 : 0 }}
-            transition={{ duration: 0.25, ease: EASE_SNAP }}
+            transition={{ duration: 0.25, ease: EASE_OUT }}
           >
             <ChevronDown size={12} className={styles.chevron} aria-hidden="true" />
           </motion.span>
@@ -112,8 +112,8 @@ export function Header(): JSX.Element {
             : 'Web search not supported by this model'
           }
           disabled={!supportsSearch}
-          whileHover={supportsSearch ? buttonHover : undefined}
-          whileTap={supportsSearch ? buttonTap : undefined}
+          whileHover={supportsSearch ? springHover : undefined}
+          whileTap={supportsSearch ? springTap : undefined}
         >
           <Globe size={13} aria-hidden="true" />
           <span className={styles.searchLabel}>Search</span>
@@ -125,7 +125,7 @@ export function Header(): JSX.Element {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
-                transition={{ duration: 0.25, ease: EASE_SNAP }}
+                transition={{ duration: 0.25, ease: EASE_OUT }}
               />
             )}
           </AnimatePresence>
@@ -147,8 +147,8 @@ export function Header(): JSX.Element {
               data-active={comparisonMode}
               onClick={handleToggleComparison}
               title="Parallel inference"
-              whileHover={buttonHover}
-              whileTap={buttonTap}
+              whileHover={springHover}
+              whileTap={springTap}
             >
               <Columns2 size={16} aria-hidden="true" />
             </motion.button>
@@ -158,8 +158,8 @@ export function Header(): JSX.Element {
               aria-label="Toggle canvas"
               data-active={canvasOpen}
               onClick={toggleCanvas}
-              whileHover={buttonHover}
-              whileTap={buttonTap}
+              whileHover={springHover}
+              whileTap={springTap}
             >
               <PanelRight size={16} aria-hidden="true" />
             </motion.button>
@@ -170,8 +170,8 @@ export function Header(): JSX.Element {
           type="button"
           aria-label="Toggle parameters"
           onClick={() => setParamDrawerOpen(!paramDrawerOpen)}
-          whileHover={buttonHover}
-          whileTap={buttonTap}
+          whileHover={springHover}
+          whileTap={springTap}
         >
           <SlidersHorizontal size={16} aria-hidden="true" />
         </motion.button>
@@ -181,8 +181,8 @@ export function Header(): JSX.Element {
             type="button"
             aria-label="Settings"
             onClick={() => navigate('/settings')}
-            whileHover={buttonHover}
-            whileTap={buttonTap}
+            whileHover={springHover}
+            whileTap={springTap}
           >
             <Settings size={16} aria-hidden="true" />
           </motion.button>
