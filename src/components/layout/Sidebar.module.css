@@ -153,22 +153,23 @@
   padding: var(--space-1) var(--space-2);
   scrollbar-width: thin;
   scrollbar-color: var(--color-surface-3) transparent;
+  scroll-padding-top: var(--space-2);
 }
 
-/* ── Date grouping ── */
+/* ── Date grouping — human-readable sections ── */
 .dateGroup {
-  margin-bottom: var(--space-0-5);
+  margin-bottom: var(--space-1);
 }
 
 .dateLabel {
   display: block;
-  padding: var(--space-3) var(--space-3) var(--space-1);
+  padding: var(--space-4) var(--space-3) var(--space-1-5);
   font-size: var(--text-micro);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-semibold);
   color: var(--color-text-3);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  opacity: 0.5;
+  opacity: 0.45;
 }
 
 /* ── Empty state ── */
