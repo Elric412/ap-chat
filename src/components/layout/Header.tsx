@@ -53,9 +53,9 @@ export function Header(): JSX.Element {
     <>
       <motion.header
         className={styles.header}
-        initial={{ opacity: 0, y: -8 }}
+        initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: EASE_OUT }}
+        transition={{ duration: 0.28, ease: EASE_OUT }}
       >
         {/* Mobile menu toggle */}
         <AnimatePresence>

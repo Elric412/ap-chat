@@ -1,9 +1,9 @@
 /**
- * PresetMenu — Premium categorized preset selector
+ * PresetMenu — Bottom-sheet on mobile, centered modal on desktop
  * 
- * Agency-grade modal panel with grouped presets,
- * parameter badges, keyboard navigation (↑↓ Enter Esc, 1-9),
- * and framer-motion entrance/exit. Uses portal to avoid z-index issues.
+ * Agency-grade preset selector with grouped presets, parameter badges,
+ * keyboard navigation (↑↓ Enter Esc, 1-9), and spring-physics motion.
+ * Uses portal to avoid z-index issues.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, Thermometer, Brain, Hash } from 'lucide-react';
 import { getAllPresets, type Preset } from '../../constants/presets';
 import type { InferenceParameters } from '../../types/parameters';
+import { useMediaQuery } from '../../hooks/use-media-query';
 import styles from './PresetMenu.module.css';
 
 interface PresetMenuProps {
@@ -19,6 +20,10 @@ interface PresetMenuProps {
   onClose: () => void;
   onApply: (presetId: string) => void;
 }
+
+/* ── Easing curves (Impeccable: ease-out-expo for entrances) ── */
+const EASE_OUT_EXPO: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const EASE_IN_QUART: [number, number, number, number] = [0.5, 0, 0.75, 0];
 
 /* ── Category grouping ── */
 const CATEGORY_ORDER = ['General Purpose', 'Coding', 'Writing', 'Analysis'] as const;
@@ -57,6 +62,7 @@ export function PresetMenu({ open, onClose, onApply }: PresetMenuProps) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const menuRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const presets = useMemo(() => getAllPresets(), []);
   const grouped = useMemo(() => categorize(presets), [presets]);
@@ -68,19 +74,16 @@ export function PresetMenu({ open, onClose, onApply }: PresetMenuProps) {
       const items = grouped.get(cat);
       if (items) result.push(...items);
     }
-    // Append any uncategorized
     for (const [cat, items] of grouped) {
       if (!(CATEGORY_ORDER as readonly string[]).includes(cat)) result.push(...items);
     }
     return result;
   }, [grouped]);
 
-  // Reset selection when opening
   useEffect(() => {
     if (open) setSelectedIdx(0);
   }, [open]);
 
-  // Scroll selected item into view
   useEffect(() => {
     if (!open || !bodyRef.current) return;
     const items = bodyRef.current.querySelectorAll('[data-preset-idx]');
@@ -88,7 +91,6 @@ export function PresetMenu({ open, onClose, onApply }: PresetMenuProps) {
     target?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }, [selectedIdx, open]);
 
-  // Keyboard handler
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
@@ -110,7 +112,6 @@ export function PresetMenu({ open, onClose, onApply }: PresetMenuProps) {
           onClose();
           break;
         default:
-          // Number keys 1-9 for quick select
           if (/^[1-9]$/.test(e.key)) {
             const idx = parseInt(e.key) - 1;
             if (idx < flatList.length) {
@@ -124,7 +125,6 @@ export function PresetMenu({ open, onClose, onApply }: PresetMenuProps) {
     return () => window.removeEventListener('keydown', handler);
   }, [open, selectedIdx, flatList, onApply, onClose]);
 
-  // Click outside
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
@@ -136,26 +136,49 @@ export function PresetMenu({ open, onClose, onApply }: PresetMenuProps) {
     return () => document.removeEventListener('mousedown', handler);
   }, [open, onClose]);
 
+  // Motion variants: bottom-sheet slide on mobile, scale-fade on desktop
+  const menuVariants = isMobile
+    ? {
+        initial: { y: '100%', opacity: 0.8 },
+        animate: { y: 0, opacity: 1 },
+        exit: { y: '100%', opacity: 0 },
+      }
+    : {
+        initial: { opacity: 0, y: 24, scale: 0.96 },
+        animate: { opacity: 1, y: 0, scale: 1 },
+        exit: { opacity: 0, y: 12, scale: 0.97 },
+      };
+
+  const menuTransition = isMobile
+    ? { type: 'spring' as const, stiffness: 380, damping: 34, mass: 0.8 }
+    : { duration: 0.28, ease: EASE_OUT_EXPO };
+
+  const exitTransition = isMobile
+    ? { type: 'spring' as const, stiffness: 500, damping: 40 }
+    : { duration: 0.18, ease: EASE_IN_QUART };
+
   let globalIdx = 0;
 
   return createPortal(
     <AnimatePresence>
       {open && (
         <>
-          <motion.div 
+          <motion.div
             className={styles.backdrop}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.2, ease: EASE_OUT_EXPO }}
           />
           <motion.div
             ref={menuRef}
             className={styles.menu}
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.97 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            {...menuVariants}
+            transition={menuTransition}
+            exit={{
+              ...menuVariants.exit,
+              transition: exitTransition,
+            }}
           >
             {/* Header */}
             <div className={styles.header}>
@@ -191,9 +214,13 @@ export function PresetMenu({ open, onClose, onApply }: PresetMenuProps) {
                           onClick={() => onApply(preset.id)}
                           onMouseEnter={() => setSelectedIdx(idx)}
                           type="button"
-                          initial={{ opacity: 0, x: -8 }}
+                          initial={{ opacity: 0, x: -6 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.2, delay: idx * 0.02 }}
+                          transition={{
+                            duration: 0.22,
+                            delay: Math.min(idx * 0.025, 0.15),
+                            ease: EASE_OUT_EXPO,
+                          }}
                         >
                           <span className={styles.shortcutKey}>
                             {idx < 9 ? idx + 1 : '·'}
