@@ -20,11 +20,12 @@
 }
 
 .inputContainer[data-focused="true"] {
-  border-color: var(--color-border-2);
+  border-color: hsl(220, 45%, 50%, 0.25);
   box-shadow: 
     var(--glass-inner-glow),
     var(--shadow-lg),
-    0 0 0 1px hsl(0, 0%, 100%, 0.03);
+    0 0 0 1px hsl(220, 55%, 52%, 0.08),
+    0 0 20px hsl(220, 55%, 52%, 0.04);
 }
 
 .inputContainer[data-dragover="true"] {
