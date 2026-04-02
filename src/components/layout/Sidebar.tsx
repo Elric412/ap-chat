@@ -10,6 +10,7 @@ import type { Conversation } from '../../types/conversations';
 import styles from './Sidebar.module.css';
 
 type Ease4 = [number, number, number, number];
+const EASE_OUT_EXPO: Ease4 = [0.16, 1, 0.3, 1];
 const EASE_SNAP: Ease4 = [0.34, 1.56, 0.64, 1];
 
 function groupByDate(conversations: Conversation[]): { label: string; items: Conversation[] }[] {
