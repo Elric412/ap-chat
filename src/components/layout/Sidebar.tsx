@@ -182,7 +182,7 @@ export function Sidebar(): JSX.Element {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.22, ease: EASE_OUT_EXPO }}
           >
             <div className={styles.searchInputWrap}>
               <Search size={13} className={styles.searchIcon} aria-hidden="true" />
