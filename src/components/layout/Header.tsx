@@ -12,10 +12,13 @@ import styles from './Header.module.css';
 
 type Ease4 = [number, number, number, number];
 const EASE_OUT: Ease4 = [0.16, 1, 0.3, 1];
+const EASE_SNAP: Ease4 = [0.2, 0, 0, 1];
 
 // Spring physics for interactive elements (Taste Skill Section 4)
-const springTap = { scale: 0.92, transition: { type: 'spring', stiffness: 500, damping: 30 } };
-const springHover = { y: -1, transition: { type: 'spring', stiffness: 400, damping: 25 } };
+const springTap = { scale: 0.92, transition: { type: 'spring' as const, stiffness: 500, damping: 30 } };
+const springHover = { y: -1, transition: { type: 'spring' as const, stiffness: 400, damping: 25 } };
+const buttonTap = { scale: 0.95, transition: { type: 'spring' as const, stiffness: 500, damping: 30 } };
+const buttonHover = { scale: 1.05, y: -1, transition: { type: 'spring' as const, stiffness: 400, damping: 25 } };
 
 export function Header(): JSX.Element {
   const [selectorOpen, setSelectorOpen] = useState(false);
