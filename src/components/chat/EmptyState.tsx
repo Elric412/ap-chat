@@ -32,6 +32,13 @@ const STARTER_PROMPTS = [
   },
 ];
 
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+}
+
 interface EmptyStateProps {
   onSend?: (text: string) => void;
 }
@@ -47,21 +54,29 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
 
   return (
     <div className={styles.emptyState}>
-      {/* Asymmetric hero — left-aligned (centered BANNED for DESIGN_VARIANCE > 4) */}
+      {/* Human-centered hero with time-aware greeting */}
       <motion.div
         className={styles.hero}
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className={styles.heroContent}>
+          <motion.p
+            className={styles.greeting}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {getGreeting()}
+          </motion.p>
           <div className={styles.tagline}>
             <span className={styles.taglineDot} aria-hidden="true" />
             <span>Your keys, your models</span>
           </div>
-          <h1 className={styles.title}>BYOK Chat</h1>
+          <h1 className={styles.title}>What can I help with?</h1>
           <p className={styles.subtitle}>
-            Private conversations with 30+ AI models across 8 providers. No data leaves your device.
+            Private conversations with 30+ AI models. No data leaves your device.
           </p>
 
           {!hasKeys && (
@@ -72,7 +87,7 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
-                delay: 0.2,
+                delay: 0.25,
                 type: 'spring',
                 stiffness: 400,
                 damping: 28,
@@ -104,15 +119,15 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
               data-color={sp.color}
               onClick={() => handlePromptClick(sp.prompt)}
               type="button"
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
-                delay: 0.12 + i * 0.04,
+                delay: 0.15 + i * 0.05,
                 type: 'spring',
                 stiffness: 380,
-                damping: 26,
+                damping: 28,
               }}
-              whileHover={{ y: -3, transition: { type: 'spring', stiffness: 500, damping: 30 } }}
+              whileHover={{ y: -2, transition: { type: 'spring', stiffness: 500, damping: 30 } }}
               whileTap={{ scale: 0.98, y: 1 }}
             >
               <div className={styles.promptIconWrap}>
@@ -131,7 +146,7 @@ export function EmptyState({ onSend }: EmptyStateProps): JSX.Element {
         className={styles.shortcuts}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.5, duration: 0.3 }}
+        transition={{ delay: 0.55, duration: 0.35 }}
       >
         <span className={styles.shortcutHint}>
           <Kbd>⌘</Kbd><Kbd>K</Kbd> Command palette

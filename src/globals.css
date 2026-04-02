@@ -533,10 +533,25 @@ body {
   background: hsl(240, 4%, 30%, 0.35);
 }
 
-/* ── Selection — Desaturated blue ── */
+/* ── Selection — Warm, approachable highlight ── */
 ::selection {
-  background: hsl(220, 55%, 52%, 0.22);
+  background: hsl(220, 55%, 52%, 0.24);
   color: var(--color-text-1);
+}
+
+/* ── Smooth scroll for anchors ── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Placeholder — warmer tone ── */
+::placeholder {
+  transition: opacity var(--duration-fast) var(--ease-silk);
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+  opacity: 0.32;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -627,22 +642,23 @@ body {
               box-shadow var(--duration-slow) var(--ease-silk);
 }
 
-/* ── Focus for interactive elements — Clean ring ── */
+/* ── Focus for interactive elements — Warm, accessible ring ── */
 button:focus-visible,
 a:focus-visible,
 [role="button"]:focus-visible,
 [tabindex]:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--color-surface-0), 0 0 0 4px hsl(240, 4%, 50%, 0.2);
+  box-shadow: 0 0 0 2px var(--color-surface-0), 0 0 0 3.5px hsl(220, 55%, 52%, 0.35);
+  transition: box-shadow var(--duration-fast) var(--ease-out-quart);
 }
 
-/* Input focus — subtle, clean ── */
+/* Input focus — warm blue glow ── */
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
   outline: none;
-  border-color: hsl(240, 4%, 40%, 0.3) !important;
-  box-shadow: 0 0 0 1px hsl(240, 4%, 40%, 0.15) !important;
+  border-color: hsl(220, 45%, 50%, 0.35) !important;
+  box-shadow: 0 0 0 1px hsl(220, 45%, 50%, 0.15), 0 0 12px hsl(220, 55%, 52%, 0.06) !important;
 }
 
 /* ── Noise Texture — Very subtle grain ── */
