@@ -37,7 +37,7 @@
   color: var(--color-text-1);
 }
 
-/* ── Model trigger — Vercel-style pill ── */
+/* ── Model trigger — Warm interactive pill ── */
 .modelTrigger {
   display: flex;
   align-items: center;
@@ -52,10 +52,10 @@
   font-family: var(--font-sans);
   letter-spacing: var(--tracking-body);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-silk);
+  transition: all var(--duration-fast) var(--ease-out-quart);
   min-width: 0;
   -webkit-tap-highlight-color: transparent;
-  height: 32px;
+  height: 34px;
 }
 
 .modelTrigger:hover {
