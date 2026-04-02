@@ -533,10 +533,25 @@ body {
   background: hsl(240, 4%, 30%, 0.35);
 }
 
-/* ── Selection — Desaturated blue ── */
+/* ── Selection — Warm, approachable highlight ── */
 ::selection {
-  background: hsl(220, 55%, 52%, 0.22);
+  background: hsl(220, 55%, 52%, 0.24);
   color: var(--color-text-1);
+}
+
+/* ── Smooth scroll for anchors ── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Placeholder — warmer tone ── */
+::placeholder {
+  transition: opacity var(--duration-fast) var(--ease-silk);
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+  opacity: 0.32;
 }
 
 /* ═══════════════════════════════════════════════════════════════
