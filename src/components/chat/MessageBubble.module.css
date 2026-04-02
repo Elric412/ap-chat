@@ -1,12 +1,12 @@
 /* ═══════════════════════════════════════════════════════════════
-   MessageBubble — Stripe-quality message rendering
+   MessageBubble — Human-centered message rendering
    ═══════════════════════════════════════════════════════════════ */
 
 .bubble {
   position: relative;
   border-radius: var(--radius-lg);
   padding: var(--space-4) var(--space-5);
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-2);
   transition: background var(--duration-fast) var(--ease-out-quart),
               border-color var(--duration-fast) var(--ease-out-quart);
 }
