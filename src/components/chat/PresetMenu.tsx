@@ -175,7 +175,6 @@ export function PresetMenu({ open, onClose, onApply }: PresetMenuProps) {
             className={styles.menu}
             {...menuVariants}
             transition={menuTransition}
-            // @ts-expect-error framer-motion exit transition override
             exit={{
               ...menuVariants.exit,
               transition: exitTransition,
