@@ -1,17 +1,20 @@
-import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '../../store';
 import { useTheme } from '../../hooks/use-theme';
 import { useAuth } from '../../hooks/use-auth';
-import { Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare, LogIn, User, Search, X, BookOpen } from 'lucide-react';
+import {
+  Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare,
+  LogIn, User, Search, X, BookOpen, Sparkles, FolderOpen,
+  ChevronDown, Palette, Key, SlidersHorizontal, LogOut,
+} from 'lucide-react';
 import { SidebarItem } from './SidebarItem';
 import type { Conversation } from '../../types/conversations';
 import styles from './Sidebar.module.css';
 
 type Ease4 = [number, number, number, number];
 const EASE_OUT_EXPO: Ease4 = [0.16, 1, 0.3, 1];
-const EASE_SNAP: Ease4 = [0.34, 1.56, 0.64, 1];
 
 function groupByDate(conversations: Conversation[]): { label: string; items: Conversation[] }[] {
   const now = new Date();
@@ -37,27 +40,11 @@ function groupByDate(conversations: Conversation[]): { label: string; items: Con
   return order.filter((l) => groups[l]?.length).map((label) => ({ label, items: groups[label] }));
 }
 
-/** macOS Dock magnification effect */
-function useDockMagnification(itemCount: number) {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-
-  const getScale = useCallback((index: number): number => {
-    if (hoveredIndex === null) return 1;
-    const distance = Math.abs(index - hoveredIndex);
-    if (distance === 0) return 1.35;
-    if (distance === 1) return 1.15;
-    return 1;
-  }, [hoveredIndex]);
-
-  return { hoveredIndex, setHoveredIndex, getScale };
-}
-
 export function Sidebar(): JSX.Element {
   const skillConfig = useAppStore((s) => s.skillConfig);
   const setSkillPanelOpen = useAppStore((s) => s.setSkillPanelOpen);
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
   const vaultStatus = useAppStore((s) => s.vaultStatus);
-  const keyRecords = useAppStore((s) => s.keyRecords);
   const conversations = useAppStore((s) => s.conversations);
   const activeConversationId = useAppStore((s) => s.activeConversationId);
   const conversationsLoaded = useAppStore((s) => s.conversationsLoaded);
@@ -72,8 +59,7 @@ export function Sidebar(): JSX.Element {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
-
-  const configuredCount = keyRecords.length;
+  const [accountOpen, setAccountOpen] = useState(false);
 
   const filteredConversations = useMemo(() => {
     if (!searchQuery.trim()) return conversations;
@@ -84,9 +70,7 @@ export function Sidebar(): JSX.Element {
   const grouped = useMemo(() => groupByDate(filteredConversations), [filteredConversations]);
 
   useEffect(() => {
-    if (!conversationsLoaded) {
-      void loadConversations();
-    }
+    if (!conversationsLoaded) void loadConversations();
   }, [conversationsLoaded, loadConversations]);
 
   const handleNewChat = useCallback(() => {
@@ -101,80 +85,83 @@ export function Sidebar(): JSX.Element {
 
   const handleDeleteConversation = useCallback((id: string) => {
     void deleteConversation(id);
-    if (activeConversationId === id) {
-      navigate('/');
-    }
+    if (activeConversationId === id) navigate('/');
   }, [deleteConversation, activeConversationId, navigate]);
 
-  // Dock items config
-  const dockItems = useMemo(() => {
-    const items: { icon: typeof User; label: string; onClick: () => void; active?: boolean }[] = [];
-
-    if (user) {
-      items.push({
-        icon: User,
-        label: user.email?.split('@')[0] ?? 'Account',
-        onClick: () => void signOut(),
-        active: false,
-      });
-    } else {
-      items.push({
-        icon: LogIn,
-        label: 'Sign in',
-        onClick: () => navigate('/auth'),
-      });
-    }
-
-    items.push({
+  const shortcuts = useMemo(() => [
+    {
+      icon: Plus,
+      label: 'New chat',
+      onClick: handleNewChat,
+    },
+    {
       icon: BookOpen,
       label: `Skills${skillConfig.mode !== 'disabled' ? ' ●' : ''}`,
       onClick: () => setSkillPanelOpen(true),
-    });
+    },
+    {
+      icon: Sparkles,
+      label: 'Artifacts',
+      onClick: () => {},
+    },
+    {
+      icon: FolderOpen,
+      label: 'Projects',
+      onClick: () => {},
+    },
+  ], [handleNewChat, skillConfig.mode, setSkillPanelOpen]);
 
-    items.push({
-      icon: vaultStatus === 'unlocked' ? Unlock : vaultStatus === 'locked' ? Lock : Settings,
-      label: vaultStatus === 'unlocked' ? `Keys (${configuredCount})` : 'Settings',
+  const accountActions = useMemo(() => [
+    {
+      icon: SlidersHorizontal,
+      label: 'Behaviour',
+      description: 'AI personality & response style',
+      onClick: () => navigate('/settings'),
+    },
+    {
+      icon: Palette,
+      label: 'Appearance',
+      description: resolvedTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode',
+      onClick: toggleTheme,
+      trailing: resolvedTheme === 'dark' ? Sun : Moon,
+    },
+    {
+      icon: Key,
+      label: 'API Keys',
+      description: vaultStatus === 'unlocked' ? 'Vault unlocked' : 'Configure providers',
+      onClick: () => navigate('/settings'),
+      trailing: vaultStatus === 'unlocked' ? Unlock : Lock,
+    },
+    {
+      icon: Settings,
+      label: 'Settings',
+      description: 'All preferences',
       onClick: () => navigate('/settings'),
       active: location.pathname === '/settings',
-    });
+    },
+  ], [resolvedTheme, toggleTheme, vaultStatus, navigate, location.pathname]);
 
-    items.push({
-      icon: resolvedTheme === 'dark' ? Sun : Moon,
-      label: resolvedTheme === 'dark' ? 'Light mode' : 'Dark mode',
-      onClick: toggleTheme,
-    });
-
-    return items;
-  }, [user, signOut, navigate, vaultStatus, configuredCount, location.pathname, resolvedTheme, toggleTheme, skillConfig.mode, setSkillPanelOpen]);
-
-  const { hoveredIndex, setHoveredIndex, getScale } = useDockMagnification(dockItems.length);
-  const [tooltipIndex, setTooltipIndex] = useState<number | null>(null);
+  const displayName = user?.email?.split('@')[0] ?? 'Guest';
 
   return (
     <nav className={styles.sidebar} data-collapsed={sidebarCollapsed} aria-label="Sidebar">
+      {/* ── Search header ── */}
       <div className={styles.sidebarHeader}>
-        <span className={styles.appName}>BYOK Chat</span>
-        <div className={styles.headerActions}>
-          <button
-            className={styles.iconBtn}
-            aria-label="Search conversations"
-            type="button"
-            onClick={() => setSearchOpen(!searchOpen)}
-          >
-            <Search size={15} aria-hidden="true" />
-          </button>
-          <button
-            className={styles.newChatButton}
-            aria-label="New conversation"
-            type="button"
-            onClick={handleNewChat}
-          >
-            <Plus size={16} aria-hidden="true" />
-          </button>
+        <div className={styles.searchToggle} onClick={() => setSearchOpen(!searchOpen)}>
+          <Search size={15} className={styles.searchHeaderIcon} aria-hidden="true" />
+          <span className={styles.searchPlaceholder}>Search</span>
         </div>
+        <button
+          className={styles.newChatButton}
+          aria-label="New conversation"
+          type="button"
+          onClick={handleNewChat}
+        >
+          <Plus size={16} aria-hidden="true" />
+        </button>
       </div>
 
-      {/* Search bar */}
+      {/* ── Animated search bar ── */}
       <AnimatePresence>
         {searchOpen && (
           <motion.div
@@ -182,7 +169,7 @@ export function Sidebar(): JSX.Element {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: EASE_OUT_EXPO }}
+            transition={{ duration: 0.2, ease: EASE_OUT_EXPO }}
           >
             <div className={styles.searchInputWrap}>
               <Search size={13} className={styles.searchIcon} aria-hidden="true" />
@@ -210,6 +197,22 @@ export function Sidebar(): JSX.Element {
         )}
       </AnimatePresence>
 
+      {/* ── Shortcuts ── */}
+      <div className={styles.shortcuts}>
+        {shortcuts.map((item) => (
+          <button
+            key={item.label}
+            className={styles.shortcutItem}
+            onClick={item.onClick}
+            type="button"
+          >
+            <item.icon size={16} aria-hidden="true" />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* ── Chat history ── */}
       <div className={styles.conversationList}>
         {filteredConversations.length === 0 ? (
           <div className={styles.emptyList}>
@@ -237,51 +240,88 @@ export function Sidebar(): JSX.Element {
         )}
       </div>
 
-      {/* Conversation count */}
-      {conversations.length > 0 && (
-        <div className={styles.convCount}>
-          <span>{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</span>
-        </div>
-      )}
-
-      {/* macOS Dock Footer */}
-      <div
-        className={styles.sidebarFooter}
-        onMouseLeave={() => { setHoveredIndex(null); setTooltipIndex(null); }}
-      >
-        {dockItems.map((item, i) => (
-          <motion.button
-            key={item.label}
-            className={styles.dockItem}
-            onClick={item.onClick}
-            type="button"
-            data-active={item.active}
-            aria-label={item.label}
-            onMouseEnter={() => { setHoveredIndex(i); setTooltipIndex(i); }}
-            onMouseLeave={() => setTooltipIndex(null)}
-            animate={{
-              scale: getScale(i),
-              y: hoveredIndex === i ? -4 : 0,
-            }}
-            transition={{ duration: 0.2, ease: EASE_SNAP }}
-            whileTap={{ scale: 0.88 }}
+      {/* ── Account section ── */}
+      <div className={styles.accountSection}>
+        <button
+          className={styles.accountTrigger}
+          onClick={() => setAccountOpen(!accountOpen)}
+          type="button"
+        >
+          <div className={styles.accountAvatar}>
+            {user ? (
+              <span>{displayName.charAt(0).toUpperCase()}</span>
+            ) : (
+              <User size={14} aria-hidden="true" />
+            )}
+          </div>
+          <span className={styles.accountName}>{displayName}</span>
+          <motion.div
+            animate={{ rotate: accountOpen ? 180 : 0 }}
+            transition={{ duration: 0.2, ease: EASE_OUT_EXPO }}
+            className={styles.accountChevron}
           >
-            <item.icon size={16} aria-hidden="true" />
-            <AnimatePresence>
-              {tooltipIndex === i && (
-                <motion.span
-                  className={styles.dockTooltip}
-                  initial={{ opacity: 0, y: 4, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 4, scale: 0.9 }}
-                  transition={{ duration: 0.15, ease: EASE_SNAP }}
-                >
-                  {item.label}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </motion.button>
-        ))}
+            <ChevronDown size={14} aria-hidden="true" />
+          </motion.div>
+        </button>
+
+        <AnimatePresence>
+          {accountOpen && (
+            <motion.div
+              className={styles.accountMenu}
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: EASE_OUT_EXPO }}
+            >
+              <div className={styles.accountMenuInner}>
+                {accountActions.map((action) => (
+                  <button
+                    key={action.label}
+                    className={styles.accountMenuItem}
+                    onClick={action.onClick}
+                    type="button"
+                    data-active={action.active}
+                  >
+                    <action.icon size={15} aria-hidden="true" />
+                    <div className={styles.accountMenuText}>
+                      <span className={styles.accountMenuLabel}>{action.label}</span>
+                      <span className={styles.accountMenuDesc}>{action.description}</span>
+                    </div>
+                    {action.trailing && (
+                      <action.trailing size={13} className={styles.accountMenuTrailing} aria-hidden="true" />
+                    )}
+                  </button>
+                ))}
+
+                {/* Auth action */}
+                {user ? (
+                  <button
+                    className={`${styles.accountMenuItem} ${styles.accountMenuDanger}`}
+                    onClick={() => void signOut()}
+                    type="button"
+                  >
+                    <LogOut size={15} aria-hidden="true" />
+                    <div className={styles.accountMenuText}>
+                      <span className={styles.accountMenuLabel}>Sign out</span>
+                    </div>
+                  </button>
+                ) : (
+                  <button
+                    className={styles.accountMenuItem}
+                    onClick={() => navigate('/auth')}
+                    type="button"
+                  >
+                    <LogIn size={15} aria-hidden="true" />
+                    <div className={styles.accountMenuText}>
+                      <span className={styles.accountMenuLabel}>Sign in</span>
+                      <span className={styles.accountMenuDesc}>Sync across devices</span>
+                    </div>
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );
