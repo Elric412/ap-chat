@@ -7,7 +7,7 @@ import { useAuth } from '../../hooks/use-auth';
 import {
   Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare,
   LogIn, User, Search, X, BookOpen, Sparkles, FolderOpen,
-  ChevronDown, Palette, Key, SlidersHorizontal, LogOut,
+  Palette, Key, SlidersHorizontal, LogOut,
 } from 'lucide-react';
 import { SidebarItem } from './SidebarItem';
 import type { Conversation } from '../../types/conversations';
