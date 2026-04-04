@@ -185,17 +185,13 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
                   No models match your search
                 </motion.div>
               )}
-              {Array.from(currentGrouped.entries()).map(([providerId, models], groupIdx) => {
+              {Array.from(currentGrouped.entries()).map(([providerId, models]) => {
                 const meta = PROVIDER_META[providerId];
                 const hasKey = providerHasKey.has(providerId);
                 return (
-                  <motion.div
+                  <div
                     key={providerId}
                     className={styles.providerGroup}
-                    custom={groupIdx}
-                    variants={groupVariants}
-                    initial="hidden"
-                    animate="visible"
                   >
                     <div className={styles.providerLabel}>
                       <span
@@ -206,8 +202,8 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
                       {meta.displayName}
                       {!hasKey && <span className={styles.noKey}>No key</span>}
                     </div>
-                    {models.map((model, modelIdx) => (
-                      <motion.button
+                    {models.map((model) => (
+                      <button
                         key={model.id}
                         className={styles.modelItem}
                         data-selected={model.id === selectedModelId}
@@ -215,15 +211,6 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
                         role="option"
                         aria-selected={model.id === selectedModelId}
                         type="button"
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{
-                          delay: groupIdx * 0.05 + modelIdx * 0.03,
-                          duration: 0.3,
-                          ease: EASE_OUT,
-                        }}
-                        whileHover={{ x: 3, transition: { duration: 0.15, ease: EASE_SNAP } }}
-                        whileTap={{ scale: 0.98 }}
                       >
                         <div className={styles.modelInfo}>
                           <div className={styles.modelName}>{model.displayName}</div>
@@ -238,9 +225,9 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
                           <span className={styles.capDot} data-active={model.capabilities.supportsToolUse} title="Tools" />
                           <span className={styles.capDot} data-active={model.capabilities.supportsWebSearch} title="Search" />
                         </div>
-                      </motion.button>
+                      </button>
                     ))}
-                  </motion.div>
+                  </div>
                 );
               })}
 
