@@ -1,11 +1,12 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ArrowLeft, Palette, SlidersHorizontal, Key, Shield, BookOpen,
-  Info, Lock, Sun, Moon, Monitor, ChevronDown, Fingerprint,
-  RefreshCw, Eye, EyeOff, Zap, MessageSquare, Sparkles,
-  LogOut, LogIn, User,
+  ArrowLeft, Palette, SlidersHorizontal, Key, Shield, Info,
+  Lock, Sun, Moon, Monitor, Fingerprint, Eye,
+  LogOut, LogIn, Sparkles, Zap, MessageSquare, Code2,
+  Type, Globe, BellRing, Trash2, Download, Upload,
+  Clock, Database, Languages,
 } from 'lucide-react';
 import { KeyManagement } from '../components/vault/KeyManagement';
 import { SystemPromptEditor } from '../components/system-prompt/SystemPromptEditor';
@@ -17,9 +18,6 @@ import { Slider } from '../components/ui/slider';
 import type { ThemeMode, DensityMode } from '../types/ui';
 import styles from './SettingsPage.module.css';
 
-type Ease4 = [number, number, number, number];
-const EASE_OUT_EXPO: Ease4 = [0.16, 1, 0.3, 1];
-
 type SettingsTab = 'appearance' | 'behaviour' | 'api-keys' | 'security' | 'about';
 
 const TABS: { id: SettingsTab; label: string; icon: typeof Palette }[] = [
@@ -29,12 +27,6 @@ const TABS: { id: SettingsTab; label: string; icon: typeof Palette }[] = [
   { id: 'security', label: 'Security', icon: Shield },
   { id: 'about', label: 'About', icon: Info },
 ];
-
-const contentVariants = {
-  enter: { opacity: 0, y: 8 },
-  center: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -4 },
-};
 
 // ─── Animation speed ───
 const ANIM_SPEED_KEY = 'byok-anim-speed';
@@ -57,14 +49,10 @@ interface BehaviourPrefs {
   codeWrap: boolean;
   markdownRendering: boolean;
   compactMessages: boolean;
-}
-
-function getStoredBehaviour(): BehaviourPrefs {
-  try {
-    const v = localStorage.getItem(BEHAVIOUR_KEY);
-    if (v) return { ...defaultBehaviour, ...JSON.parse(v) };
-  } catch { /* noop */ }
-  return defaultBehaviour;
+  sendWithEnter: boolean;
+  codeHighlighting: boolean;
+  enableNotifications: boolean;
+  locale: string;
 }
 
 const defaultBehaviour: BehaviourPrefs = {
@@ -74,7 +62,19 @@ const defaultBehaviour: BehaviourPrefs = {
   codeWrap: false,
   markdownRendering: true,
   compactMessages: false,
+  sendWithEnter: true,
+  codeHighlighting: true,
+  enableNotifications: false,
+  locale: 'en',
 };
+
+function getStoredBehaviour(): BehaviourPrefs {
+  try {
+    const v = localStorage.getItem(BEHAVIOUR_KEY);
+    if (v) return { ...defaultBehaviour, ...JSON.parse(v) };
+  } catch { /* noop */ }
+  return defaultBehaviour;
+}
 
 // ─── Security prefs ───
 const SECURITY_KEY = 'byok-security';
@@ -82,7 +82,17 @@ interface SecurityPrefs {
   autoLock: boolean;
   autoLockMinutes: number;
   clearOnClose: boolean;
+  redactSensitive: boolean;
+  disableExternalRequests: boolean;
 }
+
+const defaultSecurity: SecurityPrefs = {
+  autoLock: true,
+  autoLockMinutes: 15,
+  clearOnClose: false,
+  redactSensitive: true,
+  disableExternalRequests: false,
+};
 
 function getStoredSecurity(): SecurityPrefs {
   try {
@@ -92,25 +102,44 @@ function getStoredSecurity(): SecurityPrefs {
   return defaultSecurity;
 }
 
-const defaultSecurity: SecurityPrefs = {
-  autoLock: true,
-  autoLockMinutes: 15,
-  clearOnClose: false,
-};
-
 // ─── Toggle component ───
-function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void; disabled?: boolean }) {
   return (
     <button
       className={styles.toggle}
       data-on={on}
+      data-disabled={disabled}
       onClick={onToggle}
       type="button"
       role="switch"
       aria-checked={on}
+      disabled={disabled}
     >
       <span className={styles.toggleDot} />
     </button>
+  );
+}
+
+// ─── Option Row ───
+function OptionRow({ icon: Icon, label, description, children }: {
+  icon: typeof Sun;
+  label: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={styles.optionRow}>
+      <div className={styles.optionIcon}>
+        <Icon size={15} aria-hidden="true" />
+      </div>
+      <div className={styles.optionInfo}>
+        <span className={styles.optionLabel}>{label}</span>
+        {description && <span className={styles.optionDescription}>{description}</span>}
+      </div>
+      <div className={styles.optionControl}>
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -137,6 +166,12 @@ export function SettingsPage(): JSX.Element {
 
   const totalModels = MODEL_REGISTRY.filter((m) => !m.deprecated).length;
   const providerCount = new Set(MODEL_REGISTRY.map((m) => m.providerId)).size;
+
+  // Sync tab from URL on mount / URL change
+  useEffect(() => {
+    const tab = searchParams.get('tab') as SettingsTab;
+    if (tab && TABS.some((t) => t.id === tab)) setActiveTab(tab);
+  }, [searchParams]);
 
   const handleTabChange = useCallback((tab: SettingsTab) => {
     setActiveTab(tab);
@@ -170,27 +205,21 @@ export function SettingsPage(): JSX.Element {
   return (
     <div className={styles.settingsPage}>
       {/* Header */}
-      <motion.div
-        className={styles.settingsHeader}
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: EASE_OUT_EXPO }}
-      >
-        <motion.button
+      <div className={styles.settingsHeader}>
+        <button
           className={styles.backBtn}
-          onClick={() => navigate('/')}
+          onClick={() => navigate(-1)}
           type="button"
-          aria-label="Back to chat"
-          whileTap={{ scale: 0.97 }}
+          aria-label="Back"
         >
           <ArrowLeft size={15} />
           <span>Back</span>
-        </motion.button>
+        </button>
         <h1 className={styles.pageTitle}>Settings</h1>
-      </motion.div>
+      </div>
 
       {/* Tab nav */}
-      <div className={styles.tabNav}>
+      <div className={styles.tabNav} role="tablist">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -198,23 +227,25 @@ export function SettingsPage(): JSX.Element {
             data-active={activeTab === tab.id}
             onClick={() => handleTabChange(tab.id)}
             type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
           >
             <tab.icon size={14} aria-hidden="true" />
-            {tab.label}
+            <span>{tab.label}</span>
           </button>
         ))}
       </div>
 
       {/* Content */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         <motion.div
           key={activeTab}
           className={styles.settingsContent}
-          variants={contentVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.18, ease: EASE_OUT_EXPO }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.1 }}
+          role="tabpanel"
         >
           {activeTab === 'appearance' && (
             <AppearanceTab
@@ -296,13 +327,7 @@ function AppearanceTab({
       {/* Theme */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Theme</span>
-        <div className={styles.optionRow}>
-          <div>
-            <span className={styles.optionLabel}>Color mode</span>
-            <span className={styles.optionDescription}>
-              Currently: {resolvedTheme} {theme === 'system' ? '(auto)' : ''}
-            </span>
-          </div>
+        <OptionRow icon={Palette} label="Color mode" description={`Currently: ${resolvedTheme}${theme === 'system' ? ' (auto)' : ''}`}>
           <div className={styles.pillGroup}>
             {themeOptions.map((opt) => (
               <button
@@ -317,17 +342,13 @@ function AppearanceTab({
               </button>
             ))}
           </div>
-        </div>
+        </OptionRow>
       </div>
 
       {/* Density */}
       <div className={styles.sectionBlock}>
-        <span className={styles.sectionLabel}>Layout density</span>
-        <div className={styles.optionRow}>
-          <div>
-            <span className={styles.optionLabel}>Interface density</span>
-            <span className={styles.optionDescription}>Adjust spacing between elements</span>
-          </div>
+        <span className={styles.sectionLabel}>Layout</span>
+        <OptionRow icon={Type} label="Interface density" description="Adjust spacing between elements">
           <div className={styles.pillGroup}>
             {densityOptions.map((opt) => (
               <button
@@ -341,17 +362,13 @@ function AppearanceTab({
               </button>
             ))}
           </div>
-        </div>
+        </OptionRow>
       </div>
 
       {/* Animation speed */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Motion</span>
-        <div className={styles.optionRow}>
-          <div>
-            <span className={styles.optionLabel}>Animation speed</span>
-            <span className={styles.optionDescription}>Control transition & animation timing</span>
-          </div>
+        <OptionRow icon={Zap} label="Animation speed" description="Control transition timing globally">
           <div className={styles.pillGroup}>
             {animOptions.map((opt) => (
               <button
@@ -365,14 +382,13 @@ function AppearanceTab({
               </button>
             ))}
           </div>
-        </div>
+        </OptionRow>
       </div>
 
       <div className={styles.infoNote}>
-        <Info size={14} aria-hidden="true" />
+        <Info size={13} aria-hidden="true" />
         <span>
-          The system respects your OS <code>prefers-reduced-motion</code> setting.
-          Setting animation to "Instant" disables all motion effects.
+          Respects <code>prefers-reduced-motion</code>. "Instant" disables all motion.
         </span>
       </div>
     </div>
@@ -396,53 +412,57 @@ function BehaviourTab({
       {/* Response */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Response</span>
-        <div className={styles.optionRow}>
-          <div>
-            <span className={styles.optionLabel}>Stream responses</span>
-            <span className={styles.optionDescription}>Show tokens as they arrive</span>
-          </div>
+        <OptionRow icon={Zap} label="Stream responses" description="Show tokens as they arrive">
           <Toggle on={behaviour.streamResponses} onToggle={() => updateBehaviour({ streamResponses: !behaviour.streamResponses })} />
-        </div>
-        <div className={styles.optionRow}>
-          <div>
-            <span className={styles.optionLabel}>Show thinking</span>
-            <span className={styles.optionDescription}>Display model reasoning steps</span>
-          </div>
+        </OptionRow>
+        <OptionRow icon={Sparkles} label="Show thinking" description="Display model reasoning steps">
           <Toggle on={behaviour.showThinking} onToggle={() => updateBehaviour({ showThinking: !behaviour.showThinking })} />
-        </div>
-        <div className={styles.optionRow}>
-          <div>
-            <span className={styles.optionLabel}>Auto-generate title</span>
-            <span className={styles.optionDescription}>Name conversations based on first message</span>
-          </div>
+        </OptionRow>
+        <OptionRow icon={MessageSquare} label="Auto-generate title" description="Name chats from first message">
           <Toggle on={behaviour.autoTitle} onToggle={() => updateBehaviour({ autoTitle: !behaviour.autoTitle })} />
-        </div>
+        </OptionRow>
+      </div>
+
+      {/* Input */}
+      <div className={styles.sectionBlock}>
+        <span className={styles.sectionLabel}>Input</span>
+        <OptionRow icon={Globe} label="Send with Enter" description="Shift+Enter for newline">
+          <Toggle on={behaviour.sendWithEnter} onToggle={() => updateBehaviour({ sendWithEnter: !behaviour.sendWithEnter })} />
+        </OptionRow>
+        <OptionRow icon={Languages} label="Language" description="Interface locale">
+          <select
+            className={styles.select}
+            value={behaviour.locale}
+            onChange={(e) => updateBehaviour({ locale: e.target.value })}
+          >
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="de">Deutsch</option>
+            <option value="ja">日本語</option>
+            <option value="zh">中文</option>
+          </select>
+        </OptionRow>
       </div>
 
       {/* Display */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Display</span>
-        <div className={styles.optionRow}>
-          <div>
-            <span className={styles.optionLabel}>Wrap code blocks</span>
-            <span className={styles.optionDescription}>Wrap long lines instead of scrolling</span>
-          </div>
+        <OptionRow icon={Code2} label="Wrap code blocks" description="Wrap long lines instead of scrolling">
           <Toggle on={behaviour.codeWrap} onToggle={() => updateBehaviour({ codeWrap: !behaviour.codeWrap })} />
-        </div>
-        <div className={styles.optionRow}>
-          <div>
-            <span className={styles.optionLabel}>Markdown rendering</span>
-            <span className={styles.optionDescription}>Render formatted markdown in responses</span>
-          </div>
+        </OptionRow>
+        <OptionRow icon={Code2} label="Syntax highlighting" description="Highlight code in responses">
+          <Toggle on={behaviour.codeHighlighting} onToggle={() => updateBehaviour({ codeHighlighting: !behaviour.codeHighlighting })} />
+        </OptionRow>
+        <OptionRow icon={Type} label="Markdown rendering" description="Render formatted markdown">
           <Toggle on={behaviour.markdownRendering} onToggle={() => updateBehaviour({ markdownRendering: !behaviour.markdownRendering })} />
-        </div>
-        <div className={styles.optionRow}>
-          <div>
-            <span className={styles.optionLabel}>Compact messages</span>
-            <span className={styles.optionDescription}>Reduce vertical spacing between messages</span>
-          </div>
+        </OptionRow>
+        <OptionRow icon={MessageSquare} label="Compact messages" description="Reduce vertical spacing">
           <Toggle on={behaviour.compactMessages} onToggle={() => updateBehaviour({ compactMessages: !behaviour.compactMessages })} />
-        </div>
+        </OptionRow>
+        <OptionRow icon={BellRing} label="Notifications" description="Browser notifications for completions">
+          <Toggle on={behaviour.enableNotifications} onToggle={() => updateBehaviour({ enableNotifications: !behaviour.enableNotifications })} />
+        </OptionRow>
       </div>
 
       {/* Model defaults */}
@@ -460,7 +480,7 @@ function BehaviourTab({
             value={[inferenceParams.temperature]}
             onValueChange={([v]) => setInferenceParams({ ...inferenceParams, temperature: v })}
           />
-          <span className={styles.optionDescription}>Lower = more focused, Higher = more creative</span>
+          <span className={styles.optionDescription}>Lower = focused · Higher = creative</span>
         </div>
         <div className={styles.sliderRow}>
           <div className={styles.sliderHeader}>
@@ -474,7 +494,7 @@ function BehaviourTab({
             value={[inferenceParams.topP]}
             onValueChange={([v]) => setInferenceParams({ ...inferenceParams, topP: v })}
           />
-          <span className={styles.optionDescription}>Nucleus sampling probability threshold</span>
+          <span className={styles.optionDescription}>Nucleus sampling threshold</span>
         </div>
       </div>
 
@@ -493,12 +513,14 @@ function BehaviourTab({
 function ApiKeysTab() {
   return (
     <div className={styles.section}>
-      <KeyManagement />
+      <div className={styles.sectionBlock}>
+        <span className={styles.sectionLabel}>Provider keys</span>
+        <KeyManagement />
+      </div>
       <div className={styles.infoNote}>
-        <Shield size={14} aria-hidden="true" />
+        <Shield size={13} aria-hidden="true" />
         <span>
-          API keys are encrypted with AES-256-GCM using a password-derived key (Argon2id / PBKDF2).
-          Keys never leave your browser — no server involved.
+          Keys encrypted with AES-256-GCM · Argon2id KDF. Never leaves your browser.
         </span>
       </div>
     </div>
@@ -520,46 +542,39 @@ function SecurityTab({
   return (
     <div className={styles.section}>
       {/* Vault status */}
-      <div className={styles.securityCard}>
-        <div className={styles.securityHeader}>
-          <Fingerprint size={18} className={styles.securityIcon} aria-hidden="true" />
-          <span className={styles.securityTitle}>Vault Status</span>
+      <div className={styles.sectionBlock}>
+        <span className={styles.sectionLabel}>Vault</span>
+        <div className={styles.securityCard}>
+          <div className={styles.securityHeader}>
+            <Fingerprint size={16} className={styles.securityIcon} aria-hidden="true" />
+            <span className={styles.securityTitle}>Encryption vault</span>
+            <div className={styles.securityBadge}>
+              <Lock size={10} aria-hidden="true" />
+              {vaultStatus}
+            </div>
+          </div>
+          <span className={styles.securityDesc}>
+            AES-256-GCM encryption with Argon2id key derivation. All keys stored locally.
+          </span>
+          {vaultStatus === 'unlocked' && (
+            <button className={styles.actionBtn} onClick={lockVault} type="button">
+              <Lock size={13} aria-hidden="true" />
+              Lock vault now
+            </button>
+          )}
         </div>
-        <span className={styles.securityDesc}>
-          Your encryption vault is currently <strong>{vaultStatus}</strong>.
-          The vault protects all stored API keys with AES-256-GCM encryption.
-        </span>
-        <div className={styles.securityBadge}>
-          <Lock size={11} aria-hidden="true" />
-          AES-256-GCM · Argon2id KDF
-        </div>
-        {vaultStatus === 'unlocked' && (
-          <button
-            className={styles.actionBtn}
-            onClick={lockVault}
-            type="button"
-            style={{ marginTop: 8 }}
-          >
-            <Lock size={14} aria-hidden="true" />
-            Lock vault now
-          </button>
-        )}
       </div>
 
-      {/* Auto-lock */}
+      {/* Session protection */}
       <div className={styles.sectionBlock}>
-        <span className={styles.sectionLabel}>Session protection</span>
-        <div className={styles.optionRow}>
-          <div>
-            <span className={styles.optionLabel}>Auto-lock vault</span>
-            <span className={styles.optionDescription}>Lock vault after period of inactivity</span>
-          </div>
+        <span className={styles.sectionLabel}>Session</span>
+        <OptionRow icon={Clock} label="Auto-lock vault" description="Lock after inactivity">
           <Toggle on={security.autoLock} onToggle={() => updateSecurity({ autoLock: !security.autoLock })} />
-        </div>
+        </OptionRow>
         {security.autoLock && (
           <div className={styles.sliderRow}>
             <div className={styles.sliderHeader}>
-              <span className={styles.optionLabel}>Lock after</span>
+              <span className={styles.optionLabel}>Lock timeout</span>
               <span className={styles.sliderValue}>{security.autoLockMinutes} min</span>
             </div>
             <Slider
@@ -571,37 +586,33 @@ function SecurityTab({
             />
           </div>
         )}
-        <div className={styles.optionRow}>
-          <div>
-            <span className={styles.optionLabel}>Clear data on close</span>
-            <span className={styles.optionDescription}>Erase session data when browser closes</span>
-          </div>
+        <OptionRow icon={Trash2} label="Clear on close" description="Erase session data on exit">
           <Toggle on={security.clearOnClose} onToggle={() => updateSecurity({ clearOnClose: !security.clearOnClose })} />
-        </div>
+        </OptionRow>
       </div>
 
-      {/* Security info */}
+      {/* Privacy */}
       <div className={styles.sectionBlock}>
-        <span className={styles.sectionLabel}>Protection details</span>
+        <span className={styles.sectionLabel}>Privacy</span>
+        <OptionRow icon={Eye} label="Redact sensitive data" description="Auto-redact keys & emails in errors">
+          <Toggle on={security.redactSensitive} onToggle={() => updateSecurity({ redactSensitive: !security.redactSensitive })} />
+        </OptionRow>
+        <OptionRow icon={Globe} label="Block external requests" description="Prevent third-party network calls">
+          <Toggle on={security.disableExternalRequests} onToggle={() => updateSecurity({ disableExternalRequests: !security.disableExternalRequests })} />
+        </OptionRow>
+      </div>
+
+      {/* Architecture info */}
+      <div className={styles.sectionBlock}>
+        <span className={styles.sectionLabel}>Architecture</span>
         <div className={styles.securityCard}>
           <div className={styles.securityHeader}>
-            <Shield size={16} className={styles.securityIcon} aria-hidden="true" />
-            <span className={styles.securityTitle}>Zero-knowledge architecture</span>
+            <Shield size={15} className={styles.securityIcon} aria-hidden="true" />
+            <span className={styles.securityTitle}>Zero-knowledge</span>
           </div>
           <span className={styles.securityDesc}>
-            All encryption/decryption happens locally in your browser.
-            No API keys or passwords are ever transmitted to any server.
-            Failed login attempts trigger a 15-minute lockout after 5 tries.
-          </span>
-        </div>
-        <div className={styles.securityCard}>
-          <div className={styles.securityHeader}>
-            <Eye size={16} className={styles.securityIcon} aria-hidden="true" />
-            <span className={styles.securityTitle}>Data sanitization</span>
-          </div>
-          <span className={styles.securityDesc}>
-            API keys, JWTs, and email addresses are automatically redacted
-            from error messages and streaming payloads to prevent accidental exposure.
+            All encryption runs locally. No passwords or API keys are ever transmitted.
+            5 failed attempts trigger a 15-minute lockout.
           </span>
         </div>
       </div>
@@ -621,6 +632,22 @@ function AboutTab({
   user: any; displayName: string;
   onSignOut: () => void; onSignIn: () => void;
 }) {
+  const handleExport = useCallback(() => {
+    const data = {
+      exportedAt: new Date().toISOString(),
+      behaviour: getStoredBehaviour(),
+      security: getStoredSecurity(),
+      animSpeed: getStoredAnimSpeed(),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'byok-settings-backup.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
+
   return (
     <div className={styles.section}>
       {/* Account */}
@@ -633,21 +660,16 @@ function AboutTab({
               <span className={styles.signOutHint}>Signed in as {displayName}</span>
             </div>
             <button className={styles.signOutBtn} onClick={onSignOut} type="button">
-              <LogOut size={13} style={{ marginRight: 4, verticalAlign: -2 }} aria-hidden="true" />
+              <LogOut size={13} aria-hidden="true" />
               Sign out
             </button>
           </div>
         ) : (
-          <div className={styles.optionRow}>
-            <div>
-              <span className={styles.optionLabel}>Not signed in</span>
-              <span className={styles.optionDescription}>Sign in to sync data across devices</span>
-            </div>
-            <button className={styles.actionBtn} onClick={onSignIn} type="button" style={{ width: 'auto' }}>
-              <LogIn size={14} aria-hidden="true" />
+          <OptionRow icon={LogIn} label="Not signed in" description="Sign in to sync across devices">
+            <button className={styles.actionBtnSmall} onClick={onSignIn} type="button">
               Sign in
             </button>
-          </div>
+          </OptionRow>
         )}
       </div>
 
@@ -670,17 +692,26 @@ function AboutTab({
         </div>
       </div>
 
-      {/* Info */}
+      {/* Data */}
       <div className={styles.sectionBlock}>
-        <span className={styles.sectionLabel}>About</span>
-        <div className={styles.infoNote}>
-          <Sparkles size={14} aria-hidden="true" />
-          <span>
-            <strong>BYOK Chat</strong> — Multi-model AI chat with your own API keys.
-            All data stored locally in IndexedDB. API keys encrypted with AES-256-GCM.
-            No server, no tracking.
-          </span>
-        </div>
+        <span className={styles.sectionLabel}>Data</span>
+        <OptionRow icon={Download} label="Export settings" description="Download preferences as JSON">
+          <button className={styles.actionBtnSmall} onClick={handleExport} type="button">
+            Export
+          </button>
+        </OptionRow>
+        <OptionRow icon={Database} label="Storage" description="All data stored locally in IndexedDB">
+          <span className={styles.storageBadge}>Local only</span>
+        </OptionRow>
+      </div>
+
+      {/* Info */}
+      <div className={styles.infoNote}>
+        <Sparkles size={13} aria-hidden="true" />
+        <span>
+          <strong>BYOK Chat</strong> — Multi-model AI chat with your own API keys.
+          Zero tracking, zero server storage.
+        </span>
       </div>
     </div>
   );
