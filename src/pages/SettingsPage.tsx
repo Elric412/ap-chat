@@ -312,8 +312,8 @@ function AppearanceTab({
                 onClick={() => setTheme(opt.value)}
                 type="button"
               >
-                <opt.icon size={12} style={{ marginRight: 4, verticalAlign: -2 }} aria-hidden="true" />
-                {opt.label}
+                <opt.icon size={13} aria-hidden="true" />
+                <span>{opt.label}</span>
               </button>
             ))}
           </div>

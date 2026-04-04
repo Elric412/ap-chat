@@ -7,7 +7,7 @@ import { useAuth } from '../../hooks/use-auth';
 import {
   Sun, Moon, Plus, Settings, Lock, Unlock, MessageSquare,
   LogIn, User, Search, X, BookOpen, Sparkles, FolderOpen,
-  ChevronDown, Palette, Key, SlidersHorizontal, LogOut,
+  Palette, Key, SlidersHorizontal, LogOut,
 } from 'lucide-react';
 import { SidebarItem } from './SidebarItem';
 import type { Conversation } from '../../types/conversations';
@@ -59,7 +59,6 @@ export function Sidebar(): JSX.Element {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
-  const [accountOpen, setAccountOpen] = useState(false);
 
   const filteredConversations = useMemo(() => {
     if (!searchQuery.trim()) return conversations;
@@ -90,11 +89,6 @@ export function Sidebar(): JSX.Element {
 
   const shortcuts = useMemo(() => [
     {
-      icon: Plus,
-      label: 'New chat',
-      onClick: handleNewChat,
-    },
-    {
       icon: BookOpen,
       label: `Skills${skillConfig.mode !== 'disabled' ? ' ●' : ''}`,
       onClick: () => setSkillPanelOpen(true),
@@ -109,37 +103,9 @@ export function Sidebar(): JSX.Element {
       label: 'Projects',
       onClick: () => {},
     },
-  ], [handleNewChat, skillConfig.mode, setSkillPanelOpen]);
+  ], [skillConfig.mode, setSkillPanelOpen]);
 
-  const accountActions = useMemo(() => [
-    {
-      icon: SlidersHorizontal,
-      label: 'Behaviour',
-      description: 'AI personality & response style',
-      onClick: () => navigate('/settings?tab=behaviour'),
-    },
-    {
-      icon: Palette,
-      label: 'Appearance',
-      description: resolvedTheme === 'dark' ? 'Dark mode active' : 'Light mode active',
-      onClick: () => navigate('/settings?tab=appearance'),
-      trailing: resolvedTheme === 'dark' ? Moon : Sun,
-    },
-    {
-      icon: Key,
-      label: 'API Keys',
-      description: vaultStatus === 'unlocked' ? 'Vault unlocked' : 'Configure providers',
-      onClick: () => navigate('/settings?tab=api-keys'),
-      trailing: vaultStatus === 'unlocked' ? Unlock : Lock,
-    },
-    {
-      icon: Settings,
-      label: 'Settings',
-      description: 'All preferences',
-      onClick: () => navigate('/settings?tab=appearance'),
-      active: location.pathname === '/settings',
-    },
-  ], [resolvedTheme, vaultStatus, navigate, location.pathname]);
+  const isOnSettings = location.pathname === '/settings';
 
   const displayName = user?.email?.split('@')[0] ?? 'Guest';
 
@@ -244,8 +210,9 @@ export function Sidebar(): JSX.Element {
       <div className={styles.accountSection}>
         <button
           className={styles.accountTrigger}
-          onClick={() => setAccountOpen(!accountOpen)}
+          onClick={() => navigate('/settings')}
           type="button"
+          data-active={isOnSettings}
         >
           <div className={styles.accountAvatar}>
             {user ? (
@@ -255,73 +222,8 @@ export function Sidebar(): JSX.Element {
             )}
           </div>
           <span className={styles.accountName}>{displayName}</span>
-          <motion.div
-            animate={{ rotate: accountOpen ? 180 : 0 }}
-            transition={{ duration: 0.2, ease: EASE_OUT_EXPO }}
-            className={styles.accountChevron}
-          >
-            <ChevronDown size={14} aria-hidden="true" />
-          </motion.div>
+          <Settings size={14} className={styles.accountChevron} aria-hidden="true" />
         </button>
-
-        <AnimatePresence>
-          {accountOpen && (
-            <motion.div
-              className={styles.accountMenu}
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: EASE_OUT_EXPO }}
-            >
-              <div className={styles.accountMenuInner}>
-                {accountActions.map((action) => (
-                  <button
-                    key={action.label}
-                    className={styles.accountMenuItem}
-                    onClick={action.onClick}
-                    type="button"
-                    data-active={action.active}
-                  >
-                    <action.icon size={15} aria-hidden="true" />
-                    <div className={styles.accountMenuText}>
-                      <span className={styles.accountMenuLabel}>{action.label}</span>
-                      <span className={styles.accountMenuDesc}>{action.description}</span>
-                    </div>
-                    {action.trailing && (
-                      <action.trailing size={13} className={styles.accountMenuTrailing} aria-hidden="true" />
-                    )}
-                  </button>
-                ))}
-
-                {/* Auth action */}
-                {user ? (
-                  <button
-                    className={`${styles.accountMenuItem} ${styles.accountMenuDanger}`}
-                    onClick={() => void signOut()}
-                    type="button"
-                  >
-                    <LogOut size={15} aria-hidden="true" />
-                    <div className={styles.accountMenuText}>
-                      <span className={styles.accountMenuLabel}>Sign out</span>
-                    </div>
-                  </button>
-                ) : (
-                  <button
-                    className={styles.accountMenuItem}
-                    onClick={() => navigate('/auth')}
-                    type="button"
-                  >
-                    <LogIn size={15} aria-hidden="true" />
-                    <div className={styles.accountMenuText}>
-                      <span className={styles.accountMenuLabel}>Sign in</span>
-                      <span className={styles.accountMenuDesc}>Sync across devices</span>
-                    </div>
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </nav>
   );
