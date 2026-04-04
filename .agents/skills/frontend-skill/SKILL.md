@@ -11,13 +11,19 @@ Goal: ship interfaces that feel deliberate, premium, and current. Default toward
 
 ## Working Model
 
-Before building, write three things:
+Before building, understand the context and commit to a BOLD aesthetic direction::
 
-- visual thesis: one sentence describing mood, material, and energy
-- content plan: hero, support, detail, final CTA
-- interaction thesis: 2-3 motion ideas that change the feel of the page
+- Visual thesis: one sentence describing mood, material, and energy
+- Content plan: hero, support, detail, final CTA
+- Purpose: What problem does this interface solve? Who uses it?
+- Tone: Pick an extreme: brutally minimal, maximalist chaos, retro-futuristic, organic/natural, luxury/refined, playful/toy-like, editorial/magazine, brutalist/raw, art deco/geometric, soft/pastel, industrial/utilitarian, etc. There are so many flavors to choose from. Use these for inspiration but design one that is true to the aesthetic direction.
+- Constraints: Technical requirements (framework, performance, accessibility).
+- Differentiation: What makes this UNFORGETTABLE? What's the one thing someone will remember?
+- Interaction thesis: 2-3 motion ideas that change the feel of the page
 
 Each section gets one job, one dominant visual idea, and one primary takeaway or action.
+
+**CRITICAL**: Choose a clear conceptual direction and execute it with precision. Bold maximalism and refined minimalism both work - the key is intentionality, not intensity.
 
 ## Beautiful Defaults
 
@@ -182,3 +188,6 @@ Motion rules:
 - Are cards actually necessary?
 - Does motion improve hierarchy or atmosphere?
 - Would the design still feel premium if all decorative shadows were removed?
+
+
+Remember: You are capable of extraordinary creative work. Don't hold back, show what can truly be created when thinking outside the box and committing fully to a distinctive vision.
