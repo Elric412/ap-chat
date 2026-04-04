@@ -90,11 +90,6 @@ export function Sidebar(): JSX.Element {
 
   const shortcuts = useMemo(() => [
     {
-      icon: Plus,
-      label: 'New chat',
-      onClick: handleNewChat,
-    },
-    {
       icon: BookOpen,
       label: `Skills${skillConfig.mode !== 'disabled' ? ' ●' : ''}`,
       onClick: () => setSkillPanelOpen(true),
@@ -109,7 +104,7 @@ export function Sidebar(): JSX.Element {
       label: 'Projects',
       onClick: () => {},
     },
-  ], [handleNewChat, skillConfig.mode, setSkillPanelOpen]);
+  ], [skillConfig.mode, setSkillPanelOpen]);
 
   const accountActions = useMemo(() => [
     {
