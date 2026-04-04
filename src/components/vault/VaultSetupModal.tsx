@@ -3,6 +3,7 @@ import { Shield, Eye, EyeOff } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { Spinner } from '../shared/Spinner';
 import styles from './VaultModal.module.css';
+import { validatePasswordPolicy } from '../../lib/password-policy';
 
 export function VaultSetupModal(): JSX.Element | null {
   const vaultStatus = useAppStore((s) => s.vaultStatus);
@@ -27,8 +28,9 @@ export function VaultSetupModal(): JSX.Element | null {
     e.preventDefault();
     setLocalError(null);
 
-    if (password.length < 8) {
-      setLocalError('Password must be at least 8 characters');
+    const policy = validatePasswordPolicy(password);
+    if (!policy.valid) {
+      setLocalError(policy.errors[0] ?? 'Password does not meet security requirements');
       return;
     }
     if (password !== confirm) {

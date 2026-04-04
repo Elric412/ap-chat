@@ -18,6 +18,8 @@ import {
 import type { ProviderId } from '../types/models';
 import type { VaultEnvelope, EncryptedKeyRecord, VaultStatus, KeyHealthStatus } from '../types/vault';
 import { getDB } from '../db/connection';
+import { validatePasswordPolicy } from '../lib/password-policy';
+import { validateApiKeyInput } from '../lib/api-key-validation';
 
 /** Closure-scoped master key — NEVER exposed outside this module */
 let masterKey: CryptoKey | null = null;
@@ -32,6 +34,9 @@ const DEFAULT_IDLE_TIMEOUT_MS = 15 * 60 * 1000;
 let failedAttempts = 0;
 const BASE_DELAY_MS = 1000;
 const MAX_DELAY_MS = 30_000;
+const MAX_FAILED_ATTEMPTS = 10;
+const LOCKOUT_WINDOW_MS = 30 * 60 * 1000;
+let lockoutUntil: number | null = null;
 
 /** Reset auto-lock timer */
 function resetAutoLockTimer(onLock: () => void): void {
@@ -55,12 +60,9 @@ export async function getVaultStatus(): Promise<VaultStatus> {
 
 /** Initialize the vault with a new master password (first-time setup) */
 export async function setupVault(password: string): Promise<void> {
-  // Security: Enforce password requirements
-  if (!password || password.length < 8) {
-    throw new Error('Master password must be at least 8 characters');
-  }
-  if (password.length > 256) {
-    throw new Error('Master password exceeds maximum length');
+  const policy = validatePasswordPolicy(password);
+  if (!policy.valid) {
+    throw new Error(policy.errors[0] ?? 'Master password does not meet security requirements');
   }
   const salt = generateSalt();
   const key = await deriveKey(password, salt);
@@ -83,6 +85,10 @@ export async function setupVault(password: string): Promise<void> {
 
 /** Unlock the vault with the master password */
 export async function unlockVault(password: string): Promise<boolean> {
+  if (lockoutUntil && Date.now() < lockoutUntil) {
+    return false;
+  }
+
   // Brute-force protection: exponential backoff on failed attempts
   if (failedAttempts > 0) {
     const delay = Math.min(BASE_DELAY_MS * 2 ** (failedAttempts - 1), MAX_DELAY_MS);
@@ -101,10 +107,15 @@ export async function unlockVault(password: string): Promise<boolean> {
 
   if (!isValid) {
     failedAttempts++;
+    if (failedAttempts >= MAX_FAILED_ATTEMPTS) {
+      lockoutUntil = Date.now() + LOCKOUT_WINDOW_MS;
+      failedAttempts = 0;
+    }
     return false;
   }
 
   failedAttempts = 0;
+  lockoutUntil = null;
   masterKey = key;
   return true;
 }
@@ -131,16 +142,13 @@ export async function addKey(
 ): Promise<EncryptedKeyRecord> {
   if (!masterKey) throw new Error('Vault is locked');
 
-  // Security: validate key format before encryption
-  if (!rawKey || rawKey.trim().length === 0) {
-    throw new Error('API key cannot be empty');
-  }
-  if (rawKey.length > 4096) {
-    throw new Error('API key exceeds maximum length');
+  const validation = validateApiKeyInput(rawKey, providerId);
+  if (!validation.valid) {
+    throw new Error(validation.error ?? 'Invalid API key');
   }
 
-  const displayHint = createDisplayHint(rawKey);
-  const { ciphertext, iv } = await encrypt(masterKey, rawKey);
+  const displayHint = createDisplayHint(validation.sanitizedKey);
+  const { ciphertext, iv } = await encrypt(masterKey, validation.sanitizedKey);
 
   const record: EncryptedKeyRecord = {
     providerId,
@@ -212,6 +220,9 @@ export async function changeMasterPassword(
   const currentKey = await deriveKey(currentPassword, envelope.salt);
   const isValid = await verifyPassword(currentKey, envelope.verificationCiphertext, envelope.verificationIV);
   if (!isValid) return false;
+
+  const policy = validatePasswordPolicy(newPassword);
+  if (!policy.valid) return false;
 
   // Derive new key
   const newSalt = generateSalt();
