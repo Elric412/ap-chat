@@ -10,6 +10,7 @@ import { AppShell } from './components/layout/AppShell';
 import { ToastStack } from './components/shared/ToastStack';
 import { ErrorBoundary } from './components/shared/ErrorBoundary';
 import { exportAsMarkdown, exportAsJson, downloadFile } from './engine/export-engine';
+import { toSafeFilename } from './lib/file-utils';
 
 const Sidebar = lazy(() => import('./components/layout/Sidebar').then((module) => ({ default: module.Sidebar })));
 const Header = lazy(() => import('./components/layout/Header').then((module) => ({ default: module.Header })));
@@ -56,15 +57,18 @@ function AppInner(): JSX.Element {
         return;
       }
 
+      const safeBasename = toSafeFilename(conv.title);
+
       if (detail.format === 'markdown') {
         const md = exportAsMarkdown(conv, messages);
-        const safeName = conv.title.replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/\s+/g, '-');
-        downloadFile(md, `${safeName || 'conversation'}.md`, 'text/markdown');
+        downloadFile(md, `${safeBasename}.md`, 'text/markdown');
         store.addToast({ type: 'success', title: 'Exported as Markdown', dismissible: true });
-      } else if (detail.format === 'json') {
+        return;
+      }
+
+      if (detail.format === 'json') {
         const json = exportAsJson(conv, messages);
-        const safeName = conv.title.replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/\s+/g, '-');
-        downloadFile(json, `${safeName || 'conversation'}.json`, 'application/json');
+        downloadFile(json, `${safeBasename}.json`, 'application/json');
         store.addToast({ type: 'success', title: 'Exported as JSON', dismissible: true });
       }
     };
