@@ -105,35 +105,7 @@ export function Sidebar(): JSX.Element {
     },
   ], [skillConfig.mode, setSkillPanelOpen]);
 
-  const accountActions = useMemo(() => [
-    {
-      icon: SlidersHorizontal,
-      label: 'Behaviour',
-      description: 'AI personality & response style',
-      onClick: () => navigate('/settings?tab=behaviour'),
-    },
-    {
-      icon: Palette,
-      label: 'Appearance',
-      description: resolvedTheme === 'dark' ? 'Dark mode active' : 'Light mode active',
-      onClick: () => navigate('/settings?tab=appearance'),
-      trailing: resolvedTheme === 'dark' ? Moon : Sun,
-    },
-    {
-      icon: Key,
-      label: 'API Keys',
-      description: vaultStatus === 'unlocked' ? 'Vault unlocked' : 'Configure providers',
-      onClick: () => navigate('/settings?tab=api-keys'),
-      trailing: vaultStatus === 'unlocked' ? Unlock : Lock,
-    },
-    {
-      icon: Settings,
-      label: 'Settings',
-      description: 'All preferences',
-      onClick: () => navigate('/settings?tab=appearance'),
-      active: location.pathname === '/settings',
-    },
-  ], [resolvedTheme, vaultStatus, navigate, location.pathname]);
+  const isOnSettings = location.pathname === '/settings';
 
   const displayName = user?.email?.split('@')[0] ?? 'Guest';
 
