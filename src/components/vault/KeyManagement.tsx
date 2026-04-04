@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Plus, Trash2, Lock, Key, ShieldCheck, RefreshCw } from 'lucide-react';
 import { useAppStore } from '../../store';
 import { PROVIDER_META } from '../../constants/provider-meta';
+import { validateApiKeyInput } from '../../lib/api-key-validation';
 import { PROVIDER_IDS, type ProviderId } from '../../types/models';
 import { Spinner } from '../shared/Spinner';
 import styles from './KeyManagement.module.css';
@@ -34,32 +35,17 @@ export function KeyManagement(): JSX.Element {
     e.preventDefault();
     setValidationError(null);
 
-    const trimmedKey = keyValue.trim();
-
-    if (!trimmedKey) {
-      setValidationError('API key cannot be empty');
-      return;
-    }
-
-    if (trimmedKey.length > 500) {
-      setValidationError('API key is too long (max 500 characters)');
-      return;
-    }
-
-    if (/<script|javascript:|on\w+=/i.test(trimmedKey)) {
-      setValidationError('Invalid characters detected in API key');
-      return;
-    }
-
+    const validation = validateApiKeyInput(keyValue, selectedProvider);
     const meta = PROVIDER_META[selectedProvider];
-    if (selectedProvider !== PROVIDER_IDS.ollama && !meta.keyPattern.test(trimmedKey)) {
-      setValidationError(`Key format does not match expected pattern for ${meta.displayName}`);
+
+    if (!validation.valid) {
+      setValidationError(validation.error ?? 'Invalid API key');
       return;
     }
 
     setSaving(true);
     try {
-      await addKey(selectedProvider, trimmedKey);
+      await addKey(selectedProvider, validation.sanitizedKey);
       setKeyValue('');
       setShowAddForm(false);
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
 import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import styles from './AuthPage.module.css';
+import { validatePasswordPolicy } from '@/lib/password-policy';
 
 export function AuthPage() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
@@ -29,6 +30,13 @@ export function AuthPage() {
           navigate('/');
         }
       } else {
+        const policy = validatePasswordPolicy(password);
+        if (!policy.valid) {
+          setError(policy.errors[0] ?? 'Password does not meet security requirements');
+          setLoading(false);
+          return;
+        }
+
         const { error } = await signUp(email, password);
         if (error) {
           setError(error.message);
@@ -81,7 +89,7 @@ export function AuthPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                minLength={8}
+                minLength={12}
                 autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
               />
             </div>

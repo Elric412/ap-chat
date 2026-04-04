@@ -56,6 +56,8 @@ const rateLimits = new Map<string, { count: number; windowStart: number }>();
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 30;
 const MAX_REQUEST_BODY_BYTES = 256 * 1024; // 256 KB
+const MAX_MESSAGE_LENGTH = 20_000;
+const MAX_TOTAL_MESSAGE_CHARS = 100_000;
 
 function checkRateLimit(userId: string): { allowed: boolean; remaining: number; retryAfterMs: number } {
   const now = Date.now();
@@ -132,12 +134,24 @@ function validateRequest(body: unknown): { valid: true; data: ChatRequest } | { 
     return { valid: false, message: 'messages must be a non-empty array (max 500)' };
   }
 
-  // Validate each message has role and content
+  // Validate each message has role and safe text content
+  let totalChars = 0;
   for (let i = 0; i < b.messages.length; i++) {
-    const msg = b.messages[i];
+    const msg = b.messages[i] as Record<string, unknown>;
     if (!msg || typeof msg !== 'object' || typeof msg.role !== 'string') {
       return { valid: false, message: `messages[${i}] must have a string role` };
     }
+    if (typeof msg.content !== 'string') {
+      return { valid: false, message: `messages[${i}] must have a string content` };
+    }
+    if (msg.content.length > MAX_MESSAGE_LENGTH) {
+      return { valid: false, message: `messages[${i}] content exceeds ${MAX_MESSAGE_LENGTH} characters` };
+    }
+    totalChars += msg.content.length;
+  }
+
+  if (totalChars > MAX_TOTAL_MESSAGE_CHARS) {
+    return { valid: false, message: `Total message content exceeds ${MAX_TOTAL_MESSAGE_CHARS} characters` };
   }
 
   if (b.temperature !== undefined && (typeof b.temperature !== 'number' || b.temperature < 0 || b.temperature > 2)) {
@@ -191,6 +205,11 @@ Deno.serve(async (req) => {
 
   if (req.method !== 'POST') {
     return errorResponse(405, 'METHOD_NOT_ALLOWED', 'Only POST requests are accepted', false, cors);
+  }
+
+  const origin = req.headers.get('Origin');
+  if (origin && !ALLOWED_ORIGINS.has(origin)) {
+    return errorResponse(403, 'ORIGIN_FORBIDDEN', 'Request origin is not allowed', false, cors);
   }
 
   try {
@@ -259,7 +278,7 @@ Deno.serve(async (req) => {
 
     const { data: keyRecord, error: keyError } = await serviceClient
       .from('api_keys')
-      .select('encrypted_key')
+      .select('provider_api_key')
       .eq('user_id', userId)
       .eq('provider_id', provider)
       .eq('is_active', true)
@@ -269,7 +288,7 @@ Deno.serve(async (req) => {
       return errorResponse(400, 'NO_API_KEY', `No API key configured for this provider. Add one in Settings.`, false, cors);
     }
 
-    const apiKey = keyRecord.encrypted_key;
+    const apiKey = keyRecord.provider_api_key;
     const startTime = Date.now();
 
     // ── Build provider request ──
@@ -438,8 +457,7 @@ Deno.serve(async (req) => {
         'X-Rate-Limit-Remaining': String(rl.remaining),
       },
     });
-  } catch (error) {
-    console.error('AI Proxy unhandled error:', error);
+  } catch {
     return errorResponse(500, 'INTERNAL_ERROR', 'An unexpected error occurred', true, cors);
   }
 });

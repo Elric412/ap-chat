@@ -25,6 +25,9 @@ import { MODEL_REGISTRY } from '../../constants/model-registry';
 import { useAppStore } from '../../store';
 import styles from './ChatInput.module.css';
 
+const MESSAGE_SOFT_LIMIT = 10_000;
+const MESSAGE_HARD_LIMIT = 50_000;
+
 interface ChatInputProps {
   onSend: (text: string, attachments?: ProcessedAttachment[]) => void;
   disabled?: boolean;
@@ -84,9 +87,22 @@ export function ChatInput({
     const trimmed = value.trim();
     // Security: Limit message length to prevent memory abuse
     if ((!trimmed && attachments.length === 0) || disabled) return;
-    if (trimmed.length > 100000) {
-      useAppStore.getState().addToast({ type: 'warning', title: 'Message too long (max 100K chars)', dismissible: true });
+    if (trimmed.length > MESSAGE_HARD_LIMIT) {
+      useAppStore.getState().addToast({
+        type: 'error',
+        title: `Message too long (max ${MESSAGE_HARD_LIMIT.toLocaleString()} chars)`,
+        dismissible: true,
+      });
       return;
+    }
+
+    if (trimmed.length > MESSAGE_SOFT_LIMIT) {
+      useAppStore.getState().addToast({
+        type: 'warning',
+        title: `Large message (${trimmed.length.toLocaleString()} chars)`,
+        description: 'Very long messages can impact performance.',
+        dismissible: true,
+      });
     }
     onSend(trimmed, attachments.length > 0 ? attachments : undefined);
     setValue('');
@@ -150,7 +166,14 @@ export function ChatInput({
     const remaining = 10 - attachments.length;
     const toProcess = files.slice(0, remaining);
     const { processed, errors } = await processFiles(toProcess, conversationId);
-    if (errors.length > 0) console.warn('Attachment errors:', errors);
+    if (errors.length > 0) {
+      useAppStore.getState().addToast({
+        type: 'warning',
+        title: 'Some attachments could not be added',
+        description: errors.slice(0, 2).join(' · '),
+        dismissible: true,
+      });
+    }
     if (processed.length > 0) setAttachments((prev) => [...prev, ...processed]);
   }, [attachments.length, conversationId]);
 
