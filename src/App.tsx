@@ -80,14 +80,14 @@ function AppInner(): JSX.Element {
           sidebar={<Sidebar />}
           header={<Header />}
         >
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout">
             <motion.div
-              key={location.pathname.startsWith('/settings') ? 'settings' : location.pathname}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              style={{ display: 'contents' }}
+              key={location.pathname.startsWith('/settings') ? 'settings' : location.pathname.startsWith('/auth') ? 'auth' : 'chat'}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12, ease: [0.16, 1, 0.3, 1] }}
+              style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
             >
               <Routes location={location}>
                 <Route path="/" element={<ChatPage />} />
