@@ -210,8 +210,9 @@ export function Sidebar(): JSX.Element {
       <div className={styles.accountSection}>
         <button
           className={styles.accountTrigger}
-          onClick={() => setAccountOpen(!accountOpen)}
+          onClick={() => navigate('/settings')}
           type="button"
+          data-active={isOnSettings}
         >
           <div className={styles.accountAvatar}>
             {user ? (
@@ -221,73 +222,8 @@ export function Sidebar(): JSX.Element {
             )}
           </div>
           <span className={styles.accountName}>{displayName}</span>
-          <motion.div
-            animate={{ rotate: accountOpen ? 180 : 0 }}
-            transition={{ duration: 0.2, ease: EASE_OUT_EXPO }}
-            className={styles.accountChevron}
-          >
-            <ChevronDown size={14} aria-hidden="true" />
-          </motion.div>
+          <Settings size={14} className={styles.accountChevron} aria-hidden="true" />
         </button>
-
-        <AnimatePresence>
-          {accountOpen && (
-            <motion.div
-              className={styles.accountMenu}
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: EASE_OUT_EXPO }}
-            >
-              <div className={styles.accountMenuInner}>
-                {accountActions.map((action) => (
-                  <button
-                    key={action.label}
-                    className={styles.accountMenuItem}
-                    onClick={action.onClick}
-                    type="button"
-                    data-active={action.active}
-                  >
-                    <action.icon size={15} aria-hidden="true" />
-                    <div className={styles.accountMenuText}>
-                      <span className={styles.accountMenuLabel}>{action.label}</span>
-                      <span className={styles.accountMenuDesc}>{action.description}</span>
-                    </div>
-                    {action.trailing && (
-                      <action.trailing size={13} className={styles.accountMenuTrailing} aria-hidden="true" />
-                    )}
-                  </button>
-                ))}
-
-                {/* Auth action */}
-                {user ? (
-                  <button
-                    className={`${styles.accountMenuItem} ${styles.accountMenuDanger}`}
-                    onClick={() => void signOut()}
-                    type="button"
-                  >
-                    <LogOut size={15} aria-hidden="true" />
-                    <div className={styles.accountMenuText}>
-                      <span className={styles.accountMenuLabel}>Sign out</span>
-                    </div>
-                  </button>
-                ) : (
-                  <button
-                    className={styles.accountMenuItem}
-                    onClick={() => navigate('/auth')}
-                    type="button"
-                  >
-                    <LogIn size={15} aria-hidden="true" />
-                    <div className={styles.accountMenuText}>
-                      <span className={styles.accountMenuLabel}>Sign in</span>
-                      <span className={styles.accountMenuDesc}>Sync across devices</span>
-                    </div>
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </nav>
   );
