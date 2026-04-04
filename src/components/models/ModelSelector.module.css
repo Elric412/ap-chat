@@ -104,16 +104,19 @@
   border-radius: var(--radius-md);
   cursor: pointer;
   text-align: left;
-  transition: all var(--duration-fast) var(--ease-silk);
+  transition: background 100ms, padding-left 120ms cubic-bezier(0.16, 1, 0.3, 1);
   min-height: 36px;
+  will-change: padding-left;
 }
 
 .modelItem:hover {
   background: var(--color-surface-hover);
+  padding-left: calc(var(--space-3) + 3px);
 }
 
 .modelItem:active {
   background: var(--color-surface-active);
+  transform: scale(0.99);
 }
 
 .modelItem[data-selected="true"] {
