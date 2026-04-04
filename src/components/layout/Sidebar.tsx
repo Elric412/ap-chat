@@ -59,7 +59,6 @@ export function Sidebar(): JSX.Element {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
-  const [accountOpen, setAccountOpen] = useState(false);
 
   const filteredConversations = useMemo(() => {
     if (!searchQuery.trim()) return conversations;
