@@ -26,46 +26,38 @@ const EASE_MECH: Ease4 = [0.22, 0.68, 0.28, 1.0];
 
 const backdropVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.2, ease: EASE_SILK } },
-  exit: { opacity: 0, transition: { duration: 0.15 } },
+  visible: { opacity: 1, transition: { duration: 0.15, ease: EASE_SILK } },
+  exit: { opacity: 0, transition: { duration: 0.1 } },
 };
 
 const panelVariants = {
-  hidden: { opacity: 0, y: -16, scale: 0.96 },
+  hidden: { opacity: 0, y: -8, scale: 0.97 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { duration: 0.35, ease: EASE_SNAP },
+    transition: { duration: 0.18, ease: EASE_OUT },
   },
   exit: {
     opacity: 0,
-    y: -8,
-    scale: 0.97,
-    transition: { duration: 0.2, ease: EASE_MECH },
+    y: -4,
+    scale: 0.98,
+    transition: { duration: 0.12, ease: EASE_MECH },
   },
 };
 
 const mobilePanelVariants = {
-  hidden: { opacity: 0, y: 100 },
+  hidden: { opacity: 0, y: 60 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.4, ease: EASE_OUT },
+    transition: { duration: 0.25, ease: EASE_OUT },
   },
   exit: {
     opacity: 0,
-    y: 60,
-    transition: { duration: 0.25, ease: EASE_MECH },
+    y: 40,
+    transition: { duration: 0.15, ease: EASE_MECH },
   },
-};
-
-const groupVariants = {
-  hidden: { opacity: 0 },
-  visible: (i: number) => ({
-    opacity: 1,
-    transition: { delay: i * 0.05, duration: 0.3, ease: EASE_OUT },
-  }),
 };
 
 export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Element | null {
