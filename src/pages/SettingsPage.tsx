@@ -1,11 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Palette, SlidersHorizontal, Key, Shield, Info,
   Lock, Sun, Moon, Monitor, Fingerprint, Eye,
   LogOut, LogIn, Sparkles, Zap, MessageSquare, Code2,
-  Type, Globe, BellRing, Trash2, Download, Upload,
+  Type, Globe, BellRing, Trash2, Download,
   Clock, Database, Languages,
 } from 'lucide-react';
 import { KeyManagement } from '../components/vault/KeyManagement';
@@ -28,7 +27,6 @@ const TABS: { id: SettingsTab; label: string; icon: typeof Palette }[] = [
   { id: 'about', label: 'About', icon: Info },
 ];
 
-// ─── Animation speed ───
 const ANIM_SPEED_KEY = 'byok-anim-speed';
 type AnimSpeed = 'instant' | 'fast' | 'normal' | 'relaxed';
 
@@ -40,7 +38,6 @@ function getStoredAnimSpeed(): AnimSpeed {
   return 'normal';
 }
 
-// ─── Behaviour preferences ───
 const BEHAVIOUR_KEY = 'byok-behaviour';
 interface BehaviourPrefs {
   streamResponses: boolean;
@@ -76,7 +73,6 @@ function getStoredBehaviour(): BehaviourPrefs {
   return defaultBehaviour;
 }
 
-// ─── Security prefs ───
 const SECURITY_KEY = 'byok-security';
 interface SecurityPrefs {
   autoLock: boolean;
@@ -102,7 +98,7 @@ function getStoredSecurity(): SecurityPrefs {
   return defaultSecurity;
 }
 
-// ─── Toggle component ───
+/* ─── Toggle ─── */
 function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void; disabled?: boolean }) {
   return (
     <button
@@ -120,7 +116,7 @@ function Toggle({ on, onToggle, disabled }: { on: boolean; onToggle: () => void;
   );
 }
 
-// ─── Option Row ───
+/* ─── Option Row ─── */
 function OptionRow({ icon: Icon, label, description, children }: {
   icon: typeof Sun;
   label: string;
@@ -167,7 +163,6 @@ export function SettingsPage(): JSX.Element {
   const totalModels = MODEL_REGISTRY.filter((m) => !m.deprecated).length;
   const providerCount = new Set(MODEL_REGISTRY.map((m) => m.providerId)).size;
 
-  // Sync tab from URL on mount / URL change
   useEffect(() => {
     const tab = searchParams.get('tab') as SettingsTab;
     if (tab && TABS.some((t) => t.id === tab)) setActiveTab(tab);
@@ -205,21 +200,21 @@ export function SettingsPage(): JSX.Element {
   return (
     <div className={styles.settingsPage}>
       {/* Header */}
-      <div className={styles.settingsHeader}>
+      <header className={styles.settingsHeader}>
         <button
           className={styles.backBtn}
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/')}
           type="button"
           aria-label="Back"
         >
-          <ArrowLeft size={15} />
+          <ArrowLeft size={14} />
           <span>Back</span>
         </button>
         <h1 className={styles.pageTitle}>Settings</h1>
-      </div>
+      </header>
 
       {/* Tab nav */}
-      <div className={styles.tabNav} role="tablist">
+      <nav className={styles.tabNav} role="tablist">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -234,61 +229,51 @@ export function SettingsPage(): JSX.Element {
             <span>{tab.label}</span>
           </button>
         ))}
-      </div>
+      </nav>
 
       {/* Content */}
-      <AnimatePresence mode="popLayout">
-        <motion.div
-          key={activeTab}
-          className={styles.settingsContent}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.1 }}
-          role="tabpanel"
-        >
-          {activeTab === 'appearance' && (
-            <AppearanceTab
-              theme={theme}
-              resolvedTheme={resolvedTheme}
-              setTheme={setTheme}
-              density={density}
-              setDensity={setDensity}
-              animSpeed={animSpeed}
-              setAnimSpeed={setAnimSpeed}
-            />
-          )}
-          {activeTab === 'behaviour' && (
-            <BehaviourTab
-              behaviour={behaviour}
-              updateBehaviour={updateBehaviour}
-              inferenceParams={inferenceParams}
-              setInferenceParams={setInferenceParams}
-              activeConversationId={activeConversationId}
-            />
-          )}
-          {activeTab === 'api-keys' && <ApiKeysTab />}
-          {activeTab === 'security' && (
-            <SecurityTab
-              security={security}
-              updateSecurity={updateSecurity}
-              vaultStatus={vaultStatus}
-            />
-          )}
-          {activeTab === 'about' && (
-            <AboutTab
-              totalModels={totalModels}
-              providerCount={providerCount}
-              totalConversations={conversations.length}
-              configuredProviders={keyRecords.length}
-              user={user}
-              displayName={displayName}
-              onSignOut={() => void signOut()}
-              onSignIn={() => navigate('/auth')}
-            />
-          )}
-        </motion.div>
-      </AnimatePresence>
+      <div className={styles.settingsContent} role="tabpanel">
+        {activeTab === 'appearance' && (
+          <AppearanceTab
+            theme={theme}
+            resolvedTheme={resolvedTheme}
+            setTheme={setTheme}
+            density={density}
+            setDensity={setDensity}
+            animSpeed={animSpeed}
+            setAnimSpeed={setAnimSpeed}
+          />
+        )}
+        {activeTab === 'behaviour' && (
+          <BehaviourTab
+            behaviour={behaviour}
+            updateBehaviour={updateBehaviour}
+            inferenceParams={inferenceParams}
+            setInferenceParams={setInferenceParams}
+            activeConversationId={activeConversationId}
+          />
+        )}
+        {activeTab === 'api-keys' && <ApiKeysTab />}
+        {activeTab === 'security' && (
+          <SecurityTab
+            security={security}
+            updateSecurity={updateSecurity}
+            vaultStatus={vaultStatus}
+          />
+        )}
+        {activeTab === 'about' && (
+          <AboutTab
+            totalModels={totalModels}
+            providerCount={providerCount}
+            totalConversations={conversations.length}
+            configuredProviders={keyRecords.length}
+            user={user}
+            displayName={displayName}
+            onSignOut={() => void signOut()}
+            onSignIn={() => navigate('/auth')}
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -311,23 +296,22 @@ function AppearanceTab({
 
   const densityOptions: { value: DensityMode; label: string }[] = [
     { value: 'compact', label: 'Compact' },
-    { value: 'comfortable', label: 'Comfortable' },
+    { value: 'comfortable', label: 'Default' },
     { value: 'spacious', label: 'Spacious' },
   ];
 
   const animOptions: { value: AnimSpeed; label: string }[] = [
-    { value: 'instant', label: 'Instant' },
+    { value: 'instant', label: 'None' },
     { value: 'fast', label: 'Fast' },
     { value: 'normal', label: 'Normal' },
-    { value: 'relaxed', label: 'Relaxed' },
+    { value: 'relaxed', label: 'Slow' },
   ];
 
   return (
     <div className={styles.section}>
-      {/* Theme */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Theme</span>
-        <OptionRow icon={Palette} label="Color mode" description={`Currently: ${resolvedTheme}${theme === 'system' ? ' (auto)' : ''}`}>
+        <OptionRow icon={Palette} label="Color mode" description={`Currently: ${resolvedTheme}`}>
           <div className={styles.pillGroup}>
             {themeOptions.map((opt) => (
               <button
@@ -337,7 +321,7 @@ function AppearanceTab({
                 onClick={() => setTheme(opt.value)}
                 type="button"
               >
-                <opt.icon size={13} aria-hidden="true" />
+                <opt.icon size={12} />
                 <span>{opt.label}</span>
               </button>
             ))}
@@ -345,10 +329,9 @@ function AppearanceTab({
         </OptionRow>
       </div>
 
-      {/* Density */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Layout</span>
-        <OptionRow icon={Type} label="Interface density" description="Adjust spacing between elements">
+        <OptionRow icon={Type} label="Density" description="Spacing between elements">
           <div className={styles.pillGroup}>
             {densityOptions.map((opt) => (
               <button
@@ -358,17 +341,16 @@ function AppearanceTab({
                 onClick={() => setDensity(opt.value)}
                 type="button"
               >
-                {opt.label}
+                <span>{opt.label}</span>
               </button>
             ))}
           </div>
         </OptionRow>
       </div>
 
-      {/* Animation speed */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Motion</span>
-        <OptionRow icon={Zap} label="Animation speed" description="Control transition timing globally">
+        <OptionRow icon={Zap} label="Animation speed" description="Global transition timing">
           <div className={styles.pillGroup}>
             {animOptions.map((opt) => (
               <button
@@ -378,7 +360,7 @@ function AppearanceTab({
                 onClick={() => setAnimSpeed(opt.value)}
                 type="button"
               >
-                {opt.label}
+                <span>{opt.label}</span>
               </button>
             ))}
           </div>
@@ -386,10 +368,8 @@ function AppearanceTab({
       </div>
 
       <div className={styles.infoNote}>
-        <Info size={13} aria-hidden="true" />
-        <span>
-          Respects <code>prefers-reduced-motion</code>. "Instant" disables all motion.
-        </span>
+        <Info size={13} />
+        <span>Respects <code>prefers-reduced-motion</code>. "None" disables all transitions.</span>
       </div>
     </div>
   );
@@ -409,7 +389,6 @@ function BehaviourTab({
 }) {
   return (
     <div className={styles.section}>
-      {/* Response */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Response</span>
         <OptionRow icon={Zap} label="Stream responses" description="Show tokens as they arrive">
@@ -418,12 +397,11 @@ function BehaviourTab({
         <OptionRow icon={Sparkles} label="Show thinking" description="Display model reasoning steps">
           <Toggle on={behaviour.showThinking} onToggle={() => updateBehaviour({ showThinking: !behaviour.showThinking })} />
         </OptionRow>
-        <OptionRow icon={MessageSquare} label="Auto-generate title" description="Name chats from first message">
+        <OptionRow icon={MessageSquare} label="Auto-title" description="Name chats from first message">
           <Toggle on={behaviour.autoTitle} onToggle={() => updateBehaviour({ autoTitle: !behaviour.autoTitle })} />
         </OptionRow>
       </div>
 
-      {/* Input */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Input</span>
         <OptionRow icon={Globe} label="Send with Enter" description="Shift+Enter for newline">
@@ -445,38 +423,34 @@ function BehaviourTab({
         </OptionRow>
       </div>
 
-      {/* Display */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Display</span>
-        <OptionRow icon={Code2} label="Wrap code blocks" description="Wrap long lines instead of scrolling">
+        <OptionRow icon={Code2} label="Wrap code" description="Wrap long lines in code blocks">
           <Toggle on={behaviour.codeWrap} onToggle={() => updateBehaviour({ codeWrap: !behaviour.codeWrap })} />
         </OptionRow>
         <OptionRow icon={Code2} label="Syntax highlighting" description="Highlight code in responses">
           <Toggle on={behaviour.codeHighlighting} onToggle={() => updateBehaviour({ codeHighlighting: !behaviour.codeHighlighting })} />
         </OptionRow>
-        <OptionRow icon={Type} label="Markdown rendering" description="Render formatted markdown">
+        <OptionRow icon={Type} label="Markdown" description="Render formatted markdown">
           <Toggle on={behaviour.markdownRendering} onToggle={() => updateBehaviour({ markdownRendering: !behaviour.markdownRendering })} />
         </OptionRow>
         <OptionRow icon={MessageSquare} label="Compact messages" description="Reduce vertical spacing">
           <Toggle on={behaviour.compactMessages} onToggle={() => updateBehaviour({ compactMessages: !behaviour.compactMessages })} />
         </OptionRow>
-        <OptionRow icon={BellRing} label="Notifications" description="Browser notifications for completions">
+        <OptionRow icon={BellRing} label="Notifications" description="Browser alerts for completions">
           <Toggle on={behaviour.enableNotifications} onToggle={() => updateBehaviour({ enableNotifications: !behaviour.enableNotifications })} />
         </OptionRow>
       </div>
 
-      {/* Model defaults */}
       <div className={styles.sectionBlock}>
-        <span className={styles.sectionLabel}>Default parameters</span>
+        <span className={styles.sectionLabel}>Model defaults</span>
         <div className={styles.sliderRow}>
           <div className={styles.sliderHeader}>
             <span className={styles.optionLabel}>Temperature</span>
             <span className={styles.sliderValue}>{inferenceParams.temperature.toFixed(2)}</span>
           </div>
           <Slider
-            min={0}
-            max={2}
-            step={0.05}
+            min={0} max={2} step={0.05}
             value={[inferenceParams.temperature]}
             onValueChange={([v]) => setInferenceParams({ ...inferenceParams, temperature: v })}
           />
@@ -488,9 +462,7 @@ function BehaviourTab({
             <span className={styles.sliderValue}>{inferenceParams.topP.toFixed(2)}</span>
           </div>
           <Slider
-            min={0}
-            max={1}
-            step={0.05}
+            min={0} max={1} step={0.05}
             value={[inferenceParams.topP]}
             onValueChange={([v]) => setInferenceParams({ ...inferenceParams, topP: v })}
           />
@@ -498,7 +470,6 @@ function BehaviourTab({
         </div>
       </div>
 
-      {/* System prompt */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>System prompt</span>
         <SystemPromptEditor conversationId={activeConversationId} />
@@ -518,10 +489,8 @@ function ApiKeysTab() {
         <KeyManagement />
       </div>
       <div className={styles.infoNote}>
-        <Shield size={13} aria-hidden="true" />
-        <span>
-          Keys encrypted with AES-256-GCM · Argon2id KDF. Never leaves your browser.
-        </span>
+        <Shield size={13} />
+        <span>Keys encrypted with AES-256-GCM · Argon2id KDF. Never leaves your browser.</span>
       </div>
     </div>
   );
@@ -541,15 +510,14 @@ function SecurityTab({
 
   return (
     <div className={styles.section}>
-      {/* Vault status */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Vault</span>
         <div className={styles.securityCard}>
           <div className={styles.securityHeader}>
-            <Fingerprint size={16} className={styles.securityIcon} aria-hidden="true" />
+            <Fingerprint size={16} className={styles.securityIcon} />
             <span className={styles.securityTitle}>Encryption vault</span>
             <div className={styles.securityBadge}>
-              <Lock size={10} aria-hidden="true" />
+              <Lock size={10} />
               {vaultStatus}
             </div>
           </div>
@@ -558,14 +526,13 @@ function SecurityTab({
           </span>
           {vaultStatus === 'unlocked' && (
             <button className={styles.actionBtn} onClick={lockVault} type="button">
-              <Lock size={13} aria-hidden="true" />
+              <Lock size={13} />
               Lock vault now
             </button>
           )}
         </div>
       </div>
 
-      {/* Session protection */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Session</span>
         <OptionRow icon={Clock} label="Auto-lock vault" description="Lock after inactivity">
@@ -578,9 +545,7 @@ function SecurityTab({
               <span className={styles.sliderValue}>{security.autoLockMinutes} min</span>
             </div>
             <Slider
-              min={1}
-              max={60}
-              step={1}
+              min={1} max={60} step={1}
               value={[security.autoLockMinutes]}
               onValueChange={([v]) => updateSecurity({ autoLockMinutes: v })}
             />
@@ -591,7 +556,6 @@ function SecurityTab({
         </OptionRow>
       </div>
 
-      {/* Privacy */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Privacy</span>
         <OptionRow icon={Eye} label="Redact sensitive data" description="Auto-redact keys & emails in errors">
@@ -602,12 +566,11 @@ function SecurityTab({
         </OptionRow>
       </div>
 
-      {/* Architecture info */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Architecture</span>
         <div className={styles.securityCard}>
           <div className={styles.securityHeader}>
-            <Shield size={15} className={styles.securityIcon} aria-hidden="true" />
+            <Shield size={15} className={styles.securityIcon} />
             <span className={styles.securityTitle}>Zero-knowledge</span>
           </div>
           <span className={styles.securityDesc}>
@@ -650,7 +613,6 @@ function AboutTab({
 
   return (
     <div className={styles.section}>
-      {/* Account */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Account</span>
         {user ? (
@@ -660,7 +622,7 @@ function AboutTab({
               <span className={styles.signOutHint}>Signed in as {displayName}</span>
             </div>
             <button className={styles.signOutBtn} onClick={onSignOut} type="button">
-              <LogOut size={13} aria-hidden="true" />
+              <LogOut size={13} />
               Sign out
             </button>
           </div>
@@ -673,7 +635,6 @@ function AboutTab({
         )}
       </div>
 
-      {/* Stats */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Statistics</span>
         <div className={styles.statsGrid}>
@@ -692,26 +653,19 @@ function AboutTab({
         </div>
       </div>
 
-      {/* Data */}
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Data</span>
         <OptionRow icon={Download} label="Export settings" description="Download preferences as JSON">
-          <button className={styles.actionBtnSmall} onClick={handleExport} type="button">
-            Export
-          </button>
+          <button className={styles.actionBtnSmall} onClick={handleExport} type="button">Export</button>
         </OptionRow>
         <OptionRow icon={Database} label="Storage" description="All data stored locally in IndexedDB">
           <span className={styles.storageBadge}>Local only</span>
         </OptionRow>
       </div>
 
-      {/* Info */}
       <div className={styles.infoNote}>
-        <Sparkles size={13} aria-hidden="true" />
-        <span>
-          <strong>BYOK Chat</strong> — Multi-model AI chat with your own API keys.
-          Zero tracking, zero server storage.
-        </span>
+        <Sparkles size={13} />
+        <span><strong>BYOK Chat</strong> — Multi-model AI chat with your own API keys. Zero tracking.</span>
       </div>
     </div>
   );

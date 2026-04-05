@@ -1,6 +1,5 @@
 import { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useAutoSave } from './hooks/use-auto-save';
 import { useTheme } from './hooks/use-theme';
 import { useKeyboard } from './hooks/use-keyboard';
@@ -27,7 +26,7 @@ function AppInner(): JSX.Element {
   useTheme();
   const { commandPaletteOpen, setCommandPaletteOpen } = useKeyboard();
   useAutoSave();
-  const location = useLocation();
+  
 
   const initVault = useAppStore((s) => s.initVault);
   const initSkills = useAppStore((s) => s.initSkills);
@@ -84,24 +83,13 @@ function AppInner(): JSX.Element {
           sidebar={<Sidebar />}
           header={<Header />}
         >
-          <AnimatePresence mode="popLayout">
-            <motion.div
-              key={location.pathname.startsWith('/settings') ? 'settings' : location.pathname.startsWith('/auth') ? 'auth' : 'chat'}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.12, ease: [0.16, 1, 0.3, 1] }}
-              style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-            >
-              <Routes location={location}>
+              <Routes>
                 <Route path="/" element={<ChatPage />} />
                 <Route path="/chat/:conversationId" element={<ChatPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="*" element={<ChatPage />} />
               </Routes>
-            </motion.div>
-          </AnimatePresence>
         </AppShell>
         <VaultSetupModal />
         <VaultUnlockModal />
