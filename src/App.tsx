@@ -83,7 +83,7 @@ function AppInner(): JSX.Element {
           sidebar={<Sidebar />}
           header={<Header />}
         >
-              <Routes location={location}>
+              <Routes>
                 <Route path="/" element={<ChatPage />} />
                 <Route path="/chat/:conversationId" element={<ChatPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
