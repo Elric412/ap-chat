@@ -1,6 +1,5 @@
 import { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useAutoSave } from './hooks/use-auto-save';
 import { useTheme } from './hooks/use-theme';
 import { useKeyboard } from './hooks/use-keyboard';
