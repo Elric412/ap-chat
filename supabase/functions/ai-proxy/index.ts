@@ -366,7 +366,7 @@ Deno.serve(async (req) => {
         latency_ms: latencyMs,
         status: 'error',
         error_message: isTimeout ? 'Provider timeout' : 'Network error',
-      }).catch(() => {});
+      }).then(() => {}, () => {});
 
       if (isTimeout) {
         return errorResponse(504, 'PROVIDER_TIMEOUT', `Provider timed out after ${PROVIDER_TIMEOUT_MS / 1000}s`, true, cors);
