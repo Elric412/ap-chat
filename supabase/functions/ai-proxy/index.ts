@@ -392,7 +392,7 @@ Deno.serve(async (req) => {
         latency_ms: latencyMs,
         status: 'error',
         error_message: sanitizedError,
-      }).catch(() => {});
+      }).then(() => {}, () => {});
 
       const retryable = providerResponse.status >= 500 || providerResponse.status === 429;
       const code = providerResponse.status === 429 ? 'PROVIDER_RATE_LIMITED' : 'PROVIDER_ERROR';
@@ -446,7 +446,7 @@ Deno.serve(async (req) => {
       cost_estimate: costEstimate,
       latency_ms: latencyMs,
       status: 'success',
-    }).catch(() => {});
+    }).then(() => {}, () => {});
 
     return new Response(JSON.stringify(responseData), {
       headers: {
