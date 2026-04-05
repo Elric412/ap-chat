@@ -91,8 +91,6 @@ function AppInner(): JSX.Element {
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="*" element={<ChatPage />} />
               </Routes>
-            </motion.div>
-          </AnimatePresence>
         </AppShell>
         <VaultSetupModal />
         <VaultUnlockModal />
