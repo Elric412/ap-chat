@@ -308,10 +308,12 @@ export function SettingsPage(): JSX.Element {
    ═══════════════════════════════════════════════════════ */
 function AppearanceTab({
   theme, resolvedTheme, setTheme, density, setDensity, animSpeed, setAnimSpeed,
+  glassEnabled, toggleGlass,
 }: {
   theme: ThemeMode; resolvedTheme: string; setTheme: (t: ThemeMode) => void;
   density: DensityMode; setDensity: (d: DensityMode) => void;
   animSpeed: AnimSpeed; setAnimSpeed: (s: AnimSpeed) => void;
+  glassEnabled: boolean; toggleGlass: () => void;
 }) {
   const themeOptions: { value: ThemeMode; label: string; icon: typeof Sun }[] = [
     { value: 'light', label: 'Light', icon: Sun },
