@@ -265,6 +265,8 @@ export function SettingsPage(): JSX.Element {
             setDensity={setDensity}
             animSpeed={animSpeed}
             setAnimSpeed={setAnimSpeed}
+            glassEnabled={glassEnabled}
+            toggleGlass={toggleGlass}
           />
         )}
         {activeTab === 'behaviour' && (
