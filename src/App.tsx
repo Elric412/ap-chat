@@ -14,7 +14,7 @@ import { toSafeFilename } from './lib/file-utils';
 const Sidebar = lazy(() => import('./components/layout/Sidebar').then((module) => ({ default: module.Sidebar })));
 const Header = lazy(() => import('./components/layout/Header').then((module) => ({ default: module.Header })));
 const ChatPage = lazy(() => import('./pages/ChatPage').then((module) => ({ default: module.ChatPage })));
-const SettingsPage = lazy(() => import('./pages/SettingsPage').then((module) => ({ default: module.SettingsPage })));
+import { SettingsPage } from './pages/SettingsPage';
 const AuthPage = lazy(() => import('./pages/AuthPage').then((module) => ({ default: module.AuthPage })));
 const VaultSetupModal = lazy(() => import('./components/vault/VaultSetupModal').then((module) => ({ default: module.VaultSetupModal })));
 const VaultUnlockModal = lazy(() => import('./components/vault/VaultUnlockModal').then((module) => ({ default: module.VaultUnlockModal })));

@@ -41,9 +41,12 @@ function getStoredAnimSpeed(): AnimSpeed {
 
 function getStoredGlass(): boolean {
   try {
-    return localStorage.getItem(GLASS_KEY) === 'true';
+    const v = localStorage.getItem(GLASS_KEY);
+    // Default to true if never set
+    if (v === null) return true;
+    return v === 'true';
   } catch { /* noop */ }
-  return false;
+  return true;
 }
 
 const BEHAVIOUR_KEY = 'byok-behaviour';
