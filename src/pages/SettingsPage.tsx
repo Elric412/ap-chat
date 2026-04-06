@@ -5,7 +5,7 @@ import {
   Lock, Sun, Moon, Monitor, Fingerprint, Eye,
   LogOut, LogIn, Sparkles, Zap, MessageSquare, Code2,
   Type, Globe, BellRing, Trash2, Download,
-  Clock, Database, Languages,
+  Clock, Database, Languages, Layers,
 } from 'lucide-react';
 import { KeyManagement } from '../components/vault/KeyManagement';
 import { SystemPromptEditor } from '../components/system-prompt/SystemPromptEditor';
@@ -28,6 +28,7 @@ const TABS: { id: SettingsTab; label: string; icon: typeof Palette }[] = [
 ];
 
 const ANIM_SPEED_KEY = 'byok-anim-speed';
+const GLASS_KEY = 'byok-glassmorphism';
 type AnimSpeed = 'instant' | 'fast' | 'normal' | 'relaxed';
 
 function getStoredAnimSpeed(): AnimSpeed {
@@ -36,6 +37,13 @@ function getStoredAnimSpeed(): AnimSpeed {
     if (v === 'instant' || v === 'fast' || v === 'normal' || v === 'relaxed') return v;
   } catch { /* noop */ }
   return 'normal';
+}
+
+function getStoredGlass(): boolean {
+  try {
+    return localStorage.getItem(GLASS_KEY) === 'true';
+  } catch { /* noop */ }
+  return false;
 }
 
 const BEHAVIOUR_KEY = 'byok-behaviour';
@@ -157,8 +165,14 @@ export function SettingsPage(): JSX.Element {
   const setInferenceParams = useAppStore((s) => s.setInferenceParams);
 
   const [animSpeed, setAnimSpeedState] = useState<AnimSpeed>(getStoredAnimSpeed);
+  const [glassEnabled, setGlassEnabledState] = useState<boolean>(getStoredGlass);
   const [behaviour, setBehaviourState] = useState<BehaviourPrefs>(getStoredBehaviour);
   const [security, setSecurityState] = useState<SecurityPrefs>(getStoredSecurity);
+
+  // Sync glass attribute on mount
+  useEffect(() => {
+    document.documentElement.setAttribute('data-glass', String(glassEnabled));
+  }, [glassEnabled]);
 
   const totalModels = MODEL_REGISTRY.filter((m) => !m.deprecated).length;
   const providerCount = new Set(MODEL_REGISTRY.map((m) => m.providerId)).size;
@@ -177,6 +191,15 @@ export function SettingsPage(): JSX.Element {
     setAnimSpeedState(speed);
     try { localStorage.setItem(ANIM_SPEED_KEY, speed); } catch { /* noop */ }
     document.documentElement.setAttribute('data-anim-speed', speed);
+  }, []);
+
+  const toggleGlass = useCallback(() => {
+    setGlassEnabledState((prev) => {
+      const next = !prev;
+      try { localStorage.setItem(GLASS_KEY, String(next)); } catch { /* noop */ }
+      document.documentElement.setAttribute('data-glass', String(next));
+      return next;
+    });
   }, []);
 
   const updateBehaviour = useCallback((patch: Partial<BehaviourPrefs>) => {
@@ -242,6 +265,8 @@ export function SettingsPage(): JSX.Element {
             setDensity={setDensity}
             animSpeed={animSpeed}
             setAnimSpeed={setAnimSpeed}
+            glassEnabled={glassEnabled}
+            toggleGlass={toggleGlass}
           />
         )}
         {activeTab === 'behaviour' && (
@@ -283,10 +308,12 @@ export function SettingsPage(): JSX.Element {
    ═══════════════════════════════════════════════════════ */
 function AppearanceTab({
   theme, resolvedTheme, setTheme, density, setDensity, animSpeed, setAnimSpeed,
+  glassEnabled, toggleGlass,
 }: {
   theme: ThemeMode; resolvedTheme: string; setTheme: (t: ThemeMode) => void;
   density: DensityMode; setDensity: (d: DensityMode) => void;
   animSpeed: AnimSpeed; setAnimSpeed: (s: AnimSpeed) => void;
+  glassEnabled: boolean; toggleGlass: () => void;
 }) {
   const themeOptions: { value: ThemeMode; label: string; icon: typeof Sun }[] = [
     { value: 'light', label: 'Light', icon: Sun },
@@ -364,6 +391,13 @@ function AppearanceTab({
               </button>
             ))}
           </div>
+        </OptionRow>
+      </div>
+
+      <div className={styles.sectionBlock}>
+        <span className={styles.sectionLabel}>Effects</span>
+        <OptionRow icon={Layers} label="Glassmorphism" description="Frosted glass on panels & header">
+          <Toggle on={glassEnabled} onToggle={toggleGlass} />
         </OptionRow>
       </div>
 
