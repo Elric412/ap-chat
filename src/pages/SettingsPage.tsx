@@ -165,8 +165,14 @@ export function SettingsPage(): JSX.Element {
   const setInferenceParams = useAppStore((s) => s.setInferenceParams);
 
   const [animSpeed, setAnimSpeedState] = useState<AnimSpeed>(getStoredAnimSpeed);
+  const [glassEnabled, setGlassEnabledState] = useState<boolean>(getStoredGlass);
   const [behaviour, setBehaviourState] = useState<BehaviourPrefs>(getStoredBehaviour);
   const [security, setSecurityState] = useState<SecurityPrefs>(getStoredSecurity);
+
+  // Sync glass attribute on mount
+  useEffect(() => {
+    document.documentElement.setAttribute('data-glass', String(glassEnabled));
+  }, [glassEnabled]);
 
   const totalModels = MODEL_REGISTRY.filter((m) => !m.deprecated).length;
   const providerCount = new Set(MODEL_REGISTRY.map((m) => m.providerId)).size;
