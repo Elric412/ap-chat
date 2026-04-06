@@ -193,6 +193,15 @@ export function SettingsPage(): JSX.Element {
     document.documentElement.setAttribute('data-anim-speed', speed);
   }, []);
 
+  const toggleGlass = useCallback(() => {
+    setGlassEnabledState((prev) => {
+      const next = !prev;
+      try { localStorage.setItem(GLASS_KEY, String(next)); } catch { /* noop */ }
+      document.documentElement.setAttribute('data-glass', String(next));
+      return next;
+    });
+  }, []);
+
   const updateBehaviour = useCallback((patch: Partial<BehaviourPrefs>) => {
     setBehaviourState((prev) => {
       const next = { ...prev, ...patch };
