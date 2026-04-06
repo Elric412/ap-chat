@@ -28,6 +28,7 @@ const TABS: { id: SettingsTab; label: string; icon: typeof Palette }[] = [
 ];
 
 const ANIM_SPEED_KEY = 'byok-anim-speed';
+const GLASS_KEY = 'byok-glassmorphism';
 type AnimSpeed = 'instant' | 'fast' | 'normal' | 'relaxed';
 
 function getStoredAnimSpeed(): AnimSpeed {
@@ -36,6 +37,13 @@ function getStoredAnimSpeed(): AnimSpeed {
     if (v === 'instant' || v === 'fast' || v === 'normal' || v === 'relaxed') return v;
   } catch { /* noop */ }
   return 'normal';
+}
+
+function getStoredGlass(): boolean {
+  try {
+    return localStorage.getItem(GLASS_KEY) === 'true';
+  } catch { /* noop */ }
+  return false;
 }
 
 const BEHAVIOUR_KEY = 'byok-behaviour';
