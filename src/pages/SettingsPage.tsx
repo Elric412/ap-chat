@@ -394,6 +394,13 @@ function AppearanceTab({
         </OptionRow>
       </div>
 
+      <div className={styles.sectionBlock}>
+        <span className={styles.sectionLabel}>Effects</span>
+        <OptionRow icon={Layers} label="Glassmorphism" description="Frosted glass on panels & header">
+          <Toggle on={glassEnabled} onToggle={toggleGlass} />
+        </OptionRow>
+      </div>
+
       <div className={styles.infoNote}>
         <Info size={13} />
         <span>Respects <code>prefers-reduced-motion</code>. "None" disables all transitions.</span>
