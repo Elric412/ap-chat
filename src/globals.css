@@ -746,6 +746,44 @@ p, li, dd, figcaption {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   Glassmorphism System — Toggled via [data-glass="true"]
+   Performance: uses will-change only on glass surfaces,
+   GPU-composited backdrop-filter with fallback.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* When glass is OFF, these are transparent/no-ops */
+:root {
+  --glass-surface-bg: var(--color-surface-1);
+  --glass-surface-blur: 0px;
+  --glass-surface-border: 1px solid var(--color-border-1);
+  --glass-header-bg: var(--color-surface-0);
+  --glass-header-blur: 0px;
+  --glass-dropdown-bg: var(--color-surface-1);
+  --glass-dropdown-blur: 0px;
+}
+
+/* When glass is ON */
+[data-glass="true"] {
+  --glass-surface-bg: hsl(240, 6%, 6%, 0.72);
+  --glass-surface-blur: 20px;
+  --glass-surface-border: 1px solid hsl(0, 0%, 100%, 0.07);
+  --glass-header-bg: hsl(240, 6%, 4%, 0.65);
+  --glass-header-blur: 18px;
+  --glass-dropdown-bg: hsl(240, 5%, 8%, 0.78);
+  --glass-dropdown-blur: 24px;
+}
+
+[data-theme="light"][data-glass="true"] {
+  --glass-surface-bg: hsl(240, 6%, 99%, 0.72);
+  --glass-surface-blur: 20px;
+  --glass-surface-border: 1px solid hsl(240, 6%, 4%, 0.05);
+  --glass-header-bg: hsl(240, 6%, 99%, 0.68);
+  --glass-header-blur: 18px;
+  --glass-dropdown-bg: hsl(240, 6%, 99%, 0.82);
+  --glass-dropdown-blur: 24px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    shadcn/ui Layer
    ═══════════════════════════════════════════════════════════════ */
 

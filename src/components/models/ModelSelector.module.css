@@ -25,8 +25,10 @@
   width: 400px;
   max-width: calc(100vw - var(--space-8));
   max-height: 55vh;
-  background: var(--color-surface-1);
-  border: 1px solid var(--color-border-1);
+  background: var(--glass-dropdown-bg);
+  backdrop-filter: blur(var(--glass-dropdown-blur));
+  -webkit-backdrop-filter: blur(var(--glass-dropdown-blur));
+  border: var(--glass-surface-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
   overflow: hidden;
