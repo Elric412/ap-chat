@@ -5,7 +5,7 @@ import {
   Lock, Sun, Moon, Monitor, Fingerprint, Eye,
   LogOut, LogIn, Sparkles, Zap, MessageSquare, Code2,
   Type, Globe, BellRing, Trash2, Download,
-  Clock, Database, Languages,
+  Clock, Database, Languages, Layers,
 } from 'lucide-react';
 import { KeyManagement } from '../components/vault/KeyManagement';
 import { SystemPromptEditor } from '../components/system-prompt/SystemPromptEditor';
