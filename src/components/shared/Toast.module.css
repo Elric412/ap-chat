@@ -3,9 +3,12 @@
   align-items: flex-start;
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
-  background: var(--color-surface-3);
+  background: var(--glass-dropdown-bg);
+  backdrop-filter: blur(var(--glass-dropdown-blur));
+  -webkit-backdrop-filter: blur(var(--glass-dropdown-blur));
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
+  border: var(--glass-surface-border);
   border-left: 3px solid var(--color-info);
   width: var(--layout-toast-width);
   max-width: calc(100vw - var(--space-8));

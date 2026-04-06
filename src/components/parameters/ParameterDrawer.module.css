@@ -5,8 +5,10 @@
   bottom: 0;
   width: var(--layout-params-width);
   max-width: 90vw;
-  background: var(--color-surface-1);
-  border-left: 1px solid hsl(0, 0%, 100%, 0.04);
+  background: var(--glass-surface-bg);
+  backdrop-filter: blur(var(--glass-surface-blur));
+  -webkit-backdrop-filter: blur(var(--glass-surface-blur));
+  border-left: var(--glass-surface-border);
   z-index: var(--z-drawer);
   display: flex;
   flex-direction: column;
