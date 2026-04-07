@@ -762,7 +762,8 @@ p, li, dd, figcaption {
   --glass-dropdown-blur: 0px;
 }
 
-/* When glass is ON */
+/* ── Glass Level: Standard (default) ── */
+[data-glass="standard"],
 [data-glass="true"] {
   --glass-surface-bg: hsl(240, 6%, 6%, 0.72);
   --glass-surface-blur: 20px;
@@ -773,6 +774,30 @@ p, li, dd, figcaption {
   --glass-dropdown-blur: 24px;
 }
 
+/* ── Glass Level: Intense ── */
+[data-glass="intense"] {
+  --glass-surface-bg: hsl(240, 6%, 5%, 0.55);
+  --glass-surface-blur: 40px;
+  --glass-surface-border: 1px solid hsl(0, 0%, 100%, 0.1);
+  --glass-header-bg: hsl(240, 6%, 3%, 0.45);
+  --glass-header-blur: 36px;
+  --glass-dropdown-bg: hsl(240, 5%, 6%, 0.6);
+  --glass-dropdown-blur: 48px;
+}
+
+/* ── Glass Level: Liquid (iOS-style) ── */
+[data-glass="liquid"] {
+  --glass-surface-bg: hsl(240, 8%, 8%, 0.38);
+  --glass-surface-blur: 60px;
+  --glass-surface-border: 1px solid hsl(0, 0%, 100%, 0.14);
+  --glass-header-bg: hsl(240, 8%, 4%, 0.3);
+  --glass-header-blur: 50px;
+  --glass-dropdown-bg: hsl(240, 6%, 6%, 0.42);
+  --glass-dropdown-blur: 64px;
+}
+
+/* ── Light mode glass variants ── */
+[data-theme="light"][data-glass="standard"],
 [data-theme="light"][data-glass="true"] {
   --glass-surface-bg: hsl(240, 6%, 99%, 0.72);
   --glass-surface-blur: 20px;
@@ -781,6 +806,26 @@ p, li, dd, figcaption {
   --glass-header-blur: 18px;
   --glass-dropdown-bg: hsl(240, 6%, 99%, 0.82);
   --glass-dropdown-blur: 24px;
+}
+
+[data-theme="light"][data-glass="intense"] {
+  --glass-surface-bg: hsl(240, 6%, 99%, 0.55);
+  --glass-surface-blur: 40px;
+  --glass-surface-border: 1px solid hsl(240, 6%, 4%, 0.07);
+  --glass-header-bg: hsl(240, 6%, 99%, 0.5);
+  --glass-header-blur: 36px;
+  --glass-dropdown-bg: hsl(240, 6%, 99%, 0.62);
+  --glass-dropdown-blur: 48px;
+}
+
+[data-theme="light"][data-glass="liquid"] {
+  --glass-surface-bg: hsl(240, 8%, 100%, 0.35);
+  --glass-surface-blur: 60px;
+  --glass-surface-border: 1px solid hsl(240, 6%, 4%, 0.08);
+  --glass-header-bg: hsl(240, 8%, 100%, 0.28);
+  --glass-header-blur: 50px;
+  --glass-dropdown-bg: hsl(240, 6%, 100%, 0.4);
+  --glass-dropdown-blur: 64px;
 }
 
 /* ═══════════════════════════════════════════════════════════════
