@@ -5,7 +5,7 @@ import {
   Lock, Sun, Moon, Monitor, Fingerprint, Eye,
   LogOut, LogIn, Sparkles, Zap, MessageSquare, Code2,
   Type, Globe, BellRing, Trash2, Download,
-  Clock, Database, Languages, Layers,
+  Clock, Database, Languages, Layers, KeyRound,
 } from 'lucide-react';
 import { KeyManagement } from '../components/vault/KeyManagement';
 import { SystemPromptEditor } from '../components/system-prompt/SystemPromptEditor';
@@ -29,7 +29,9 @@ const TABS: { id: SettingsTab; label: string; icon: typeof Palette }[] = [
 
 const ANIM_SPEED_KEY = 'byok-anim-speed';
 const GLASS_KEY = 'byok-glassmorphism';
+const VAULT_PROMPT_KEY = 'byok-vault-auto-prompt';
 type AnimSpeed = 'instant' | 'fast' | 'normal' | 'relaxed';
+type GlassLevel = 'off' | 'standard' | 'intense' | 'liquid';
 
 function getStoredAnimSpeed(): AnimSpeed {
   try {
@@ -39,14 +41,22 @@ function getStoredAnimSpeed(): AnimSpeed {
   return 'normal';
 }
 
-function getStoredGlass(): boolean {
+function getStoredGlass(): GlassLevel {
   try {
     const v = localStorage.getItem(GLASS_KEY);
-    // Default to true if never set
-    if (v === null) return true;
-    return v === 'true';
+    if (v === 'off' || v === 'standard' || v === 'intense' || v === 'liquid') return v;
+    // Legacy: 'true' maps to standard, 'false' maps to off
+    if (v === 'true') return 'standard';
+    if (v === 'false') return 'off';
   } catch { /* noop */ }
-  return true;
+  return 'standard';
+}
+
+function getStoredVaultPrompt(): boolean {
+  try {
+    return localStorage.getItem(VAULT_PROMPT_KEY) === 'true';
+  } catch { /* noop */ }
+  return false;
 }
 
 const BEHAVIOUR_KEY = 'byok-behaviour';
@@ -168,14 +178,19 @@ export function SettingsPage(): JSX.Element {
   const setInferenceParams = useAppStore((s) => s.setInferenceParams);
 
   const [animSpeed, setAnimSpeedState] = useState<AnimSpeed>(getStoredAnimSpeed);
-  const [glassEnabled, setGlassEnabledState] = useState<boolean>(getStoredGlass);
+  const [glassLevel, setGlassLevelState] = useState<GlassLevel>(getStoredGlass);
   const [behaviour, setBehaviourState] = useState<BehaviourPrefs>(getStoredBehaviour);
   const [security, setSecurityState] = useState<SecurityPrefs>(getStoredSecurity);
+  const [vaultAutoPrompt, setVaultAutoPromptState] = useState<boolean>(getStoredVaultPrompt);
 
-  // Sync glass attribute on mount
+  // Sync glass attribute
   useEffect(() => {
-    document.documentElement.setAttribute('data-glass', String(glassEnabled));
-  }, [glassEnabled]);
+    if (glassLevel === 'off') {
+      document.documentElement.removeAttribute('data-glass');
+    } else {
+      document.documentElement.setAttribute('data-glass', glassLevel);
+    }
+  }, [glassLevel]);
 
   const totalModels = MODEL_REGISTRY.filter((m) => !m.deprecated).length;
   const providerCount = new Set(MODEL_REGISTRY.map((m) => m.providerId)).size;
@@ -196,11 +211,20 @@ export function SettingsPage(): JSX.Element {
     document.documentElement.setAttribute('data-anim-speed', speed);
   }, []);
 
-  const toggleGlass = useCallback(() => {
-    setGlassEnabledState((prev) => {
+  const setGlassLevel = useCallback((level: GlassLevel) => {
+    setGlassLevelState(level);
+    try { localStorage.setItem(GLASS_KEY, level); } catch { /* noop */ }
+    if (level === 'off') {
+      document.documentElement.removeAttribute('data-glass');
+    } else {
+      document.documentElement.setAttribute('data-glass', level);
+    }
+  }, []);
+
+  const toggleVaultAutoPrompt = useCallback(() => {
+    setVaultAutoPromptState((prev) => {
       const next = !prev;
-      try { localStorage.setItem(GLASS_KEY, String(next)); } catch { /* noop */ }
-      document.documentElement.setAttribute('data-glass', String(next));
+      try { localStorage.setItem(VAULT_PROMPT_KEY, String(next)); } catch { /* noop */ }
       return next;
     });
   }, []);
@@ -268,8 +292,8 @@ export function SettingsPage(): JSX.Element {
             setDensity={setDensity}
             animSpeed={animSpeed}
             setAnimSpeed={setAnimSpeed}
-            glassEnabled={glassEnabled}
-            toggleGlass={toggleGlass}
+            glassLevel={glassLevel}
+            setGlassLevel={setGlassLevel}
           />
         )}
         {activeTab === 'behaviour' && (
@@ -287,6 +311,8 @@ export function SettingsPage(): JSX.Element {
             security={security}
             updateSecurity={updateSecurity}
             vaultStatus={vaultStatus}
+            vaultAutoPrompt={vaultAutoPrompt}
+            toggleVaultAutoPrompt={toggleVaultAutoPrompt}
           />
         )}
         {activeTab === 'about' && (
@@ -311,12 +337,12 @@ export function SettingsPage(): JSX.Element {
    ═══════════════════════════════════════════════════════ */
 function AppearanceTab({
   theme, resolvedTheme, setTheme, density, setDensity, animSpeed, setAnimSpeed,
-  glassEnabled, toggleGlass,
+  glassLevel, setGlassLevel,
 }: {
   theme: ThemeMode; resolvedTheme: string; setTheme: (t: ThemeMode) => void;
   density: DensityMode; setDensity: (d: DensityMode) => void;
   animSpeed: AnimSpeed; setAnimSpeed: (s: AnimSpeed) => void;
-  glassEnabled: boolean; toggleGlass: () => void;
+  glassLevel: GlassLevel; setGlassLevel: (l: GlassLevel) => void;
 }) {
   const themeOptions: { value: ThemeMode; label: string; icon: typeof Sun }[] = [
     { value: 'light', label: 'Light', icon: Sun },
@@ -335,6 +361,13 @@ function AppearanceTab({
     { value: 'fast', label: 'Fast' },
     { value: 'normal', label: 'Normal' },
     { value: 'relaxed', label: 'Slow' },
+  ];
+
+  const glassOptions: { value: GlassLevel; label: string; desc: string }[] = [
+    { value: 'off', label: 'Off', desc: 'Solid backgrounds' },
+    { value: 'standard', label: 'Standard', desc: 'Subtle frost' },
+    { value: 'intense', label: 'Intense', desc: 'Deep blur' },
+    { value: 'liquid', label: 'Liquid', desc: 'iOS-style glass' },
   ];
 
   return (
@@ -399,8 +432,21 @@ function AppearanceTab({
 
       <div className={styles.sectionBlock}>
         <span className={styles.sectionLabel}>Effects</span>
-        <OptionRow icon={Layers} label="Glassmorphism" description="Frosted glass on panels & header">
-          <Toggle on={glassEnabled} onToggle={toggleGlass} />
+        <OptionRow icon={Layers} label="Glassmorphism" description="Frosted glass rendering level">
+          <div className={styles.pillGroup}>
+            {glassOptions.map((opt) => (
+              <button
+                key={opt.value}
+                className={styles.pill}
+                data-active={glassLevel === opt.value}
+                onClick={() => setGlassLevel(opt.value)}
+                type="button"
+                title={opt.desc}
+              >
+                <span>{opt.label}</span>
+              </button>
+            ))}
+          </div>
         </OptionRow>
       </div>
 
@@ -538,10 +584,13 @@ function ApiKeysTab() {
    ═══════════════════════════════════════════════════════ */
 function SecurityTab({
   security, updateSecurity, vaultStatus,
+  vaultAutoPrompt, toggleVaultAutoPrompt,
 }: {
   security: SecurityPrefs;
   updateSecurity: (p: Partial<SecurityPrefs>) => void;
   vaultStatus: string;
+  vaultAutoPrompt: boolean;
+  toggleVaultAutoPrompt: () => void;
 }) {
   const lockVault = useAppStore((s) => s.lockVault);
 
@@ -568,6 +617,9 @@ function SecurityTab({
             </button>
           )}
         </div>
+        <OptionRow icon={KeyRound} label="Auto-prompt vault" description="Show vault setup/unlock on app start">
+          <Toggle on={vaultAutoPrompt} onToggle={toggleVaultAutoPrompt} />
+        </OptionRow>
       </div>
 
       <div className={styles.sectionBlock}>
