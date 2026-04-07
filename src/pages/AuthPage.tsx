@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
-import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff, ShieldCheck, Sparkles, Database } from 'lucide-react';
+import { ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 import styles from './AuthPage.module.css';
 import { validatePasswordPolicy } from '@/lib/password-policy';
 
@@ -52,124 +52,113 @@ export function AuthPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.container}>
-        <aside className={styles.showcase}>
-          <p className={styles.eyebrow}>Private AI Workspace</p>
-          <h1 className={styles.title}>BYOK Chat</h1>
-          <p className={styles.subtitle}>
-            Run premium multi-model conversations with your own keys, full session control, and optional cloud sync.
+      {/* Ambient background orbs */}
+      <div className={styles.orbA} aria-hidden="true" />
+      <div className={styles.orbB} aria-hidden="true" />
+
+      <div className={styles.card}>
+        {/* Brand mark */}
+        <div className={styles.brandRow}>
+          <div className={styles.brandDot} />
+          <span className={styles.brandName}>BYOK</span>
+        </div>
+
+        {/* Header copy */}
+        <div className={styles.headerBlock}>
+          <h1 className={styles.heading}>
+            {mode === 'signin' ? 'Welcome back' : 'Create account'}
+          </h1>
+          <p className={styles.subheading}>
+            {mode === 'signin'
+              ? 'Sign in to continue to your workspace.'
+              : 'Start using multi-model AI with your own keys.'}
           </p>
+        </div>
 
-          <ul className={styles.featureList}>
-            <li className={styles.featureItem}>
-              <ShieldCheck size={16} />
-              <span>Bring-your-own-keys architecture with encrypted vault defaults.</span>
-            </li>
-            <li className={styles.featureItem}>
-              <Sparkles size={16} />
-              <span>Fast model switching, comparison mode, and export-ready workflows.</span>
-            </li>
-            <li className={styles.featureItem}>
-              <Database size={16} />
-              <span>Stay local when you want, sync when you need.</span>
-            </li>
-          </ul>
-        </aside>
-
-        <div className={styles.panel}>
-          <div className={styles.header}>
-            <p className={styles.modeLabel}>{mode === 'signin' ? 'Welcome back' : 'Create your account'}</p>
-            <h2 className={styles.panelTitle}>{mode === 'signin' ? 'Sign in' : 'Sign up'}</h2>
-            <p className={styles.panelSubtitle}>
-              {mode === 'signin'
-                ? 'Continue to your conversations and model presets.'
-                : 'Start syncing sessions and preferences across devices.'}
-            </p>
+        {/* Form */}
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <div className={styles.fieldGroup}>
+            <label className={styles.fieldLabel} htmlFor="auth-email">Email</label>
+            <input
+              id="auth-email"
+              type="email"
+              className={styles.field}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@company.com"
+              required
+              autoComplete="email"
+              autoFocus
+            />
           </div>
 
-          <form className={styles.form} onSubmit={handleSubmit}>
-            <div className={styles.inputGroup}>
-              <label className={styles.label} htmlFor="email">Email</label>
-              <div className={styles.inputWrapper}>
-                <Mail size={16} className={styles.inputIcon} />
-                <input
-                  id="email"
-                  type="email"
-                  className={styles.input}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  required
-                  autoComplete="email"
-                />
-              </div>
+          <div className={styles.fieldGroup}>
+            <label className={styles.fieldLabel} htmlFor="auth-password">Password</label>
+            <div className={styles.fieldWrapper}>
+              <input
+                id="auth-password"
+                type={showPassword ? 'text' : 'password'}
+                className={styles.field}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                required
+                minLength={12}
+                autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+              />
+              <button
+                type="button"
+                className={styles.eyeBtn}
+                onClick={() => setShowPassword((p) => !p)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
             </div>
-
-            <div className={styles.inputGroup}>
-              <label className={styles.label} htmlFor="password">Password</label>
-              <div className={styles.inputWrapper}>
-                <Lock size={16} className={styles.inputIcon} />
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  className={styles.input}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  minLength={12}
-                  autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-                />
-                <button
-                  type="button"
-                  className={styles.eyeBtn}
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </div>
-
-            {error && <p className={styles.error}>{error}</p>}
-            {success && <p className={styles.success}>{success}</p>}
-
-            <button className={styles.submitBtn} type="submit" disabled={loading}>
-              {loading ? (
-                <Loader2 size={18} className={styles.spinner} />
-              ) : (
-                <>
-                  {mode === 'signin' ? 'Sign In' : 'Sign Up'}
-                  <ArrowRight size={16} />
-                </>
-              )}
-            </button>
-          </form>
-
-          <div className={styles.footer}>
-            <span className={styles.footerText}>
-              {mode === 'signin' ? "Don't have an account?" : 'Already have an account?'}
-            </span>
-            <button
-              type="button"
-              className={styles.switchBtn}
-              onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
-            >
-              {mode === 'signin' ? 'Sign Up' : 'Sign In'}
-            </button>
           </div>
 
-          <p className={styles.localNote}>
-            Or continue without an account to use local storage only.
-          </p>
+          {error && <p className={styles.errorMsg}>{error}</p>}
+          {success && <p className={styles.successMsg}>{success}</p>}
+
+          <button className={styles.primaryBtn} type="submit" disabled={loading}>
+            {loading ? (
+              <Loader2 size={16} className={styles.spin} />
+            ) : (
+              <>
+                {mode === 'signin' ? 'Sign in' : 'Create account'}
+                <ArrowRight size={14} />
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className={styles.divider}>
+          <span className={styles.dividerText}>or</span>
+        </div>
+
+        {/* Skip */}
+        <button
+          type="button"
+          className={styles.ghostBtn}
+          onClick={() => navigate('/')}
+        >
+          Continue without an account
+        </button>
+
+        {/* Switch mode */}
+        <p className={styles.switchRow}>
+          <span className={styles.switchText}>
+            {mode === 'signin' ? "No account yet?" : 'Already have one?'}
+          </span>
           <button
             type="button"
-            className={styles.skipBtn}
-            onClick={() => navigate('/')}
+            className={styles.switchLink}
+            onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(''); setSuccess(''); }}
           >
-            Continue without signing in
+            {mode === 'signin' ? 'Sign up' : 'Sign in'}
           </button>
-        </div>
+        </p>
       </div>
     </div>
   );

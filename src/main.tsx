@@ -7,12 +7,15 @@ import './globals.css';
 // Enable Immer MapSet plugin before any store initialization
 enableMapSet();
 
-// Restore glassmorphism preference on load (default: enabled)
+// Restore glassmorphism preference on load (default: standard)
 try {
   const glass = localStorage.getItem('byok-glassmorphism');
-  // Default to true if never set
-  if (glass === null || glass === 'true') {
-    document.documentElement.setAttribute('data-glass', 'true');
+  // Default to 'standard' if never set
+  const level = glass || 'standard';
+  if (level === 'off') {
+    document.documentElement.removeAttribute('data-glass');
+  } else {
+    document.documentElement.setAttribute('data-glass', level);
   }
 } catch { /* noop */ }
 
