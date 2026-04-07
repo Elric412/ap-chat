@@ -5,6 +5,8 @@ import { Spinner } from '../shared/Spinner';
 import styles from './VaultModal.module.css';
 import { validatePasswordPolicy } from '../../lib/password-policy';
 
+const VAULT_PROMPT_KEY = 'byok-vault-auto-prompt';
+
 export function VaultSetupModal(): JSX.Element | null {
   const vaultStatus = useAppStore((s) => s.vaultStatus);
   const vaultLoading = useAppStore((s) => s.vaultLoading);
@@ -17,12 +19,21 @@ export function VaultSetupModal(): JSX.Element | null {
   const [localError, setLocalError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  /* Auto-focus input on mount */
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
+  // Check if vault auto-prompt is disabled (default: disabled)
+  const isAutoPromptDisabled = (() => {
+    try {
+      const v = localStorage.getItem(VAULT_PROMPT_KEY);
+      // Default to disabled (false) — user must explicitly enable
+      return v !== 'true';
+    } catch { return true; }
+  })();
+
   if (vaultStatus !== 'uninitialized') return null;
+  if (isAutoPromptDisabled) return null;
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
