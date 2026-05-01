@@ -46,7 +46,7 @@ export interface SkillResolutionResult {
 }
 
 export const DEFAULT_SKILL_CONFIG: SkillLibraryConfig = {
-  mode: 'disabled',
+  mode: 'all',
   customSelection: [],
   strategy: 'single_pass',
 };
