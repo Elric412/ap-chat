@@ -8,6 +8,7 @@
   height: 100%;
   overflow: hidden;
   background: var(--color-surface-0);
+  contain: layout paint;
 }
 
 /* ── Header ── */
@@ -42,9 +43,7 @@
   border-color: var(--color-border-2);
 }
 
-.backBtn:active {
-  transform: scale(0.97);
-}
+.backBtn:active { transform: scale(0.97); }
 
 .pageTitle {
   font-family: var(--font-display);
@@ -54,25 +53,32 @@
   letter-spacing: var(--tracking-heading);
 }
 
-/* ── Tab Navigation ── */
-.tabNav {
-  display: flex;
-  gap: 2px;
-  padding: 10px var(--space-6);
-  border-bottom: 1px solid var(--color-border-1);
-  flex-shrink: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
+/* ── Body — split layout ── */
+.settingsBody {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.tabNav::-webkit-scrollbar { display: none; }
+/* ── Vertical tab sidebar ── */
+.tabNav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-4) var(--space-3);
+  border-right: 1px solid var(--color-border-1);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
 
 .tabBtn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border: none;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-text-3);
@@ -80,41 +86,52 @@
   font-size: 13px;
   font-weight: var(--weight-medium);
   cursor: pointer;
-  transition: color 120ms ease, background 120ms ease;
+  transition: color 120ms ease, background 120ms ease, border-color 120ms ease;
   white-space: nowrap;
-  position: relative;
+  text-align: left;
+  width: 100%;
 }
 
+.tabBtn svg { flex-shrink: 0; opacity: 0.85; }
+
 .tabBtn:hover {
-  color: var(--color-text-2);
-  background: var(--color-surface-hover);
+  color: var(--color-text-1);
+  background: var(--color-surface-1);
 }
 
 .tabBtn[data-active="true"] {
   color: var(--color-text-1);
   background: var(--color-surface-2);
+  border-color: var(--color-border-1);
 }
 
-.tabBtn[data-active="true"]::after {
-  content: "";
-  position: absolute;
-  bottom: -11px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 2px;
-  border-radius: 1px;
-  background: var(--color-primary);
-}
+.tabBtn[data-active="true"] svg { opacity: 1; }
 
 /* ── Content ── */
 .settingsContent {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-6);
-  max-width: 620px;
+  padding: var(--space-6) var(--space-8);
+  max-width: 720px;
   margin: 0 auto;
   width: 100%;
+}
+
+@media (max-width: 768px) {
+  .settingsBody {
+    grid-template-columns: 1fr;
+  }
+  .tabNav {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-1);
+    padding: var(--space-2) var(--space-3);
+  }
+  .tabBtn { flex-shrink: 0; }
+  .settingsContent {
+    padding: var(--space-4);
+  }
 }
 
 /* ── Section shared ── */
