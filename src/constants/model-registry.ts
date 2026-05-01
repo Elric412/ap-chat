@@ -749,4 +749,30 @@ export const MODEL_REGISTRY: ModelEntry[] = [
     browserDirectSupported: false, transportMode: 'sse', deprecated: false,
     releaseDate: '2024-06-01', defaultSafeParams: { temperature: 0.7 },
   },
+  // ═══════════════════════════════════════════
+  // ── Kimi (Moonshot) — coding-specialized ──
+  // ═══════════════════════════════════════════
+  {
+    id: 'kimi-for-coding',
+    providerId: 'kimi',
+    displayName: 'Kimi K2.6 Code',
+    family: 'Kimi',
+    contextWindow: 256000,
+    maxOutputTokens: 16384,
+    pricing: { inputPerMillionTokens: 0.6, outputPerMillionTokens: 2.4 },
+    modalities: { input: ['text'], output: ['text'] },
+    capabilities: {
+      ...BASE_CAPS,
+      supportsJsonMode: true,
+      supportsStructuredOutput: true,
+      supportsSeed: true,
+      supportsFrequencyPenalty: true,
+      supportsPresencePenalty: true,
+    },
+    browserDirectSupported: true,
+    transportMode: 'sse',
+    deprecated: false,
+    releaseDate: '2026-04-01',
+    defaultSafeParams: { temperature: 0.2, topP: 0.95 },
+  },
 ] satisfies ModelEntry[];

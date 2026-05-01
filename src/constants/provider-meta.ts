@@ -65,4 +65,11 @@ export const PROVIDER_META: Record<ProviderId, ProviderMeta> = {
     keyPrefix: '',
     baseUrl: 'http://localhost:11434',
   },
+  kimi: {
+    displayName: 'Kimi',
+    colorVar: '--color-provider-kimi',
+    keyPattern: /^[a-zA-Z0-9_-]{20,}$/,
+    keyPrefix: '',
+    baseUrl: 'https://api.kimi.com/coding/v1',
+  },
 } as const;
