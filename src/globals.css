@@ -169,6 +169,7 @@ body {
   --color-provider-cohere:    hsl(338, 52%, 54%);
   --color-provider-together:  hsl(220, 52%, 52%);
   --color-provider-ollama:    hsl(240, 4%, 54%);
+  --color-provider-kimi:      hsl(280, 60%, 58%);
 
   /* ── Interactive State Layering ── */
   --state-hover-overlay:    hsl(0, 0%, 100%, 0.035);
