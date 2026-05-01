@@ -8,6 +8,7 @@ export const PROVIDER_IDS = {
   cohere: 'cohere',
   together: 'together',
   ollama: 'ollama',
+  kimi: 'kimi',
 } as const;
 
 export type ProviderId = typeof PROVIDER_IDS[keyof typeof PROVIDER_IDS];

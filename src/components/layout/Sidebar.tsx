@@ -43,6 +43,9 @@ function groupByDate(conversations: Conversation[]): { label: string; items: Con
 export function Sidebar(): JSX.Element {
   const skillConfig = useAppStore((s) => s.skillConfig);
   const setSkillPanelOpen = useAppStore((s) => s.setSkillPanelOpen);
+  const setCanvasOpen = useAppStore((s) => s.setCanvasOpen);
+  const artifacts = useAppStore((s) => s.artifacts);
+  const addToast = useAppStore((s) => s.addToast);
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
   const vaultStatus = useAppStore((s) => s.vaultStatus);
   const conversations = useAppStore((s) => s.conversations);
@@ -87,6 +90,7 @@ export function Sidebar(): JSX.Element {
     if (activeConversationId === id) navigate('/');
   }, [deleteConversation, activeConversationId, navigate]);
 
+  const artifactCount = artifacts.size;
   const shortcuts = useMemo(() => [
     {
       icon: BookOpen,
@@ -95,15 +99,36 @@ export function Sidebar(): JSX.Element {
     },
     {
       icon: Sparkles,
-      label: 'Artifacts',
-      onClick: () => {},
+      label: `Artifacts${artifactCount > 0 ? ` · ${artifactCount}` : ''}`,
+      onClick: () => {
+        if (artifactCount === 0) {
+          addToast({
+            type: 'info',
+            title: 'No artifacts yet',
+            description: 'Code blocks, diagrams, and HTML from assistant replies appear here.',
+            dismissible: true,
+            duration: 3500,
+          });
+          return;
+        }
+        setCanvasOpen(true);
+        if (location.pathname.startsWith('/settings')) navigate('/');
+      },
     },
     {
       icon: FolderOpen,
       label: 'Projects',
-      onClick: () => {},
+      onClick: () => {
+        addToast({
+          type: 'info',
+          title: 'Projects',
+          description: 'Group related chats into projects — coming in the next release.',
+          dismissible: true,
+          duration: 3500,
+        });
+      },
     },
-  ], [skillConfig.mode, setSkillPanelOpen]);
+  ], [skillConfig.mode, setSkillPanelOpen, setCanvasOpen, artifactCount, addToast, location.pathname, navigate]);
 
   const isOnSettings = location.pathname === '/settings';
 

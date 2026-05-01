@@ -169,6 +169,7 @@ body {
   --color-provider-cohere:    hsl(338, 52%, 54%);
   --color-provider-together:  hsl(220, 52%, 52%);
   --color-provider-ollama:    hsl(240, 4%, 54%);
+  --color-provider-kimi:      hsl(280, 60%, 58%);
 
   /* ── Interactive State Layering ── */
   --state-hover-overlay:    hsl(0, 0%, 100%, 0.035);
@@ -755,77 +756,116 @@ p, li, dd, figcaption {
 :root {
   --glass-surface-bg: var(--color-surface-1);
   --glass-surface-blur: 0px;
+  --glass-surface-saturate: 100%;
   --glass-surface-border: 1px solid var(--color-border-1);
+  --glass-surface-shadow: none;
   --glass-header-bg: var(--color-surface-0);
   --glass-header-blur: 0px;
   --glass-dropdown-bg: var(--color-surface-1);
   --glass-dropdown-blur: 0px;
 }
 
-/* ── Glass Level: Standard (default) ── */
+/* ── Glass Level: Standard (default) — subtle frost ── */
 [data-glass="standard"],
 [data-glass="true"] {
-  --glass-surface-bg: hsl(240, 6%, 6%, 0.72);
-  --glass-surface-blur: 20px;
+  --glass-surface-bg: hsl(240, 6%, 7%, 0.72);
+  --glass-surface-blur: 18px;
+  --glass-surface-saturate: 140%;
   --glass-surface-border: 1px solid hsl(0, 0%, 100%, 0.07);
-  --glass-header-bg: hsl(240, 6%, 4%, 0.65);
-  --glass-header-blur: 18px;
-  --glass-dropdown-bg: hsl(240, 5%, 8%, 0.78);
-  --glass-dropdown-blur: 24px;
+  --glass-surface-shadow: inset 0 1px 0 hsl(0, 0%, 100%, 0.04);
+  --glass-header-bg: hsl(240, 6%, 5%, 0.62);
+  --glass-header-blur: 16px;
+  --glass-dropdown-bg: hsl(240, 5%, 9%, 0.78);
+  --glass-dropdown-blur: 22px;
 }
 
-/* ── Glass Level: Intense ── */
+/* ── Glass Level: Intense — deep blur + saturation ── */
 [data-glass="intense"] {
-  --glass-surface-bg: hsl(240, 6%, 5%, 0.55);
-  --glass-surface-blur: 40px;
-  --glass-surface-border: 1px solid hsl(0, 0%, 100%, 0.1);
-  --glass-header-bg: hsl(240, 6%, 3%, 0.45);
-  --glass-header-blur: 36px;
-  --glass-dropdown-bg: hsl(240, 5%, 6%, 0.6);
-  --glass-dropdown-blur: 48px;
+  --glass-surface-bg: hsl(240, 6%, 6%, 0.42);
+  --glass-surface-blur: 44px;
+  --glass-surface-saturate: 200%;
+  --glass-surface-border: 1px solid hsl(0, 0%, 100%, 0.12);
+  --glass-surface-shadow: inset 0 1px 0 hsl(0, 0%, 100%, 0.08), inset 0 -1px 0 hsl(0, 0%, 0%, 0.2);
+  --glass-header-bg: hsl(240, 6%, 4%, 0.38);
+  --glass-header-blur: 40px;
+  --glass-dropdown-bg: hsl(240, 5%, 7%, 0.5);
+  --glass-dropdown-blur: 52px;
 }
 
-/* ── Glass Level: Liquid (iOS-style) ── */
+/* ── Glass Level: Liquid — iOS 26 style with refraction & specular ── */
 [data-glass="liquid"] {
-  --glass-surface-bg: hsl(240, 8%, 8%, 0.38);
-  --glass-surface-blur: 60px;
-  --glass-surface-border: 1px solid hsl(0, 0%, 100%, 0.14);
-  --glass-header-bg: hsl(240, 8%, 4%, 0.3);
-  --glass-header-blur: 50px;
-  --glass-dropdown-bg: hsl(240, 6%, 6%, 0.42);
-  --glass-dropdown-blur: 64px;
+  --glass-surface-bg: linear-gradient(
+    155deg,
+    hsl(240, 18%, 14%, 0.5) 0%,
+    hsl(240, 12%, 8%, 0.32) 50%,
+    hsl(240, 18%, 12%, 0.42) 100%
+  );
+  --glass-surface-blur: 64px;
+  --glass-surface-saturate: 240%;
+  --glass-surface-border: 1px solid hsl(0, 0%, 100%, 0.18);
+  --glass-surface-shadow:
+    inset 0 1px 0 hsl(0, 0%, 100%, 0.16),
+    inset 0 -1px 0 hsl(0, 0%, 0%, 0.28),
+    inset 1px 0 0 hsl(0, 0%, 100%, 0.06);
+  --glass-header-bg: linear-gradient(180deg, hsl(240, 12%, 6%, 0.42), hsl(240, 12%, 4%, 0.28));
+  --glass-header-blur: 56px;
+  --glass-dropdown-bg: linear-gradient(155deg, hsl(240, 18%, 14%, 0.55), hsl(240, 12%, 8%, 0.38));
+  --glass-dropdown-blur: 72px;
 }
 
-/* ── Light mode glass variants ── */
+/* ── Light mode variants ── */
 [data-theme="light"][data-glass="standard"],
 [data-theme="light"][data-glass="true"] {
   --glass-surface-bg: hsl(240, 6%, 99%, 0.72);
-  --glass-surface-blur: 20px;
-  --glass-surface-border: 1px solid hsl(240, 6%, 4%, 0.05);
+  --glass-surface-blur: 18px;
+  --glass-surface-saturate: 160%;
+  --glass-surface-border: 1px solid hsl(240, 6%, 4%, 0.06);
+  --glass-surface-shadow: inset 0 1px 0 hsl(0, 0%, 100%, 0.7);
   --glass-header-bg: hsl(240, 6%, 99%, 0.68);
-  --glass-header-blur: 18px;
+  --glass-header-blur: 16px;
   --glass-dropdown-bg: hsl(240, 6%, 99%, 0.82);
-  --glass-dropdown-blur: 24px;
+  --glass-dropdown-blur: 22px;
 }
 
 [data-theme="light"][data-glass="intense"] {
-  --glass-surface-bg: hsl(240, 6%, 99%, 0.55);
-  --glass-surface-blur: 40px;
-  --glass-surface-border: 1px solid hsl(240, 6%, 4%, 0.07);
-  --glass-header-bg: hsl(240, 6%, 99%, 0.5);
-  --glass-header-blur: 36px;
-  --glass-dropdown-bg: hsl(240, 6%, 99%, 0.62);
-  --glass-dropdown-blur: 48px;
+  --glass-surface-bg: hsl(240, 6%, 99%, 0.4);
+  --glass-surface-blur: 44px;
+  --glass-surface-saturate: 220%;
+  --glass-surface-border: 1px solid hsl(240, 6%, 4%, 0.08);
+  --glass-surface-shadow: inset 0 1px 0 hsl(0, 0%, 100%, 0.85), inset 0 -1px 0 hsl(240, 6%, 4%, 0.04);
+  --glass-header-bg: hsl(240, 6%, 99%, 0.4);
+  --glass-header-blur: 40px;
+  --glass-dropdown-bg: hsl(240, 6%, 99%, 0.5);
+  --glass-dropdown-blur: 52px;
 }
 
 [data-theme="light"][data-glass="liquid"] {
-  --glass-surface-bg: hsl(240, 8%, 100%, 0.35);
-  --glass-surface-blur: 60px;
-  --glass-surface-border: 1px solid hsl(240, 6%, 4%, 0.08);
-  --glass-header-bg: hsl(240, 8%, 100%, 0.28);
-  --glass-header-blur: 50px;
-  --glass-dropdown-bg: hsl(240, 6%, 100%, 0.4);
-  --glass-dropdown-blur: 64px;
+  --glass-surface-bg: linear-gradient(
+    155deg,
+    hsl(240, 30%, 99%, 0.6) 0%,
+    hsl(220, 30%, 96%, 0.35) 50%,
+    hsl(240, 30%, 99%, 0.5) 100%
+  );
+  --glass-surface-blur: 64px;
+  --glass-surface-saturate: 260%;
+  --glass-surface-border: 1px solid hsl(240, 6%, 4%, 0.1);
+  --glass-surface-shadow:
+    inset 0 1px 0 hsl(0, 0%, 100%, 0.95),
+    inset 0 -1px 0 hsl(240, 6%, 4%, 0.06),
+    inset 1px 0 0 hsl(0, 0%, 100%, 0.4);
+  --glass-header-bg: linear-gradient(180deg, hsl(240, 30%, 99%, 0.5), hsl(240, 30%, 96%, 0.32));
+  --glass-header-blur: 56px;
+  --glass-dropdown-bg: linear-gradient(155deg, hsl(240, 30%, 99%, 0.65), hsl(220, 30%, 96%, 0.42));
+  --glass-dropdown-blur: 72px;
+}
+
+/* Apply saturate + shadow to glass surfaces that opt-in via class */
+.glass-surface,
+[data-glass="intense"] [data-glass-surface],
+[data-glass="liquid"] [data-glass-surface] {
+  backdrop-filter: blur(var(--glass-surface-blur)) saturate(var(--glass-surface-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-surface-blur)) saturate(var(--glass-surface-saturate));
+  box-shadow: var(--glass-surface-shadow);
 }
 
 /* ═══════════════════════════════════════════════════════════════

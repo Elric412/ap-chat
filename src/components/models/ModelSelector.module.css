@@ -26,11 +26,11 @@
   max-width: calc(100vw - var(--space-8));
   max-height: 55vh;
   background: var(--glass-dropdown-bg);
-  backdrop-filter: blur(var(--glass-dropdown-blur));
-  -webkit-backdrop-filter: blur(var(--glass-dropdown-blur));
+  backdrop-filter: blur(var(--glass-dropdown-blur)) saturate(var(--glass-surface-saturate, 100%));
+  -webkit-backdrop-filter: blur(var(--glass-dropdown-blur)) saturate(var(--glass-surface-saturate, 100%));
   border: var(--glass-surface-border);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--glass-surface-shadow, none), var(--shadow-xl);
   overflow: hidden;
   display: flex;
   flex-direction: column;

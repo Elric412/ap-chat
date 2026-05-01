@@ -15,6 +15,7 @@ import { groqAdapter } from './groq/adapter';
 import { cohereAdapter } from './cohere/adapter';
 import { togetherAdapter } from './together/adapter';
 import { ollamaAdapter } from './ollama/adapter';
+import { kimiAdapter } from './kimi/adapter';
 
 const ADAPTER_MAP: Record<ProviderId, ProviderAdapter> = {
   openai: openaiAdapter,
@@ -25,6 +26,7 @@ const ADAPTER_MAP: Record<ProviderId, ProviderAdapter> = {
   cohere: cohereAdapter,
   together: togetherAdapter,
   ollama: ollamaAdapter,
+  kimi: kimiAdapter,
 };
 
 export function getAdapter(providerId: ProviderId): ProviderAdapter {

@@ -263,70 +263,71 @@ export function SettingsPage(): JSX.Element {
         <h1 className={styles.pageTitle}>Settings</h1>
       </header>
 
-      {/* Tab nav */}
-      <nav className={styles.tabNav} role="tablist">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            className={styles.tabBtn}
-            data-active={activeTab === tab.id}
-            onClick={() => handleTabChange(tab.id)}
-            type="button"
-            role="tab"
-            aria-selected={activeTab === tab.id}
-          >
-            <tab.icon size={14} aria-hidden="true" />
-            <span>{tab.label}</span>
-          </button>
-        ))}
-      </nav>
+      {/* Body — vertical tabs + content */}
+      <div className={styles.settingsBody}>
+        <nav className={styles.tabNav} role="tablist" aria-label="Settings sections">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              className={styles.tabBtn}
+              data-active={activeTab === tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tab.id}
+            >
+              <tab.icon size={15} aria-hidden="true" />
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </nav>
 
-      {/* Content */}
-      <div className={styles.settingsContent} role="tabpanel">
-        {activeTab === 'appearance' && (
-          <AppearanceTab
-            theme={theme}
-            resolvedTheme={resolvedTheme}
-            setTheme={setTheme}
-            density={density}
-            setDensity={setDensity}
-            animSpeed={animSpeed}
-            setAnimSpeed={setAnimSpeed}
-            glassLevel={glassLevel}
-            setGlassLevel={setGlassLevel}
-          />
-        )}
-        {activeTab === 'behaviour' && (
-          <BehaviourTab
-            behaviour={behaviour}
-            updateBehaviour={updateBehaviour}
-            inferenceParams={inferenceParams}
-            setInferenceParams={setInferenceParams}
-            activeConversationId={activeConversationId}
-          />
-        )}
-        {activeTab === 'api-keys' && <ApiKeysTab />}
-        {activeTab === 'security' && (
-          <SecurityTab
-            security={security}
-            updateSecurity={updateSecurity}
-            vaultStatus={vaultStatus}
-            vaultAutoPrompt={vaultAutoPrompt}
-            toggleVaultAutoPrompt={toggleVaultAutoPrompt}
-          />
-        )}
-        {activeTab === 'about' && (
-          <AboutTab
-            totalModels={totalModels}
-            providerCount={providerCount}
-            totalConversations={conversations.length}
-            configuredProviders={keyRecords.length}
-            user={user}
-            displayName={displayName}
-            onSignOut={() => void signOut()}
-            onSignIn={() => navigate('/auth')}
-          />
-        )}
+        <div className={styles.settingsContent} role="tabpanel">
+          {activeTab === 'appearance' && (
+            <AppearanceTab
+              theme={theme}
+              resolvedTheme={resolvedTheme}
+              setTheme={setTheme}
+              density={density}
+              setDensity={setDensity}
+              animSpeed={animSpeed}
+              setAnimSpeed={setAnimSpeed}
+              glassLevel={glassLevel}
+              setGlassLevel={setGlassLevel}
+            />
+          )}
+          {activeTab === 'behaviour' && (
+            <BehaviourTab
+              behaviour={behaviour}
+              updateBehaviour={updateBehaviour}
+              inferenceParams={inferenceParams}
+              setInferenceParams={setInferenceParams}
+              activeConversationId={activeConversationId}
+            />
+          )}
+          {activeTab === 'api-keys' && <ApiKeysTab />}
+          {activeTab === 'security' && (
+            <SecurityTab
+              security={security}
+              updateSecurity={updateSecurity}
+              vaultStatus={vaultStatus}
+              vaultAutoPrompt={vaultAutoPrompt}
+              toggleVaultAutoPrompt={toggleVaultAutoPrompt}
+            />
+          )}
+          {activeTab === 'about' && (
+            <AboutTab
+              totalModels={totalModels}
+              providerCount={providerCount}
+              totalConversations={conversations.length}
+              configuredProviders={keyRecords.length}
+              user={user}
+              displayName={displayName}
+              onSignOut={() => void signOut()}
+              onSignIn={() => navigate('/auth')}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

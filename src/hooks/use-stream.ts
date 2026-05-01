@@ -16,6 +16,7 @@ import { resolveParameters } from '../engine/parameter-resolver';
 import { buildContextWindow } from '../engine/context-engine';
 import { calculateCost } from '../engine/cost-calculator';
 import { detectArtifacts } from '../engine/artifact-detector';
+import { buildSkillInjectionBlock } from '../engine/skill-injector';
 import { MODEL_REGISTRY } from '../constants/model-registry';
 import { uuidv7 } from '../lib/uuid';
 import { putMessages } from '../db/messages-repo';
@@ -206,13 +207,21 @@ export function useStream(): UseStreamReturn {
     // Build context using the context engine (sliding window + pinning)
     const branchMessages = store.getActiveBranchMessages();
     const contextConfig = store.contextConfig;
-    const systemPrompt = store.getEffectiveSystemPrompt(conversationId);
+    const baseSystemPrompt = store.getEffectiveSystemPrompt(conversationId);
+
+    // Inject Skill Library expertise into system prompt when active
+    const availableSkills = store.getAvailableSkills();
+    const skillBlock = availableSkills.length > 0 ? buildSkillInjectionBlock(availableSkills) : '';
+    const skillDirective = availableSkills.length > 0
+      ? `\n\nIMPORTANT: For any task that benefits from specialized expertise (frontend, backend, design, security, data, devops, etc.), you MUST consult and apply the matching expert skill(s) below. Do not respond with generic advice when a relevant skill is available — explicitly follow that skill's instructions, conventions, and quality bar. Only ignore skills for casual chat.`
+      : '';
+    const systemPrompt = (baseSystemPrompt || '') + skillDirective + skillBlock;
     const systemPromptTokens = systemPrompt ? Math.ceil(systemPrompt.length / 4) : 0;
     const contextWindow = buildContextWindow(branchMessages, model, contextConfig, systemPromptTokens);
 
     const contextMessages: StreamMessage[] = [];
 
-    // Inject system prompt if configured
+    // Inject system prompt if configured (or skills are active)
     if (systemPrompt) {
       contextMessages.push({
         role: 'system',

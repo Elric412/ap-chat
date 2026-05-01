@@ -8,8 +8,8 @@
   height: var(--layout-header-height);
   padding: 0 var(--space-4);
   background: var(--glass-header-bg);
-  backdrop-filter: blur(var(--glass-header-blur));
-  -webkit-backdrop-filter: blur(var(--glass-header-blur));
+  backdrop-filter: blur(var(--glass-header-blur)) saturate(var(--glass-surface-saturate, 100%));
+  -webkit-backdrop-filter: blur(var(--glass-header-blur)) saturate(var(--glass-surface-saturate, 100%));
   border-bottom: 1px solid var(--color-border-1);
   gap: var(--space-2);
   flex-shrink: 0;
