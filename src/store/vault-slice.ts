@@ -10,6 +10,8 @@ export interface VaultSlice {
   vaultLoading: boolean;
   vaultError: string | null;
   verifyingKey: ProviderId | null;
+  /** When true, force-show the vault setup/unlock modal even if auto-prompt is disabled. */
+  forceVaultPrompt: boolean;
 
   initVault: () => Promise<void>;
   setupVault: (password: string) => Promise<void>;
@@ -19,6 +21,8 @@ export interface VaultSlice {
   removeKey: (providerId: ProviderId) => Promise<void>;
   refreshKeyRecords: () => Promise<void>;
   verifyKey: (providerId: ProviderId) => Promise<'healthy' | 'invalid'>;
+  requestVaultPrompt: () => void;
+  dismissVaultPrompt: () => void;
 }
 
 export const createVaultSlice: StateCreator<VaultSlice, [['zustand/immer', never]], [], VaultSlice> = (set, get) => ({
