@@ -74,8 +74,9 @@ export function KeyManagement(): JSX.Element {
           dismissible: true,
         });
       }
-    } catch {
-      setValidationError('Failed to encrypt and store key');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to encrypt and store key';
+      setValidationError(message);
     } finally {
       setSaving(false);
     }
