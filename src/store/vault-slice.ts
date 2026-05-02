@@ -31,6 +31,14 @@ export const createVaultSlice: StateCreator<VaultSlice, [['zustand/immer', never
   vaultLoading: false,
   vaultError: null,
   verifyingKey: null,
+  forceVaultPrompt: false,
+
+  requestVaultPrompt: () => {
+    set((state) => { state.forceVaultPrompt = true; });
+  },
+  dismissVaultPrompt: () => {
+    set((state) => { state.forceVaultPrompt = false; });
+  },
 
   initVault: async () => {
     set((state) => { state.vaultLoading = true; });
