@@ -11,6 +11,8 @@ export function VaultUnlockModal(): JSX.Element | null {
   const vaultLoading = useAppStore((s) => s.vaultLoading);
   const vaultError = useAppStore((s) => s.vaultError);
   const unlockVault = useAppStore((s) => s.unlockVault);
+  const forceVaultPrompt = useAppStore((s) => s.forceVaultPrompt);
+  const dismissVaultPrompt = useAppStore((s) => s.dismissVaultPrompt);
 
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -18,10 +20,10 @@ export function VaultUnlockModal(): JSX.Element | null {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    if (vaultStatus === 'locked') inputRef.current?.focus();
+  }, [vaultStatus, forceVaultPrompt]);
 
-  // Check if vault auto-prompt is disabled (default: disabled)
+  // Auto-prompt preference (default: disabled). Force-show overrides it.
   const isAutoPromptDisabled = (() => {
     try {
       const v = localStorage.getItem(VAULT_PROMPT_KEY);
@@ -30,7 +32,7 @@ export function VaultUnlockModal(): JSX.Element | null {
   })();
 
   if (vaultStatus !== 'locked') return null;
-  if (isAutoPromptDisabled) return null;
+  if (isAutoPromptDisabled && !forceVaultPrompt) return null;
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -94,6 +96,19 @@ export function VaultUnlockModal(): JSX.Element | null {
             {vaultLoading ? <Spinner size={18} /> : 'Unlock'}
           </button>
         </form>
+        {forceVaultPrompt && (
+          <button
+            type="button"
+            onClick={dismissVaultPrompt}
+            style={{
+              marginTop: 8, background: 'transparent', border: 'none',
+              color: 'var(--color-text-3)', fontSize: 'var(--text-caption)',
+              cursor: 'pointer', padding: 'var(--space-2)',
+            }}
+          >
+            Cancel
+          </button>
+        )}
         <button type="button" className={styles.footerLink}>
           Forgot password? Keys must be re-entered.
         </button>

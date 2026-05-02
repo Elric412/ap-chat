@@ -17,6 +17,8 @@ export function KeyManagement(): JSX.Element {
   const verifyKey = useAppStore((s) => s.verifyKey);
   const verifyingKey = useAppStore((s) => s.verifyingKey);
   const addToast = useAppStore((s) => s.addToast);
+  const vaultStatus = useAppStore((s) => s.vaultStatus);
+  const requestVaultPrompt = useAppStore((s) => s.requestVaultPrompt);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<ProviderId>(PROVIDER_IDS.openai);
@@ -25,6 +27,7 @@ export function KeyManagement(): JSX.Element {
   const [validationError, setValidationError] = useState<string | null>(null);
   const keyInputRef = useRef<HTMLInputElement>(null);
 
+  const isVaultUnlocked = vaultStatus === 'unlocked';
   const configuredProviders = new Set(keyRecords.map((r) => r.providerId));
 
   const unconfiguredProviders = PROVIDER_LIST.filter(
@@ -40,6 +43,17 @@ export function KeyManagement(): JSX.Element {
 
     if (!validation.valid) {
       setValidationError(validation.error ?? 'Invalid API key');
+      return;
+    }
+
+    if (!isVaultUnlocked) {
+      // Vault must be set up / unlocked before encrypting any key.
+      requestVaultPrompt();
+      setValidationError(
+        vaultStatus === 'uninitialized'
+          ? 'Set up your encryption vault first to securely save this key.'
+          : 'Unlock your encryption vault first to securely save this key.'
+      );
       return;
     }
 
@@ -235,11 +249,21 @@ export function KeyManagement(): JSX.Element {
         ) : (
           <button
             className={styles.addButton}
-            onClick={() => setShowAddForm(true)}
+            onClick={() => {
+              if (!isVaultUnlocked) {
+                requestVaultPrompt();
+                return;
+              }
+              setShowAddForm(true);
+            }}
             type="button"
           >
             <Plus size={16} aria-hidden="true" />
-            Add API Key
+            {isVaultUnlocked
+              ? 'Add API Key'
+              : vaultStatus === 'uninitialized'
+                ? 'Set up vault to add keys'
+                : 'Unlock vault to add keys'}
           </button>
         )}
       </div>

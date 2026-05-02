@@ -12,6 +12,8 @@ export function VaultSetupModal(): JSX.Element | null {
   const vaultLoading = useAppStore((s) => s.vaultLoading);
   const vaultError = useAppStore((s) => s.vaultError);
   const setupVault = useAppStore((s) => s.setupVault);
+  const forceVaultPrompt = useAppStore((s) => s.forceVaultPrompt);
+  const dismissVaultPrompt = useAppStore((s) => s.dismissVaultPrompt);
 
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -20,20 +22,19 @@ export function VaultSetupModal(): JSX.Element | null {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    if (vaultStatus === 'uninitialized') inputRef.current?.focus();
+  }, [vaultStatus, forceVaultPrompt]);
 
-  // Check if vault auto-prompt is disabled (default: disabled)
+  // Auto-prompt preference (default: disabled). Force-show overrides it.
   const isAutoPromptDisabled = (() => {
     try {
       const v = localStorage.getItem(VAULT_PROMPT_KEY);
-      // Default to disabled (false) — user must explicitly enable
       return v !== 'true';
     } catch { return true; }
   })();
 
   if (vaultStatus !== 'uninitialized') return null;
-  if (isAutoPromptDisabled) return null;
+  if (isAutoPromptDisabled && !forceVaultPrompt) return null;
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -115,6 +116,19 @@ export function VaultSetupModal(): JSX.Element | null {
           >
             {vaultLoading ? <Spinner size={18} /> : 'Create Vault'}
           </button>
+          {forceVaultPrompt && (
+            <button
+              type="button"
+              onClick={dismissVaultPrompt}
+              style={{
+                marginTop: 8, background: 'transparent', border: 'none',
+                color: 'var(--color-text-3)', fontSize: 'var(--text-caption)',
+                cursor: 'pointer', padding: 'var(--space-2)',
+              }}
+            >
+              Cancel
+            </button>
+          )}
         </form>
       </div>
     </div>

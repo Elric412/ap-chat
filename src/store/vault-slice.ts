@@ -10,6 +10,8 @@ export interface VaultSlice {
   vaultLoading: boolean;
   vaultError: string | null;
   verifyingKey: ProviderId | null;
+  /** When true, force-show the vault setup/unlock modal even if auto-prompt is disabled. */
+  forceVaultPrompt: boolean;
 
   initVault: () => Promise<void>;
   setupVault: (password: string) => Promise<void>;
@@ -19,6 +21,8 @@ export interface VaultSlice {
   removeKey: (providerId: ProviderId) => Promise<void>;
   refreshKeyRecords: () => Promise<void>;
   verifyKey: (providerId: ProviderId) => Promise<'healthy' | 'invalid'>;
+  requestVaultPrompt: () => void;
+  dismissVaultPrompt: () => void;
 }
 
 export const createVaultSlice: StateCreator<VaultSlice, [['zustand/immer', never]], [], VaultSlice> = (set, get) => ({
@@ -27,6 +31,14 @@ export const createVaultSlice: StateCreator<VaultSlice, [['zustand/immer', never
   vaultLoading: false,
   vaultError: null,
   verifyingKey: null,
+  forceVaultPrompt: false,
+
+  requestVaultPrompt: () => {
+    set((state) => { state.forceVaultPrompt = true; });
+  },
+  dismissVaultPrompt: () => {
+    set((state) => { state.forceVaultPrompt = false; });
+  },
 
   initVault: async () => {
     set((state) => { state.vaultLoading = true; });
@@ -50,6 +62,7 @@ export const createVaultSlice: StateCreator<VaultSlice, [['zustand/immer', never
       set((state) => {
         state.vaultStatus = 'unlocked';
         state.vaultLoading = false;
+        state.forceVaultPrompt = false;
       });
     } catch (err) {
       set((state) => {
@@ -69,6 +82,7 @@ export const createVaultSlice: StateCreator<VaultSlice, [['zustand/immer', never
           state.vaultStatus = 'unlocked';
           state.keyRecords = records;
           state.vaultLoading = false;
+          state.forceVaultPrompt = false;
         });
       } else {
         set((state) => {
