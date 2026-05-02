@@ -116,6 +116,19 @@ export function VaultSetupModal(): JSX.Element | null {
           >
             {vaultLoading ? <Spinner size={18} /> : 'Create Vault'}
           </button>
+          {forceVaultPrompt && (
+            <button
+              type="button"
+              onClick={dismissVaultPrompt}
+              style={{
+                marginTop: 8, background: 'transparent', border: 'none',
+                color: 'var(--color-text-3)', fontSize: 'var(--text-caption)',
+                cursor: 'pointer', padding: 'var(--space-2)',
+              }}
+            >
+              Cancel
+            </button>
+          )}
         </form>
       </div>
     </div>
