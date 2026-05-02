@@ -96,6 +96,19 @@ export function VaultUnlockModal(): JSX.Element | null {
             {vaultLoading ? <Spinner size={18} /> : 'Unlock'}
           </button>
         </form>
+        {forceVaultPrompt && (
+          <button
+            type="button"
+            onClick={dismissVaultPrompt}
+            style={{
+              marginTop: 8, background: 'transparent', border: 'none',
+              color: 'var(--color-text-3)', fontSize: 'var(--text-caption)',
+              cursor: 'pointer', padding: 'var(--space-2)',
+            }}
+          >
+            Cancel
+          </button>
+        )}
         <button type="button" className={styles.footerLink}>
           Forgot password? Keys must be re-entered.
         </button>
