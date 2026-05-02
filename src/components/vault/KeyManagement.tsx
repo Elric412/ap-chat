@@ -249,11 +249,21 @@ export function KeyManagement(): JSX.Element {
         ) : (
           <button
             className={styles.addButton}
-            onClick={() => setShowAddForm(true)}
+            onClick={() => {
+              if (!isVaultUnlocked) {
+                requestVaultPrompt();
+                return;
+              }
+              setShowAddForm(true);
+            }}
             type="button"
           >
             <Plus size={16} aria-hidden="true" />
-            Add API Key
+            {isVaultUnlocked
+              ? 'Add API Key'
+              : vaultStatus === 'uninitialized'
+                ? 'Set up vault to add keys'
+                : 'Unlock vault to add keys'}
           </button>
         )}
       </div>
