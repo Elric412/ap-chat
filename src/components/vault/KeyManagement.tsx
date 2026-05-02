@@ -46,6 +46,17 @@ export function KeyManagement(): JSX.Element {
       return;
     }
 
+    if (!isVaultUnlocked) {
+      // Vault must be set up / unlocked before encrypting any key.
+      requestVaultPrompt();
+      setValidationError(
+        vaultStatus === 'uninitialized'
+          ? 'Set up your encryption vault first to securely save this key.'
+          : 'Unlock your encryption vault first to securely save this key.'
+      );
+      return;
+    }
+
     setSaving(true);
     try {
       await addKey(selectedProvider, validation.sanitizedKey);
