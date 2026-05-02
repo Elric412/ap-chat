@@ -82,6 +82,7 @@ export const createVaultSlice: StateCreator<VaultSlice, [['zustand/immer', never
           state.vaultStatus = 'unlocked';
           state.keyRecords = records;
           state.vaultLoading = false;
+          state.forceVaultPrompt = false;
         });
       } else {
         set((state) => {
