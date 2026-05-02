@@ -66,10 +66,12 @@ export const PROVIDER_META: Record<ProviderId, ProviderMeta> = {
     baseUrl: 'http://localhost:11434',
   },
   kimi: {
-    displayName: 'Kimi',
+    displayName: 'Kimi (Moonshot)',
     colorVar: '--color-provider-kimi',
-    keyPattern: /^[a-zA-Z0-9_-]{20,}$/,
-    keyPrefix: '',
-    baseUrl: 'https://api.kimi.com/coding/v1',
+    // Moonshot/Kimi keys are OpenAI-compatible: prefix `sk-` followed by URL-safe chars (letters, digits, -, _).
+    // Some keys also embed dots/colons in newer formats — accept the broader OpenAI-compat shape.
+    keyPattern: /^sk-[A-Za-z0-9._:-]{16,}$/,
+    keyPrefix: 'sk-',
+    baseUrl: 'https://api.moonshot.ai/v1',
   },
 } as const;
