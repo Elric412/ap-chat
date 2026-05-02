@@ -144,3 +144,19 @@
     width: var(--layout-sidebar-collapsed);
   }
 }
+
+/* ── Large desktop: cinematic spacing ── */
+@media (min-width: 1440px) {
+  .sidebarRegion {
+    width: calc(var(--layout-sidebar-width) + 24px);
+  }
+  .mainRegion {
+    --content-max-width: 920px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .mainRegion {
+    --content-max-width: 1080px;
+  }
+}
