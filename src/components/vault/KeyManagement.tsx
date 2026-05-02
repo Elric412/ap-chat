@@ -17,6 +17,8 @@ export function KeyManagement(): JSX.Element {
   const verifyKey = useAppStore((s) => s.verifyKey);
   const verifyingKey = useAppStore((s) => s.verifyingKey);
   const addToast = useAppStore((s) => s.addToast);
+  const vaultStatus = useAppStore((s) => s.vaultStatus);
+  const requestVaultPrompt = useAppStore((s) => s.requestVaultPrompt);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<ProviderId>(PROVIDER_IDS.openai);
@@ -25,6 +27,7 @@ export function KeyManagement(): JSX.Element {
   const [validationError, setValidationError] = useState<string | null>(null);
   const keyInputRef = useRef<HTMLInputElement>(null);
 
+  const isVaultUnlocked = vaultStatus === 'unlocked';
   const configuredProviders = new Set(keyRecords.map((r) => r.providerId));
 
   const unconfiguredProviders = PROVIDER_LIST.filter(
