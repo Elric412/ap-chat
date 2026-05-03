@@ -253,6 +253,7 @@ export function SettingsPage(): JSX.Element {
     });
   }, []);
 
+  const displayName = user?.email?.split('@')[0] ?? 'Guest';
   const activeHeading = TAB_HEADINGS[activeTab];
 
   return (
