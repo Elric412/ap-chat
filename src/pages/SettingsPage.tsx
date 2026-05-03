@@ -253,7 +253,7 @@ export function SettingsPage(): JSX.Element {
     });
   }, []);
 
-  const displayName = user?.email?.split('@')[0] ?? 'Guest';
+  const activeHeading = TAB_HEADINGS[activeTab];
 
   return (
     <div className={styles.settingsPage}>
@@ -263,12 +263,16 @@ export function SettingsPage(): JSX.Element {
           className={styles.backBtn}
           onClick={() => navigate('/')}
           type="button"
-          aria-label="Back"
+          aria-label="Back to chat"
         >
-          <ArrowLeft size={14} />
+          <ArrowLeft size={14} strokeWidth={2} />
           <span>Back</span>
         </button>
-        <h1 className={styles.pageTitle}>Settings</h1>
+        <div className={styles.headerTitleBlock}>
+          <span className={styles.headerEyebrow}>Workspace</span>
+          <h1 className={styles.pageTitle}>Settings</h1>
+        </div>
+        <div className={styles.headerSpacer} aria-hidden="true" />
       </header>
 
       {/* Body — vertical tabs + content */}
@@ -284,13 +288,23 @@ export function SettingsPage(): JSX.Element {
               role="tab"
               aria-selected={activeTab === tab.id}
             >
-              <tab.icon size={15} aria-hidden="true" />
-              <span>{tab.label}</span>
+              <span className={styles.tabIconWrap}>
+                <tab.icon size={15} strokeWidth={1.75} aria-hidden="true" />
+              </span>
+              <span className={styles.tabLabelStack}>
+                <span className={styles.tabLabel}>{tab.label}</span>
+                <span className={styles.tabDesc}>{tab.description}</span>
+              </span>
             </button>
           ))}
         </nav>
 
         <div className={styles.settingsContent} role="tabpanel">
+          <header className={styles.contentHeader}>
+            <h2 className={styles.contentTitle}>{activeHeading.title}</h2>
+            <p className={styles.contentSubtitle}>{activeHeading.subtitle}</p>
+          </header>
+
           {activeTab === 'appearance' && (
             <AppearanceTab
               theme={theme}
