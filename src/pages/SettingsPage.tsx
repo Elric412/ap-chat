@@ -19,13 +19,21 @@ import styles from './SettingsPage.module.css';
 
 type SettingsTab = 'appearance' | 'behaviour' | 'api-keys' | 'security' | 'about';
 
-const TABS: { id: SettingsTab; label: string; icon: typeof Palette }[] = [
-  { id: 'appearance', label: 'Appearance', icon: Palette },
-  { id: 'behaviour', label: 'Behaviour', icon: SlidersHorizontal },
-  { id: 'api-keys', label: 'API Keys', icon: Key },
-  { id: 'security', label: 'Security', icon: Shield },
-  { id: 'about', label: 'About', icon: Info },
+const TABS: { id: SettingsTab; label: string; description: string; icon: typeof Palette }[] = [
+  { id: 'appearance', label: 'Appearance', description: 'Theme, density & motion',     icon: Palette },
+  { id: 'behaviour',  label: 'Behaviour',  description: 'Inference & chat defaults',   icon: SlidersHorizontal },
+  { id: 'api-keys',   label: 'API Keys',   description: 'Encrypted provider keys',     icon: Key },
+  { id: 'security',   label: 'Security',   description: 'Vault, auto-lock & privacy',  icon: Shield },
+  { id: 'about',      label: 'About',      description: 'Workspace & account',         icon: Info },
 ];
+
+const TAB_HEADINGS: Record<SettingsTab, { title: string; subtitle: string }> = {
+  'appearance': { title: 'Appearance',  subtitle: 'Tune the visual language of your workspace.' },
+  'behaviour':  { title: 'Behaviour',   subtitle: 'Default inference parameters and chat preferences.' },
+  'api-keys':   { title: 'API Keys',    subtitle: 'Provider keys are encrypted locally with AES-256-GCM.' },
+  'security':   { title: 'Security',    subtitle: 'Control vault unlock, session timeout and privacy.' },
+  'about':      { title: 'About',       subtitle: 'Account, storage and workspace details.' },
+};
 
 const ANIM_SPEED_KEY = 'byok-anim-speed';
 const GLASS_KEY = 'byok-glassmorphism';
