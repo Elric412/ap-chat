@@ -19,13 +19,21 @@ import styles from './SettingsPage.module.css';
 
 type SettingsTab = 'appearance' | 'behaviour' | 'api-keys' | 'security' | 'about';
 
-const TABS: { id: SettingsTab; label: string; icon: typeof Palette }[] = [
-  { id: 'appearance', label: 'Appearance', icon: Palette },
-  { id: 'behaviour', label: 'Behaviour', icon: SlidersHorizontal },
-  { id: 'api-keys', label: 'API Keys', icon: Key },
-  { id: 'security', label: 'Security', icon: Shield },
-  { id: 'about', label: 'About', icon: Info },
+const TABS: { id: SettingsTab; label: string; description: string; icon: typeof Palette }[] = [
+  { id: 'appearance', label: 'Appearance', description: 'Theme, density & motion',     icon: Palette },
+  { id: 'behaviour',  label: 'Behaviour',  description: 'Inference & chat defaults',   icon: SlidersHorizontal },
+  { id: 'api-keys',   label: 'API Keys',   description: 'Encrypted provider keys',     icon: Key },
+  { id: 'security',   label: 'Security',   description: 'Vault, auto-lock & privacy',  icon: Shield },
+  { id: 'about',      label: 'About',      description: 'Workspace & account',         icon: Info },
 ];
+
+const TAB_HEADINGS: Record<SettingsTab, { title: string; subtitle: string }> = {
+  'appearance': { title: 'Appearance',  subtitle: 'Tune the visual language of your workspace.' },
+  'behaviour':  { title: 'Behaviour',   subtitle: 'Default inference parameters and chat preferences.' },
+  'api-keys':   { title: 'API Keys',    subtitle: 'Provider keys are encrypted locally with AES-256-GCM.' },
+  'security':   { title: 'Security',    subtitle: 'Control vault unlock, session timeout and privacy.' },
+  'about':      { title: 'About',       subtitle: 'Account, storage and workspace details.' },
+};
 
 const ANIM_SPEED_KEY = 'byok-anim-speed';
 const GLASS_KEY = 'byok-glassmorphism';
@@ -246,6 +254,7 @@ export function SettingsPage(): JSX.Element {
   }, []);
 
   const displayName = user?.email?.split('@')[0] ?? 'Guest';
+  const activeHeading = TAB_HEADINGS[activeTab];
 
   return (
     <div className={styles.settingsPage}>
@@ -255,12 +264,16 @@ export function SettingsPage(): JSX.Element {
           className={styles.backBtn}
           onClick={() => navigate('/')}
           type="button"
-          aria-label="Back"
+          aria-label="Back to chat"
         >
-          <ArrowLeft size={14} />
+          <ArrowLeft size={14} strokeWidth={2} />
           <span>Back</span>
         </button>
-        <h1 className={styles.pageTitle}>Settings</h1>
+        <div className={styles.headerTitleBlock}>
+          <span className={styles.headerEyebrow}>Workspace</span>
+          <h1 className={styles.pageTitle}>Settings</h1>
+        </div>
+        <div className={styles.headerSpacer} aria-hidden="true" />
       </header>
 
       {/* Body — vertical tabs + content */}
@@ -276,13 +289,23 @@ export function SettingsPage(): JSX.Element {
               role="tab"
               aria-selected={activeTab === tab.id}
             >
-              <tab.icon size={15} aria-hidden="true" />
-              <span>{tab.label}</span>
+              <span className={styles.tabIconWrap}>
+                <tab.icon size={15} strokeWidth={1.75} aria-hidden="true" />
+              </span>
+              <span className={styles.tabLabelStack}>
+                <span className={styles.tabLabel}>{tab.label}</span>
+                <span className={styles.tabDesc}>{tab.description}</span>
+              </span>
             </button>
           ))}
         </nav>
 
         <div className={styles.settingsContent} role="tabpanel">
+          <header className={styles.contentHeader}>
+            <h2 className={styles.contentTitle}>{activeHeading.title}</h2>
+            <p className={styles.contentSubtitle}>{activeHeading.subtitle}</p>
+          </header>
+
           {activeTab === 'appearance' && (
             <AppearanceTab
               theme={theme}
