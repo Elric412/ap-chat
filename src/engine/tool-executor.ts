@@ -8,6 +8,8 @@
 import type { ToolCall, ToolResult, WebSearchResult } from '../types/messages';
 import type { ToolDefinition } from '../types/tools';
 import { SANDBOX_TOOL_DEFINITIONS, dispatchSandboxTool, isSandboxTool } from '../sandbox/tools';
+import { sandboxManager } from '../sandbox/manager';
+import type { SandboxLanguage } from '../sandbox/types';
 import { useAppStore } from '../store';
 
 const WEB_SEARCH_TOOL: ToolDefinition = {
@@ -50,15 +52,32 @@ export async function executeTool(
     if (!conversationId) {
       return { toolCallId: toolCall.id, output: 'Sandbox tools require an active conversation.', isError: true };
     }
-    const result = await dispatchSandboxTool(toolCall, conversationId);
-    // Surface the execution to the UI store as well — this is how the
-    // Canvas panel knows to render outputs.
+    // For run_code, execute directly so we can record the full result into the UI store.
     if (toolCall.toolName === 'run_code') {
-      const sessionExecutions = useAppStore.getState().getExecutions(conversationId);
-      const last = sessionExecutions[sessionExecutions.length - 1];
-      if (last) useAppStore.getState().recordExecution(last);
+      const language = String(toolCall.arguments.language ?? 'python') as SandboxLanguage;
+      const code = String(toolCall.arguments.code ?? '');
+      const stdin = typeof toolCall.arguments.stdin === 'string' ? (toolCall.arguments.stdin as string) : undefined;
+      const result = await sandboxManager.execute({ sessionId: conversationId, language, code, stdin });
+      useAppStore.getState().recordExecution(result);
+      // Open Canvas so the user can watch outputs in real time.
+      useAppStore.setState((s) => { s.canvasOpen = true; });
+      return {
+        toolCallId: toolCall.id,
+        output: {
+          status: result.status,
+          durationMs: result.durationMs,
+          stdout: result.stdout.slice(0, 4000),
+          stderr: result.stderr.slice(0, 4000),
+          changedFiles: result.changedFiles,
+          richOutputs: result.outputs
+            .filter((o) => o.kind === 'image' || o.kind === 'table' || o.kind === 'html')
+            .map((o) => ({ kind: o.kind })),
+          error: result.error,
+        },
+        isError: result.status !== 'success',
+      };
     }
-    return result;
+    return dispatchSandboxTool(toolCall, conversationId);
   }
 
   switch (toolCall.toolName) {
