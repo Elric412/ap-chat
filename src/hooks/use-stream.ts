@@ -215,7 +215,11 @@ export function useStream(): UseStreamReturn {
     const skillDirective = availableSkills.length > 0
       ? `\n\nIMPORTANT: For any task that benefits from specialized expertise (frontend, backend, design, security, data, devops, etc.), you MUST consult and apply the matching expert skill(s) below. Do not respond with generic advice when a relevant skill is available — explicitly follow that skill's instructions, conventions, and quality bar. Only ignore skills for casual chat.`
       : '';
-    const systemPrompt = (baseSystemPrompt || '') + skillDirective + skillBlock;
+    const sandboxEnabled = store.sandboxEnabled;
+    const sandboxBlock = sandboxEnabled
+      ? `\n\n=== CODE EXECUTION SANDBOX ===\nYou have access to an isolated per-chat sandbox that can execute Python (Pyodide, with numpy/pandas/matplotlib available via micropip) and JavaScript. The sandbox has a persistent virtual filesystem mounted at /sandbox.\n\nWhen the user asks you to compute, analyze data, generate a plot, transform a file, or verify code, you SHOULD execute it rather than guessing. Emit code inside a fenced block tagged for execution:\n\n\`\`\`python run\n# your code here\nprint(result)\n\`\`\`\n\nOr for JavaScript:\n\n\`\`\`javascript run\nconsole.log("hello")\n\`\`\`\n\nThe runtime will execute the block and surface stdout, stderr, plots and tables to the user in the Canvas panel. After execution you'll see the results in your next turn and can iterate. Do not pretend to execute code — only the \`run\`-tagged blocks actually run.`
+      : '';
+    const systemPrompt = (baseSystemPrompt || '') + skillDirective + skillBlock + sandboxBlock;
     const systemPromptTokens = systemPrompt ? Math.ceil(systemPrompt.length / 4) : 0;
     const contextWindow = buildContextWindow(branchMessages, model, contextConfig, systemPromptTokens);
 
@@ -306,6 +310,22 @@ export function useStream(): UseStreamReturn {
                   node._clock += 1;
                 }
               });
+              // Sandbox tools auto-execute (no human approval) and the result
+              // is attached to the assistant message as a ToolResult.
+              const { executeTool } = await import('../engine/tool-executor');
+              const { isSandboxTool } = await import('../sandbox/tools');
+              if (isSandboxTool(tc.toolName)) {
+                tc.status = 'executing';
+                const result = await executeTool(tc, conversationId);
+                tc.status = result.isError ? 'failed' : 'completed';
+                useAppStore.setState((state) => {
+                  const node = state.messageMap.get(assistantNodeId);
+                  if (node) {
+                    node.toolResults = [...node.toolResults, result];
+                    node._clock += 1;
+                  }
+                });
+              }
             }
             break;
           }
@@ -404,6 +424,28 @@ export function useStream(): UseStreamReturn {
       }
       // Auto-open canvas
       useAppStore.setState((state) => { state.canvasOpen = true; });
+    }
+
+    // Auto-execute sandbox-tagged code blocks (```python run / ```javascript run)
+    if (useAppStore.getState().sandboxEnabled && !wasAborted) {
+      const runRegex = /```(python|javascript|typescript)\s+run\s*\n([\s\S]*?)```/g;
+      const matches: Array<{ lang: 'python' | 'javascript' | 'typescript'; code: string }> = [];
+      let m: RegExpExecArray | null;
+      while ((m = runRegex.exec(accumulatedText)) !== null) {
+        matches.push({ lang: m[1] as 'python' | 'javascript' | 'typescript', code: m[2] });
+      }
+      if (matches.length > 0) {
+        const { sandboxManager } = await import('../sandbox/manager');
+        for (const { lang, code } of matches) {
+          try {
+            const result = await sandboxManager.execute({ sessionId: conversationId, language: lang, code });
+            useAppStore.getState().recordExecution(result);
+            useAppStore.setState((state) => { state.canvasOpen = true; });
+          } catch (err) {
+            console.error('[sandbox] execution failed', err);
+          }
+        }
+      }
     }
 
     useAppStore.setState((state) => {

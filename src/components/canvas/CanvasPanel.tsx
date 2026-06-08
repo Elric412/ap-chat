@@ -9,10 +9,11 @@
 import { useState, useCallback, useMemo, useRef } from 'react';
 import {
   X, Copy, Check, Code2, FileText, Image,
-  ChevronLeft, ChevronRight, Layers, Eye, PenLine,
+  ChevronLeft, ChevronRight, Layers, Eye, PenLine, Terminal,
 } from 'lucide-react';
 import { useAppStore } from '../../store';
 import type { Artifact, ArtifactType } from '../../types/artifacts';
+import { SandboxOutputView } from '../sandbox/SandboxOutputView';
 import styles from './CanvasPanel.module.css';
 
 const TYPE_ICONS: Record<ArtifactType, typeof Code2> = {
@@ -41,14 +42,21 @@ export function CanvasPanel(): JSX.Element | null {
   const artifacts = useAppStore((s) => s.artifacts);
   const activeArtifactId = useAppStore((s) => s.activeArtifactId);
   const setActiveArtifact = useAppStore((s) => s.setActiveArtifact);
+  const activeConversationId = useAppStore((s) => s.activeConversationId);
+  const sandboxExecutions = useAppStore((s) =>
+    activeConversationId ? (s.executions.get(activeConversationId) ?? []) : [],
+  );
 
   const [copied, setCopied] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [view, setView] = useState<'artifacts' | 'sandbox'>('artifacts');
 
   if (!canvasOpen) return null;
 
   const activeArtifact = activeArtifactId ? artifacts.get(activeArtifactId) : null;
   const allArtifacts: Artifact[] = Array.from(artifacts.values() as Iterable<Artifact>).sort((a, b) => a.createdAt - b.createdAt);
+  const showSandboxTab = sandboxExecutions.length > 0;
+  const effectiveView = showSandboxTab ? view : 'artifacts';
 
   const activeContent = activeArtifact
     ? activeArtifact.versions[activeArtifact.activeVersionIndex]?.content ?? ''
@@ -90,7 +98,18 @@ export function CanvasPanel(): JSX.Element | null {
         )}
 
         <div className={styles.headerActions}>
-          {canPreview && (
+          {showSandboxTab && (
+            <button
+              className={styles.headerBtn}
+              onClick={() => setView(effectiveView === 'sandbox' ? 'artifacts' : 'sandbox')}
+              aria-label="Toggle sandbox view"
+              type="button"
+              title={`${sandboxExecutions.length} execution${sandboxExecutions.length === 1 ? '' : 's'}`}
+            >
+              <Terminal size={14} />
+            </button>
+          )}
+          {canPreview && effectiveView === 'artifacts' && (
             <button
               className={styles.headerBtn}
               onClick={() => setPreviewMode(!previewMode)}
@@ -100,58 +119,68 @@ export function CanvasPanel(): JSX.Element | null {
               {previewMode ? <Code2 size={14} /> : <Eye size={14} />}
             </button>
           )}
-          <button className={styles.headerBtn} onClick={handleCopy} aria-label="Copy" type="button">
-            {copied ? <Check size={14} /> : <Copy size={14} />}
-          </button>
+          {effectiveView === 'artifacts' && (
+            <button className={styles.headerBtn} onClick={handleCopy} aria-label="Copy" type="button">
+              {copied ? <Check size={14} /> : <Copy size={14} />}
+            </button>
+          )}
           <button className={styles.headerBtn} onClick={handleClose} aria-label="Close canvas" type="button">
             <X size={14} />
           </button>
         </div>
       </div>
 
-      {/* Artifact list */}
-      {allArtifacts.length > 1 && (
-        <div className={styles.artifactList}>
-          {allArtifacts.map((a) => (
-            <button
-              key={a.id}
-              className={styles.artifactListItem}
-              data-active={a.id === activeArtifactId}
-              onClick={() => setActiveArtifact(a.id)}
-              type="button"
-            >
-              <span className={styles.artifactDot} data-type={a.type} />
-              {a.title}
-            </button>
-          ))}
+      {effectiveView === 'sandbox' && activeConversationId ? (
+        <div className={styles.contentArea}>
+          <SandboxOutputView conversationId={activeConversationId} />
         </div>
-      )}
+      ) : (
+        <>
+          {/* Artifact list */}
+          {allArtifacts.length > 1 && (
+            <div className={styles.artifactList}>
+              {allArtifacts.map((a) => (
+                <button
+                  key={a.id}
+                  className={styles.artifactListItem}
+                  data-active={a.id === activeArtifactId}
+                  onClick={() => setActiveArtifact(a.id)}
+                  type="button"
+                >
+                  <span className={styles.artifactDot} data-type={a.type} />
+                  {a.title}
+                </button>
+              ))}
+            </div>
+          )}
 
-      {/* Version bar */}
-      {activeArtifact && activeArtifact.versions.length > 1 && (
-        <VersionBar artifact={activeArtifact} />
-      )}
+          {/* Version bar */}
+          {activeArtifact && activeArtifact.versions.length > 1 && (
+            <VersionBar artifact={activeArtifact} />
+          )}
 
-      {/* Content */}
-      <div className={styles.contentArea}>
-        {!activeArtifact ? (
-          <EmptyCanvas />
-        ) : previewMode && canPreview ? (
-          <PreviewRenderer content={activeContent} type={activeArtifact.type} />
-        ) : activeArtifact.type === 'code' || activeArtifact.type === 'latex' ? (
-          <CodeRenderer content={activeContent} />
-        ) : activeArtifact.type === 'markdown' ? (
-          <MarkdownRenderer content={activeContent} />
-        ) : activeArtifact.type === 'mermaid' ? (
-          <MermaidRenderer content={activeContent} />
-        ) : activeArtifact.type === 'svg' ? (
-          <SVGRenderer content={activeContent} />
-        ) : activeArtifact.type === 'html' ? (
-          <PreviewRenderer content={activeContent} type="html" />
-        ) : (
-          <CodeRenderer content={activeContent} />
-        )}
-      </div>
+          {/* Content */}
+          <div className={styles.contentArea}>
+            {!activeArtifact ? (
+              <EmptyCanvas />
+            ) : previewMode && canPreview ? (
+              <PreviewRenderer content={activeContent} type={activeArtifact.type} />
+            ) : activeArtifact.type === 'code' || activeArtifact.type === 'latex' ? (
+              <CodeRenderer content={activeContent} />
+            ) : activeArtifact.type === 'markdown' ? (
+              <MarkdownRenderer content={activeContent} />
+            ) : activeArtifact.type === 'mermaid' ? (
+              <MermaidRenderer content={activeContent} />
+            ) : activeArtifact.type === 'svg' ? (
+              <SVGRenderer content={activeContent} />
+            ) : activeArtifact.type === 'html' ? (
+              <PreviewRenderer content={activeContent} type="html" />
+            ) : (
+              <CodeRenderer content={activeContent} />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
