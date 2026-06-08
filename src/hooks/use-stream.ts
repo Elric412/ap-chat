@@ -215,7 +215,11 @@ export function useStream(): UseStreamReturn {
     const skillDirective = availableSkills.length > 0
       ? `\n\nIMPORTANT: For any task that benefits from specialized expertise (frontend, backend, design, security, data, devops, etc.), you MUST consult and apply the matching expert skill(s) below. Do not respond with generic advice when a relevant skill is available — explicitly follow that skill's instructions, conventions, and quality bar. Only ignore skills for casual chat.`
       : '';
-    const systemPrompt = (baseSystemPrompt || '') + skillDirective + skillBlock;
+    const sandboxEnabled = store.sandboxEnabled;
+    const sandboxBlock = sandboxEnabled
+      ? `\n\n=== CODE EXECUTION SANDBOX ===\nYou have access to an isolated per-chat sandbox that can execute Python (Pyodide, with numpy/pandas/matplotlib available via micropip) and JavaScript. The sandbox has a persistent virtual filesystem mounted at /sandbox.\n\nWhen the user asks you to compute, analyze data, generate a plot, transform a file, or verify code, you SHOULD execute it rather than guessing. Emit code inside a fenced block tagged for execution:\n\n\`\`\`python run\n# your code here\nprint(result)\n\`\`\`\n\nOr for JavaScript:\n\n\`\`\`javascript run\nconsole.log("hello")\n\`\`\`\n\nThe runtime will execute the block and surface stdout, stderr, plots and tables to the user in the Canvas panel. After execution you'll see the results in your next turn and can iterate. Do not pretend to execute code — only the \`run\`-tagged blocks actually run.`
+      : '';
+    const systemPrompt = (baseSystemPrompt || '') + skillDirective + skillBlock + sandboxBlock;
     const systemPromptTokens = systemPrompt ? Math.ceil(systemPrompt.length / 4) : 0;
     const contextWindow = buildContextWindow(branchMessages, model, contextConfig, systemPromptTokens);
 
