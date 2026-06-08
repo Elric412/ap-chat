@@ -9,10 +9,11 @@
 import { useState, useCallback, useMemo, useRef } from 'react';
 import {
   X, Copy, Check, Code2, FileText, Image,
-  ChevronLeft, ChevronRight, Layers, Eye, PenLine,
+  ChevronLeft, ChevronRight, Layers, Eye, PenLine, Terminal,
 } from 'lucide-react';
 import { useAppStore } from '../../store';
 import type { Artifact, ArtifactType } from '../../types/artifacts';
+import { SandboxOutputView } from '../sandbox/SandboxOutputView';
 import styles from './CanvasPanel.module.css';
 
 const TYPE_ICONS: Record<ArtifactType, typeof Code2> = {
@@ -41,14 +42,21 @@ export function CanvasPanel(): JSX.Element | null {
   const artifacts = useAppStore((s) => s.artifacts);
   const activeArtifactId = useAppStore((s) => s.activeArtifactId);
   const setActiveArtifact = useAppStore((s) => s.setActiveArtifact);
+  const activeConversationId = useAppStore((s) => s.activeConversationId);
+  const sandboxExecutions = useAppStore((s) =>
+    activeConversationId ? (s.executions.get(activeConversationId) ?? []) : [],
+  );
 
   const [copied, setCopied] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
+  const [view, setView] = useState<'artifacts' | 'sandbox'>('artifacts');
 
   if (!canvasOpen) return null;
 
   const activeArtifact = activeArtifactId ? artifacts.get(activeArtifactId) : null;
   const allArtifacts: Artifact[] = Array.from(artifacts.values() as Iterable<Artifact>).sort((a, b) => a.createdAt - b.createdAt);
+  const showSandboxTab = sandboxExecutions.length > 0;
+  const effectiveView = showSandboxTab ? view : 'artifacts';
 
   const activeContent = activeArtifact
     ? activeArtifact.versions[activeArtifact.activeVersionIndex]?.content ?? ''
