@@ -426,6 +426,28 @@ export function useStream(): UseStreamReturn {
       useAppStore.setState((state) => { state.canvasOpen = true; });
     }
 
+    // Auto-execute sandbox-tagged code blocks (```python run / ```javascript run)
+    if (useAppStore.getState().sandboxEnabled && !wasAborted) {
+      const runRegex = /```(python|javascript|typescript)\s+run\s*\n([\s\S]*?)```/g;
+      const matches: Array<{ lang: 'python' | 'javascript' | 'typescript'; code: string }> = [];
+      let m: RegExpExecArray | null;
+      while ((m = runRegex.exec(accumulatedText)) !== null) {
+        matches.push({ lang: m[1] as 'python' | 'javascript' | 'typescript', code: m[2] });
+      }
+      if (matches.length > 0) {
+        const { sandboxManager } = await import('../sandbox/manager');
+        for (const { lang, code } of matches) {
+          try {
+            const result = await sandboxManager.execute({ sessionId: conversationId, language: lang, code });
+            useAppStore.getState().recordExecution(result);
+            useAppStore.setState((state) => { state.canvasOpen = true; });
+          } catch (err) {
+            console.error('[sandbox] execution failed', err);
+          }
+        }
+      }
+    }
+
     useAppStore.setState((state) => {
       const node = state.messageMap.get(assistantNodeId);
       if (node) {
