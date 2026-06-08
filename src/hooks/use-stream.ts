@@ -306,6 +306,22 @@ export function useStream(): UseStreamReturn {
                   node._clock += 1;
                 }
               });
+              // Sandbox tools auto-execute (no human approval) and the result
+              // is attached to the assistant message as a ToolResult.
+              const { executeTool } = await import('../engine/tool-executor');
+              const { isSandboxTool } = await import('../sandbox/tools');
+              if (isSandboxTool(tc.toolName)) {
+                tc.status = 'executing';
+                const result = await executeTool(tc, conversationId);
+                tc.status = result.isError ? 'failed' : 'completed';
+                useAppStore.setState((state) => {
+                  const node = state.messageMap.get(assistantNodeId);
+                  if (node) {
+                    node.toolResults = [...node.toolResults, result];
+                    node._clock += 1;
+                  }
+                });
+              }
             }
             break;
           }
