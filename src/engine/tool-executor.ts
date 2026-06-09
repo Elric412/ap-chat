@@ -52,14 +52,24 @@ export async function executeTool(
     if (!conversationId) {
       return { toolCallId: toolCall.id, output: 'Sandbox tools require an active conversation.', isError: true };
     }
-    // For run_code, execute directly so we can record the full result into the UI store.
-    if (toolCall.toolName === 'run_code') {
-      const language = String(toolCall.arguments.language ?? 'python') as SandboxLanguage;
-      const code = String(toolCall.arguments.code ?? '');
-      const stdin = typeof toolCall.arguments.stdin === 'string' ? (toolCall.arguments.stdin as string) : undefined;
-      const result = await sandboxManager.execute({ sessionId: conversationId, language, code, stdin });
+    // For run_code / run_shell / install_package, execute directly so we
+    // can mirror the full execution result into the UI store + Canvas.
+    if (toolCall.toolName === 'run_code' || toolCall.toolName === 'run_shell' || toolCall.toolName === 'install_package') {
+      let result;
+      if (toolCall.toolName === 'run_code') {
+        const language = String(toolCall.arguments.language ?? 'python') as SandboxLanguage;
+        const code = String(toolCall.arguments.code ?? '');
+        const stdin = typeof toolCall.arguments.stdin === 'string' ? (toolCall.arguments.stdin as string) : undefined;
+        result = await sandboxManager.execute({ sessionId: conversationId, language, code, stdin });
+      } else if (toolCall.toolName === 'run_shell') {
+        const command = String(toolCall.arguments.command ?? '');
+        result = await sandboxManager.runShell(conversationId, command);
+      } else {
+        const raw = toolCall.arguments.packages;
+        const packages = Array.isArray(raw) ? raw.map(String) : typeof raw === 'string' ? [raw] : [];
+        result = await sandboxManager.installPackages(conversationId, packages);
+      }
       useAppStore.getState().recordExecution(result);
-      // Open Canvas so the user can watch outputs in real time.
       useAppStore.setState((s) => { s.canvasOpen = true; });
       return {
         toolCallId: toolCall.id,
