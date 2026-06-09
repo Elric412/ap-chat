@@ -72,6 +72,85 @@ def _maybe_capture_pyplot():
                 plt.close(fig)
     except Exception:
         pass
+
+# Tiny POSIX-ish shell so the agent can run commands like ls / cat / mkdir.
+import types as _types, shutil as _shutil, glob as _glob, fnmatch as _fnmatch, re as _re
+_shell_mod = _types.ModuleType('sandbox_shell')
+def _sh_run(argv):
+    if not argv: return
+    cmd, args = argv[0], argv[1:]
+    if cmd == 'pwd':
+        print(os.getcwd())
+    elif cmd == 'ls':
+        target = args[-1] if args and not args[-1].startswith('-') else '.'
+        for n in sorted(os.listdir(target)):
+            print(n)
+    elif cmd == 'cat':
+        for p in args:
+            with open(p, 'r', errors='replace') as fh: print(fh.read(), end='')
+    elif cmd == 'echo':
+        print(' '.join(args))
+    elif cmd == 'mkdir':
+        for p in [a for a in args if not a.startswith('-')]: os.makedirs(p, exist_ok=True)
+    elif cmd == 'rm':
+        for p in [a for a in args if not a.startswith('-')]:
+            if os.path.isdir(p): _shutil.rmtree(p)
+            else:
+                try: os.remove(p)
+                except FileNotFoundError: pass
+    elif cmd == 'mv':
+        _shutil.move(args[0], args[1])
+    elif cmd == 'cp':
+        flag_r = any(a in ('-r','-R','-rf','-fr') for a in args)
+        srcs = [a for a in args if not a.startswith('-')]
+        dst = srcs.pop()
+        for s in srcs:
+            if flag_r and os.path.isdir(s): _shutil.copytree(s, dst)
+            else: _shutil.copy2(s, dst)
+    elif cmd == 'touch':
+        for p in args: open(p, 'a').close()
+    elif cmd == 'head':
+        n = 10; files = list(args)
+        if files and files[0] == '-n': n = int(files[1]); files = files[2:]
+        for p in files:
+            with open(p) as fh:
+                for i, line in enumerate(fh):
+                    if i >= n: break
+                    print(line, end='')
+    elif cmd == 'tail':
+        n = 10; files = list(args)
+        if files and files[0] == '-n': n = int(files[1]); files = files[2:]
+        for p in files:
+            with open(p) as fh:
+                lines = fh.readlines()[-n:]
+                for line in lines: print(line, end='')
+    elif cmd == 'wc':
+        files = [a for a in args if not a.startswith('-')]
+        for p in files:
+            with open(p) as fh:
+                data = fh.read()
+                print(f"{len(data.splitlines())} {len(data.split())} {len(data)} {p}")
+    elif cmd == 'grep':
+        if len(args) < 2: return
+        pat = args[0]; rx = _re.compile(pat)
+        for p in args[1:]:
+            with open(p, errors='replace') as fh:
+                for line in fh:
+                    if rx.search(line): print(f"{p}:{line.rstrip()}")
+    elif cmd == 'find':
+        root = args[0] if args else '.'
+        for dirpath, _, files in os.walk(root):
+            print(dirpath)
+            for f in files: print(os.path.join(dirpath, f))
+    elif cmd == 'env':
+        for k, v in os.environ.items(): print(f"{k}={v}")
+    elif cmd == 'python' or cmd == 'python3':
+        if args and args[0] == '-c': exec(args[1], {})
+        else: print(f"sandbox: only `python -c <code>` supported", file=sys.stderr)
+    else:
+        print(f"sandbox: command not found: {cmd}", file=sys.stderr)
+_shell_mod.run = _sh_run
+sys.modules['sandbox_shell'] = _shell_mod
 \`);
     return py;
   });
