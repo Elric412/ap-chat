@@ -128,6 +128,17 @@ export async function dispatchSandboxTool(
           isError: result.status !== 'success',
         };
       }
+      case 'run_shell': {
+        const command = String(call.arguments.command ?? '');
+        const result = await sandboxManager.runShell(conversationId, command);
+        return { toolCallId: call.id, output: summarizeExecution(result), isError: result.status !== 'success' };
+      }
+      case 'install_package': {
+        const raw = call.arguments.packages;
+        const packages = Array.isArray(raw) ? raw.map(String) : typeof raw === 'string' ? [raw] : [];
+        const result = await sandboxManager.installPackages(conversationId, packages);
+        return { toolCallId: call.id, output: summarizeExecution(result), isError: result.status !== 'success' };
+      }
       case 'read_file': {
         const path = String(call.arguments.path ?? '');
         const text = sandboxManager.readFile(conversationId, path);
