@@ -145,14 +145,62 @@ function guessMime(p) {
   }[ext] || 'application/octet-stream';
 }
 
+async function runShellCommand(py, cmd) {
+  // Minimal POSIX-ish helper: ls, cat, pwd, echo, mkdir, rm, mv, cp,
+  // head, tail, wc, grep, find, touch. Anything else falls back to a
+  // Python one-liner via 'py: <expr>'.
+  const escaped = JSON.stringify(cmd);
+  const pyCode = 'import shlex, os, sys, io\nfrom contextlib import redirect_stdout, redirect_stderr\n' +
+    '_out = io.StringIO(); _err = io.StringIO()\n' +
+    'with redirect_stdout(_out), redirect_stderr(_err):\n' +
+    '    try:\n' +
+    '        _argv = shlex.split(' + escaped + ')\n' +
+    '        from sandbox_shell import run as _run\n' +
+    '        _run(_argv)\n' +
+    '    except SystemExit:\n' +
+    '        pass\n' +
+    '    except Exception as _e:\n' +
+    '        print(_e, file=sys.stderr)\n' +
+    '_so = _out.getvalue(); _se = _err.getvalue()\n' +
+    '(_so, _se)';
+  const r = await py.runPythonAsync(pyCode);
+  return { stdout: r.get(0), stderr: r.get(1) };
+}
+
+async function installPackages(py, packages) {
+  await py.loadPackagesFromImports('import micropip');
+  const mp = py.pyimport('micropip');
+  const results = [];
+  for (const p of packages) {
+    try { await mp.install(p); results.push({ package: p, ok: true }); }
+    catch (e) { results.push({ package: p, ok: false, error: String(e && e.message || e) }); }
+  }
+  return results;
+}
+
 self.onmessage = async (ev) => {
-  const { id, code, files, limits, stdin } = ev.data;
+  const { id, action, code, files, limits, stdin, command, packages } = ev.data;
   outBuf.length = 0; errBuf.length = 0; richOutputs.length = 0; outputBytes = 0;
   outputCap = (limits && limits.maxOutputBytes) || outputCap;
 
   try {
     const py = await loadPyodideOnce();
     await syncVfsIn(py, files || []);
+
+    if (action === 'shell') {
+      const r = await runShellCommand(py, command);
+      const vfs = syncVfsOut(py, []);
+      postMessage({ id, ok: true, stdout: r.stdout || '', stderr: r.stderr || '', outputs: richOutputs, files: vfs.all, changedFiles: vfs.changed });
+      return;
+    }
+    if (action === 'install') {
+      const r = await installPackages(py, packages || []);
+      const vfs = syncVfsOut(py, []);
+      const ok = r.every(x => x.ok);
+      postMessage({ id, ok, stdout: r.map(x => (x.ok ? '+ ' : '! ') + x.package + (x.error ? ' — ' + x.error : '')).join('\n'), stderr: '', outputs: richOutputs, files: vfs.all, changedFiles: vfs.changed, error: ok ? undefined : 'one or more packages failed to install' });
+      return;
+    }
+
     const beforeSnap = (() => {
       try {
         const fs = py.FS; const acc = [];
@@ -168,6 +216,8 @@ self.onmessage = async (ev) => {
     if (stdin) py.setStdin({ stdin: () => stdin });
     let resultRepr = null;
     try {
+      // Auto-load any imports the user reaches for (numpy, pandas, matplotlib…)
+      try { await py.loadPackagesFromImports(code); } catch (_e) {}
       const r = await py.runPythonAsync(code);
       if (r !== undefined && r !== null) {
         try { resultRepr = r.toString(); } catch (_e) { resultRepr = '<unrepr>'; }
