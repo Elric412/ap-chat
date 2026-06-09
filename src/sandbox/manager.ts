@@ -188,6 +188,31 @@ export const sandboxManager = {
     } catch { return null; }
   },
 
+  /** Run a POSIX-ish shell command (ls, cat, mkdir, mv, cp, rm, grep, find, …). */
+  async runShell(conversationId: string, command: string): Promise<SandboxExecutionResult> {
+    return this.execute({
+      sessionId: conversationId,
+      language: 'python',
+      code: '',
+      stdin: undefined,
+      // @ts-expect-error — internal action marker, manager forwards to worker
+      action: 'shell',
+      command,
+    } as SandboxExecutionRequest & { action: 'shell'; command: string });
+  },
+
+  /** Install Python packages via micropip (best-effort, pure-python wheels). */
+  async installPackages(conversationId: string, packages: string[]): Promise<SandboxExecutionResult> {
+    return this.execute({
+      sessionId: conversationId,
+      language: 'python',
+      code: '',
+      // @ts-expect-error — internal action marker
+      action: 'install',
+      packages,
+    } as SandboxExecutionRequest & { action: 'install'; packages: string[] });
+  },
+
   async execute(req: SandboxExecutionRequest): Promise<SandboxExecutionResult> {
     const session = ensureSession(req.sessionId);
     const limits = mergeLimits(DEFAULT_SANDBOX_LIMITS, req.limits);
@@ -197,14 +222,18 @@ export const sandboxManager = {
     session.meta.executionCount += 1;
 
     let response: WorkerResponse | { timedOut: true };
+    const action = (req as unknown as { action?: string }).action;
 
-    if (req.language === 'python') {
+    if (req.language === 'python' || action === 'shell' || action === 'install') {
       const worker = ensurePyWorker(session);
       response = await runWithWorker(
         worker,
         {
+          action,
           code: req.code,
           stdin: req.stdin,
+          command: (req as unknown as { command?: string }).command,
+          packages: (req as unknown as { packages?: string[] }).packages,
           files: filesArray(session),
           limits,
         },
