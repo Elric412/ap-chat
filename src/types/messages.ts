@@ -74,6 +74,8 @@ export interface MessageMetadata {
   generationIndex?: number;
   pinned: boolean;
   bookmarked: boolean;
+  /** When set, this assistant node was produced by an autonomous agent step. */
+  agentStep?: number;
 }
 
 export interface MessageNode {

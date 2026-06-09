@@ -7,11 +7,11 @@ import type { SandboxLimits } from './types';
  * limit breach.
  */
 export const DEFAULT_SANDBOX_LIMITS: SandboxLimits = {
-  timeoutMs: 30_000,
-  maxOutputBytes: 2 * 1024 * 1024,   // 2 MB
-  maxDiskBytes: 32 * 1024 * 1024,    // 32 MB per session
-  heapMb: 256,
-  networkAllowed: false,             // workers run with no fetch by default
+  timeoutMs: 90_000,                 // 90s — long enough for pip installs / non-trivial scripts
+  maxOutputBytes: 8 * 1024 * 1024,   // 8 MB
+  maxDiskBytes: 128 * 1024 * 1024,   // 128 MB per session
+  heapMb: 512,
+  networkAllowed: true,              // pip / fetch enabled by default for agentic flows
 };
 
 export function mergeLimits(

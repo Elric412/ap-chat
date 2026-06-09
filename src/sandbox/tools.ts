@@ -12,6 +12,8 @@ import type { SandboxExecutionResult, SandboxLanguage } from './types';
 
 export const SANDBOX_TOOL_NAMES = [
   'run_code',
+  'run_shell',
+  'install_package',
   'read_file',
   'write_file',
   'list_files',
@@ -24,16 +26,37 @@ export const SANDBOX_TOOL_DEFINITIONS: ToolDefinition[] = [
   {
     name: 'run_code',
     description:
-      'Execute code inside the user\'s isolated per-chat sandbox. Supports Python (Pyodide, with numpy/pandas/matplotlib available via micropip) and JavaScript. ' +
-      'Returns stdout, stderr, structured outputs (images, tables, html) and the list of files written. Use this for data analysis, plots, computation, file transforms.',
+      "Execute code inside the user's isolated per-chat sandbox. Supports Python (Pyodide — numpy/pandas/matplotlib auto-loaded on import; install more with install_package) and JavaScript/TypeScript. Returns stdout, stderr, structured outputs (images, tables, html) and the list of files written. Use this for any computation, data analysis, plotting, file transforms, or verification you would otherwise have to guess at.",
     parameters: {
       type: 'object',
       properties: {
         language: { type: 'string', enum: ['python', 'javascript', 'typescript'], description: 'Execution language.' },
-        code: { type: 'string', description: 'Source code to execute. The sandbox CWD is /sandbox; files written here persist across calls in the same chat.' },
+        code: { type: 'string', description: 'Source code to execute. The sandbox CWD is /sandbox; files persist across calls in the same chat.' },
         stdin: { type: 'string', description: 'Optional stdin payload (python only).' },
       },
       required: ['language', 'code'],
+    },
+    requiresApproval: false,
+  },
+  {
+    name: 'run_shell',
+    description:
+      'Run a single POSIX-ish shell command in the sandbox. Supported: pwd, ls, cat, echo, mkdir, rm, mv, cp, touch, head, tail, wc, grep, find, env, "python -c". Use this for quick filesystem inspection and manipulation between code runs.',
+    parameters: {
+      type: 'object',
+      properties: { command: { type: 'string', description: 'A single shell command, e.g. "ls -la" or "cat data.csv".' } },
+      required: ['command'],
+    },
+    requiresApproval: false,
+  },
+  {
+    name: 'install_package',
+    description:
+      'Install one or more Python packages into the sandbox via micropip. Only pure-Python wheels (and packages with Pyodide builds) are installable. Call this before importing a package the runtime does not already ship with.',
+    parameters: {
+      type: 'object',
+      properties: { packages: { type: 'array', items: { type: 'string' }, description: 'PyPI package names, e.g. ["httpx", "rich"].' } },
+      required: ['packages'],
     },
     requiresApproval: false,
   },
@@ -104,6 +127,17 @@ export async function dispatchSandboxTool(
           output: summarizeExecution(result),
           isError: result.status !== 'success',
         };
+      }
+      case 'run_shell': {
+        const command = String(call.arguments.command ?? '');
+        const result = await sandboxManager.runShell(conversationId, command);
+        return { toolCallId: call.id, output: summarizeExecution(result), isError: result.status !== 'success' };
+      }
+      case 'install_package': {
+        const raw = call.arguments.packages;
+        const packages = Array.isArray(raw) ? raw.map(String) : typeof raw === 'string' ? [raw] : [];
+        const result = await sandboxManager.installPackages(conversationId, packages);
+        return { toolCallId: call.id, output: summarizeExecution(result), isError: result.status !== 'success' };
       }
       case 'read_file': {
         const path = String(call.arguments.path ?? '');

@@ -72,6 +72,85 @@ def _maybe_capture_pyplot():
                 plt.close(fig)
     except Exception:
         pass
+
+# Tiny POSIX-ish shell so the agent can run commands like ls / cat / mkdir.
+import types as _types, shutil as _shutil, glob as _glob, fnmatch as _fnmatch, re as _re
+_shell_mod = _types.ModuleType('sandbox_shell')
+def _sh_run(argv):
+    if not argv: return
+    cmd, args = argv[0], argv[1:]
+    if cmd == 'pwd':
+        print(os.getcwd())
+    elif cmd == 'ls':
+        target = args[-1] if args and not args[-1].startswith('-') else '.'
+        for n in sorted(os.listdir(target)):
+            print(n)
+    elif cmd == 'cat':
+        for p in args:
+            with open(p, 'r', errors='replace') as fh: print(fh.read(), end='')
+    elif cmd == 'echo':
+        print(' '.join(args))
+    elif cmd == 'mkdir':
+        for p in [a for a in args if not a.startswith('-')]: os.makedirs(p, exist_ok=True)
+    elif cmd == 'rm':
+        for p in [a for a in args if not a.startswith('-')]:
+            if os.path.isdir(p): _shutil.rmtree(p)
+            else:
+                try: os.remove(p)
+                except FileNotFoundError: pass
+    elif cmd == 'mv':
+        _shutil.move(args[0], args[1])
+    elif cmd == 'cp':
+        flag_r = any(a in ('-r','-R','-rf','-fr') for a in args)
+        srcs = [a for a in args if not a.startswith('-')]
+        dst = srcs.pop()
+        for s in srcs:
+            if flag_r and os.path.isdir(s): _shutil.copytree(s, dst)
+            else: _shutil.copy2(s, dst)
+    elif cmd == 'touch':
+        for p in args: open(p, 'a').close()
+    elif cmd == 'head':
+        n = 10; files = list(args)
+        if files and files[0] == '-n': n = int(files[1]); files = files[2:]
+        for p in files:
+            with open(p) as fh:
+                for i, line in enumerate(fh):
+                    if i >= n: break
+                    print(line, end='')
+    elif cmd == 'tail':
+        n = 10; files = list(args)
+        if files and files[0] == '-n': n = int(files[1]); files = files[2:]
+        for p in files:
+            with open(p) as fh:
+                lines = fh.readlines()[-n:]
+                for line in lines: print(line, end='')
+    elif cmd == 'wc':
+        files = [a for a in args if not a.startswith('-')]
+        for p in files:
+            with open(p) as fh:
+                data = fh.read()
+                print(f"{len(data.splitlines())} {len(data.split())} {len(data)} {p}")
+    elif cmd == 'grep':
+        if len(args) < 2: return
+        pat = args[0]; rx = _re.compile(pat)
+        for p in args[1:]:
+            with open(p, errors='replace') as fh:
+                for line in fh:
+                    if rx.search(line): print(f"{p}:{line.rstrip()}")
+    elif cmd == 'find':
+        root = args[0] if args else '.'
+        for dirpath, _, files in os.walk(root):
+            print(dirpath)
+            for f in files: print(os.path.join(dirpath, f))
+    elif cmd == 'env':
+        for k, v in os.environ.items(): print(f"{k}={v}")
+    elif cmd == 'python' or cmd == 'python3':
+        if args and args[0] == '-c': exec(args[1], {})
+        else: print("sandbox: only 'python -c <code>' supported", file=sys.stderr)
+    else:
+        print(f"sandbox: command not found: {cmd}", file=sys.stderr)
+_shell_mod.run = _sh_run
+sys.modules['sandbox_shell'] = _shell_mod
 \`);
     return py;
   });
@@ -145,14 +224,62 @@ function guessMime(p) {
   }[ext] || 'application/octet-stream';
 }
 
+async function runShellCommand(py, cmd) {
+  // Minimal POSIX-ish helper: ls, cat, pwd, echo, mkdir, rm, mv, cp,
+  // head, tail, wc, grep, find, touch. Anything else falls back to a
+  // Python one-liner via 'py: <expr>'.
+  const escaped = JSON.stringify(cmd);
+  const pyCode = 'import shlex, os, sys, io\nfrom contextlib import redirect_stdout, redirect_stderr\n' +
+    '_out = io.StringIO(); _err = io.StringIO()\n' +
+    'with redirect_stdout(_out), redirect_stderr(_err):\n' +
+    '    try:\n' +
+    '        _argv = shlex.split(' + escaped + ')\n' +
+    '        from sandbox_shell import run as _run\n' +
+    '        _run(_argv)\n' +
+    '    except SystemExit:\n' +
+    '        pass\n' +
+    '    except Exception as _e:\n' +
+    '        print(_e, file=sys.stderr)\n' +
+    '_so = _out.getvalue(); _se = _err.getvalue()\n' +
+    '(_so, _se)';
+  const r = await py.runPythonAsync(pyCode);
+  return { stdout: r.get(0), stderr: r.get(1) };
+}
+
+async function installPackages(py, packages) {
+  await py.loadPackagesFromImports('import micropip');
+  const mp = py.pyimport('micropip');
+  const results = [];
+  for (const p of packages) {
+    try { await mp.install(p); results.push({ package: p, ok: true }); }
+    catch (e) { results.push({ package: p, ok: false, error: String(e && e.message || e) }); }
+  }
+  return results;
+}
+
 self.onmessage = async (ev) => {
-  const { id, code, files, limits, stdin } = ev.data;
+  const { id, action, code, files, limits, stdin, command, packages } = ev.data;
   outBuf.length = 0; errBuf.length = 0; richOutputs.length = 0; outputBytes = 0;
   outputCap = (limits && limits.maxOutputBytes) || outputCap;
 
   try {
     const py = await loadPyodideOnce();
     await syncVfsIn(py, files || []);
+
+    if (action === 'shell') {
+      const r = await runShellCommand(py, command);
+      const vfs = syncVfsOut(py, []);
+      postMessage({ id, ok: true, stdout: r.stdout || '', stderr: r.stderr || '', outputs: richOutputs, files: vfs.all, changedFiles: vfs.changed });
+      return;
+    }
+    if (action === 'install') {
+      const r = await installPackages(py, packages || []);
+      const vfs = syncVfsOut(py, []);
+      const ok = r.every(x => x.ok);
+      postMessage({ id, ok, stdout: r.map(x => (x.ok ? '+ ' : '! ') + x.package + (x.error ? ' — ' + x.error : '')).join('\n'), stderr: '', outputs: richOutputs, files: vfs.all, changedFiles: vfs.changed, error: ok ? undefined : 'one or more packages failed to install' });
+      return;
+    }
+
     const beforeSnap = (() => {
       try {
         const fs = py.FS; const acc = [];
@@ -168,6 +295,8 @@ self.onmessage = async (ev) => {
     if (stdin) py.setStdin({ stdin: () => stdin });
     let resultRepr = null;
     try {
+      // Auto-load any imports the user reaches for (numpy, pandas, matplotlib…)
+      try { await py.loadPackagesFromImports(code); } catch (_e) {}
       const r = await py.runPythonAsync(code);
       if (r !== undefined && r !== null) {
         try { resultRepr = r.toString(); } catch (_e) { resultRepr = '<unrepr>'; }

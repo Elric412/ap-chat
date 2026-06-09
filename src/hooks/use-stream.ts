@@ -209,15 +209,29 @@ export function useStream(): UseStreamReturn {
     const contextConfig = store.contextConfig;
     const baseSystemPrompt = store.getEffectiveSystemPrompt(conversationId);
 
-    // Inject Skill Library expertise into system prompt when active
+    // Inject Skill Library expertise — with optional smart routing so we
+    // only ship the relevant skills instead of the whole catalog.
     const availableSkills = store.getAvailableSkills();
-    const skillBlock = availableSkills.length > 0 ? buildSkillInjectionBlock(availableSkills) : '';
-    const skillDirective = availableSkills.length > 0
-      ? `\n\nIMPORTANT: For any task that benefits from specialized expertise (frontend, backend, design, security, data, devops, etc.), you MUST consult and apply the matching expert skill(s) below. Do not respond with generic advice when a relevant skill is available — explicitly follow that skill's instructions, conventions, and quality bar. Only ignore skills for casual chat.`
+    let injectedSkills = availableSkills;
+    let routedNote = '';
+    if (availableSkills.length > 0 && store.smartSkillRouting) {
+      const { routeSkills } = await import('../engine/skill-router');
+      const routed = routeSkills(availableSkills, sanitizedText, { maxSkills: 3, minScore: 3 });
+      if (routed.selected.length > 0) {
+        injectedSkills = routed.selected;
+        routedNote = `\n\n[Skill router selected: ${routed.selected.map((s) => s.name).join(', ')}]`;
+      } else {
+        injectedSkills = [];
+      }
+    }
+    const skillBlock = injectedSkills.length > 0 ? buildSkillInjectionBlock(injectedSkills) : '';
+    const skillDirective = injectedSkills.length > 0
+      ? `\n\nIMPORTANT: For any task that benefits from specialized expertise (frontend, backend, design, security, data, devops, etc.), you MUST consult and apply the matching expert skill(s) below. Do not respond with generic advice when a relevant skill is available — explicitly follow that skill's instructions, conventions, and quality bar. Only ignore skills for casual chat.${routedNote}`
       : '';
     const sandboxEnabled = store.sandboxEnabled;
+    const agentMode = store.agentModeEnabled;
     const sandboxBlock = sandboxEnabled
-      ? `\n\n=== CODE EXECUTION SANDBOX ===\nYou have access to an isolated per-chat sandbox that can execute Python (Pyodide, with numpy/pandas/matplotlib available via micropip) and JavaScript. The sandbox has a persistent virtual filesystem mounted at /sandbox.\n\nWhen the user asks you to compute, analyze data, generate a plot, transform a file, or verify code, you SHOULD execute it rather than guessing. Emit code inside a fenced block tagged for execution:\n\n\`\`\`python run\n# your code here\nprint(result)\n\`\`\`\n\nOr for JavaScript:\n\n\`\`\`javascript run\nconsole.log("hello")\n\`\`\`\n\nThe runtime will execute the block and surface stdout, stderr, plots and tables to the user in the Canvas panel. After execution you'll see the results in your next turn and can iterate. Do not pretend to execute code — only the \`run\`-tagged blocks actually run.`
+      ? `\n\n=== CODE EXECUTION SANDBOX (per-chat, isolated) ===\nYou have a real execution environment with persistent VFS at /sandbox.\nTools available: run_code (python | javascript | typescript), run_shell (ls, cat, mkdir, mv, cp, rm, grep, find, wc, head, tail, env, "python -c"), install_package (micropip), read_file, write_file, list_files, reset_sandbox.\n\nPolicy:\n  • Whenever the user asks you to compute, transform, fetch, plot, analyze data, or verify code — CALL the tools instead of guessing.\n  • Prefer run_code for anything multi-line; use run_shell for quick fs inspection.\n  • You may chain multiple tool calls in a single turn. After tools run, you'll receive their stdout/stderr/files and may decide to call more tools or answer.\n  • Files you create in /sandbox persist across calls in the same chat.\n  • If you need a package, call install_package first.\n${agentMode ? '  • AGENT MODE IS ON: keep working autonomously until the task is fully done. Do not ask the user for confirmation between steps.' : ''}\n\nYou may also emit a fenced block tagged \`python run\` or \`javascript run\` for a one-shot run that surfaces in the Canvas terminal — but prefer tool calls when you need the result back.`
       : '';
     const systemPrompt = (baseSystemPrompt || '') + skillDirective + skillBlock + sandboxBlock;
     const systemPromptTokens = systemPrompt ? Math.ceil(systemPrompt.length / 4) : 0;
@@ -462,7 +476,124 @@ export function useStream(): UseStreamReturn {
       }
     });
 
-    // Persist all nodes
+    // ── AGENT LOOP ────────────────────────────────────────────────
+    // If sandbox tool calls fired and agent mode is on, feed the tool
+    // results back to the model and let it continue working. Bounded
+    // hard at MAX_AGENT_STEPS to prevent runaway loops.
+    const MAX_AGENT_STEPS = 6;
+    const agentEnabled = useAppStore.getState().agentModeEnabled;
+    let stepBudget = MAX_AGENT_STEPS;
+    let currentAssistantId = assistantNodeId;
+    let currentToolCalls = accumulatedToolCalls;
+    let currentToolResults: import('../types/messages').ToolResult[] | null = null;
+
+    // Pull final tool results recorded on the assistant node.
+    {
+      const node = useAppStore.getState().messageMap.get(currentAssistantId);
+      currentToolResults = node?.toolResults ?? [];
+    }
+
+    while (
+      agentEnabled &&
+      !wasAborted &&
+      stepBudget-- > 0 &&
+      currentToolCalls.length > 0 &&
+      (currentToolResults?.length ?? 0) > 0
+    ) {
+      // Build a synthetic user-side message containing the tool outputs.
+      const toolSummary = (currentToolResults ?? []).map((r) => {
+        const out = typeof r.output === 'string' ? r.output : JSON.stringify(r.output, null, 2);
+        return `<tool_result id="${r.toolCallId}" error="${r.isError ?? false}">\n${out.slice(0, 6000)}\n</tool_result>`;
+      }).join('\n\n');
+
+      const followupMessages: StreamMessage[] = [
+        ...contextMessages,
+        { role: 'assistant', content: [{ type: 'text', text: accumulatedText }] },
+        { role: 'user', content: [{ type: 'text', text: `Tool execution results:\n\n${toolSummary}\n\nContinue working on the task. If complete, give the final answer; otherwise call more tools.` }] },
+      ];
+
+      const nextAssistantId = uuidv7();
+      const nextNode = createMessageNode({
+        id: nextAssistantId,
+        conversationId,
+        parentId: currentAssistantId,
+        role: 'assistant',
+        content: [{ type: 'text', text: '' }],
+        model: model.id,
+        provider: model.providerId,
+        parameters: params,
+        status: 'streaming',
+        timestamp: Date.now(),
+        metadata: { pinned: false, bookmarked: false, agentStep: MAX_AGENT_STEPS - stepBudget } as MessageNode['metadata'],
+      });
+      useAppStore.setState((state) => {
+        const prev = state.messageMap.get(currentAssistantId);
+        if (prev) { prev.childIds.push(nextAssistantId); prev.activeChildIndex = prev.childIds.length - 1; prev._clock += 1; }
+        state.messageMap.set(nextAssistantId, nextNode);
+      });
+
+      let stepText = '';
+      const stepToolCalls: ToolCall[] = [];
+      try {
+        const gen = adapter.stream(apiKey, {
+          model: model.id,
+          messages: followupMessages,
+          parameters: params,
+          signal: abortController.signal,
+          webSearchEnabled: false,
+        });
+        for await (const event of gen) {
+          if (abortController.signal.aborted) break;
+          if (event.type === 'delta_text') {
+            stepText += event.content ?? '';
+            useAppStore.setState((state) => {
+              const n = state.messageMap.get(nextAssistantId);
+              if (n) { n.content = [{ type: 'text', text: stepText }]; n._clock += 1; }
+            });
+          } else if (event.type === 'tool_call' && event.toolCall) {
+            const tc: ToolCall = {
+              id: event.toolCall.id ?? uuidv7(),
+              toolName: event.toolCall.toolName ?? 'unknown',
+              arguments: event.toolCall.arguments ?? {},
+              status: event.toolCall.status ?? 'pending_approval',
+            };
+            stepToolCalls.push(tc);
+            useAppStore.setState((state) => {
+              const n = state.messageMap.get(nextAssistantId);
+              if (n) { n.toolCalls = [...stepToolCalls]; n._clock += 1; }
+            });
+            const { executeTool } = await import('../engine/tool-executor');
+            const { isSandboxTool } = await import('../sandbox/tools');
+            if (isSandboxTool(tc.toolName)) {
+              tc.status = 'executing';
+              const result = await executeTool(tc, conversationId);
+              tc.status = result.isError ? 'failed' : 'completed';
+              useAppStore.setState((state) => {
+                const n = state.messageMap.get(nextAssistantId);
+                if (n) { n.toolResults = [...n.toolResults, result]; n._clock += 1; }
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[agent-loop] step failed', err);
+        break;
+      }
+
+      useAppStore.setState((state) => {
+        const n = state.messageMap.get(nextAssistantId);
+        if (n) { n.status = 'complete'; n._clock += 1; }
+      });
+
+      // Advance loop state for next iteration.
+      accumulatedText = stepText;
+      currentAssistantId = nextAssistantId;
+      currentToolCalls = stepToolCalls;
+      currentToolResults = useAppStore.getState().messageMap.get(nextAssistantId)?.toolResults ?? [];
+    }
+    // ── /AGENT LOOP ───────────────────────────────────────────────
+
+    // Persist all nodes (including any agent-step children)
     const finalState = useAppStore.getState();
     const parentNode = finalState.messageMap.get(actualParentId);
     const finalUser = finalState.messageMap.get(userNodeId);
@@ -471,6 +602,15 @@ export function useStream(): UseStreamReturn {
     if (parentNode) nodesToPersist.push(parentNode);
     if (finalUser) nodesToPersist.push(finalUser);
     if (finalAssistant) nodesToPersist.push(finalAssistant);
+    // Walk forward through agent-step children of the original assistant.
+    let cursor = finalAssistant;
+    while (cursor && cursor.childIds.length > 0) {
+      const childId = cursor.childIds[cursor.activeChildIndex] ?? cursor.childIds[cursor.childIds.length - 1];
+      const child = finalState.messageMap.get(childId);
+      if (!child || child.role !== 'assistant') break;
+      nodesToPersist.push(child);
+      cursor = child;
+    }
     await putMessages(nodesToPersist);
 
     streamingRef.current = false;
