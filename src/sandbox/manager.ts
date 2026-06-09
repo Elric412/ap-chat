@@ -195,7 +195,7 @@ export const sandboxManager = {
       language: 'python',
       code: '',
       stdin: undefined,
-      // @ts-expect-error — internal action marker, manager forwards to worker
+      // internal action marker, manager forwards to worker
       action: 'shell',
       command,
     } as SandboxExecutionRequest & { action: 'shell'; command: string });
@@ -207,7 +207,7 @@ export const sandboxManager = {
       sessionId: conversationId,
       language: 'python',
       code: '',
-      // @ts-expect-error — internal action marker
+      // internal action marker
       action: 'install',
       packages,
     } as SandboxExecutionRequest & { action: 'install'; packages: string[] });
