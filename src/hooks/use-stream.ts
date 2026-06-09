@@ -209,15 +209,29 @@ export function useStream(): UseStreamReturn {
     const contextConfig = store.contextConfig;
     const baseSystemPrompt = store.getEffectiveSystemPrompt(conversationId);
 
-    // Inject Skill Library expertise into system prompt when active
+    // Inject Skill Library expertise — with optional smart routing so we
+    // only ship the relevant skills instead of the whole catalog.
     const availableSkills = store.getAvailableSkills();
-    const skillBlock = availableSkills.length > 0 ? buildSkillInjectionBlock(availableSkills) : '';
-    const skillDirective = availableSkills.length > 0
-      ? `\n\nIMPORTANT: For any task that benefits from specialized expertise (frontend, backend, design, security, data, devops, etc.), you MUST consult and apply the matching expert skill(s) below. Do not respond with generic advice when a relevant skill is available — explicitly follow that skill's instructions, conventions, and quality bar. Only ignore skills for casual chat.`
+    let injectedSkills = availableSkills;
+    let routedNote = '';
+    if (availableSkills.length > 0 && store.smartSkillRouting) {
+      const { routeSkills } = await import('../engine/skill-router');
+      const routed = routeSkills(availableSkills, sanitizedText, { maxSkills: 3, minScore: 3 });
+      if (routed.selected.length > 0) {
+        injectedSkills = routed.selected;
+        routedNote = `\n\n[Skill router selected: ${routed.selected.map((s) => s.name).join(', ')}]`;
+      } else {
+        injectedSkills = [];
+      }
+    }
+    const skillBlock = injectedSkills.length > 0 ? buildSkillInjectionBlock(injectedSkills) : '';
+    const skillDirective = injectedSkills.length > 0
+      ? `\n\nIMPORTANT: For any task that benefits from specialized expertise (frontend, backend, design, security, data, devops, etc.), you MUST consult and apply the matching expert skill(s) below. Do not respond with generic advice when a relevant skill is available — explicitly follow that skill's instructions, conventions, and quality bar. Only ignore skills for casual chat.${routedNote}`
       : '';
     const sandboxEnabled = store.sandboxEnabled;
+    const agentMode = store.agentModeEnabled;
     const sandboxBlock = sandboxEnabled
-      ? `\n\n=== CODE EXECUTION SANDBOX ===\nYou have access to an isolated per-chat sandbox that can execute Python (Pyodide, with numpy/pandas/matplotlib available via micropip) and JavaScript. The sandbox has a persistent virtual filesystem mounted at /sandbox.\n\nWhen the user asks you to compute, analyze data, generate a plot, transform a file, or verify code, you SHOULD execute it rather than guessing. Emit code inside a fenced block tagged for execution:\n\n\`\`\`python run\n# your code here\nprint(result)\n\`\`\`\n\nOr for JavaScript:\n\n\`\`\`javascript run\nconsole.log("hello")\n\`\`\`\n\nThe runtime will execute the block and surface stdout, stderr, plots and tables to the user in the Canvas panel. After execution you'll see the results in your next turn and can iterate. Do not pretend to execute code — only the \`run\`-tagged blocks actually run.`
+      ? `\n\n=== CODE EXECUTION SANDBOX (per-chat, isolated) ===\nYou have a real execution environment with persistent VFS at /sandbox.\nTools available: run_code (python | javascript | typescript), run_shell (ls, cat, mkdir, mv, cp, rm, grep, find, wc, head, tail, env, "python -c"), install_package (micropip), read_file, write_file, list_files, reset_sandbox.\n\nPolicy:\n  • Whenever the user asks you to compute, transform, fetch, plot, analyze data, or verify code — CALL the tools instead of guessing.\n  • Prefer run_code for anything multi-line; use run_shell for quick fs inspection.\n  • You may chain multiple tool calls in a single turn. After tools run, you'll receive their stdout/stderr/files and may decide to call more tools or answer.\n  • Files you create in /sandbox persist across calls in the same chat.\n  • If you need a package, call install_package first.\n${agentMode ? '  • AGENT MODE IS ON: keep working autonomously until the task is fully done. Do not ask the user for confirmation between steps.' : ''}\n\nYou may also emit a fenced block tagged \`python run\` or \`javascript run\` for a one-shot run that surfaces in the Canvas terminal — but prefer tool calls when you need the result back.`
       : '';
     const systemPrompt = (baseSystemPrompt || '') + skillDirective + skillBlock + sandboxBlock;
     const systemPromptTokens = systemPrompt ? Math.ceil(systemPrompt.length / 4) : 0;
