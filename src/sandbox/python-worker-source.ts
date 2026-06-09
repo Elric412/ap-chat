@@ -146,7 +146,7 @@ def _sh_run(argv):
         for k, v in os.environ.items(): print(f"{k}={v}")
     elif cmd == 'python' or cmd == 'python3':
         if args and args[0] == '-c': exec(args[1], {})
-        else: print(f"sandbox: only `python -c <code>` supported", file=sys.stderr)
+        else: print("sandbox: only 'python -c <code>' supported", file=sys.stderr)
     else:
         print(f"sandbox: command not found: {cmd}", file=sys.stderr)
 _shell_mod.run = _sh_run
