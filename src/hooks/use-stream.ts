@@ -476,7 +476,124 @@ export function useStream(): UseStreamReturn {
       }
     });
 
-    // Persist all nodes
+    // ── AGENT LOOP ────────────────────────────────────────────────
+    // If sandbox tool calls fired and agent mode is on, feed the tool
+    // results back to the model and let it continue working. Bounded
+    // hard at MAX_AGENT_STEPS to prevent runaway loops.
+    const MAX_AGENT_STEPS = 6;
+    const agentEnabled = useAppStore.getState().agentModeEnabled;
+    let stepBudget = MAX_AGENT_STEPS;
+    let currentAssistantId = assistantNodeId;
+    let currentToolCalls = accumulatedToolCalls;
+    let currentToolResults: import('../types/messages').ToolResult[] | null = null;
+
+    // Pull final tool results recorded on the assistant node.
+    {
+      const node = useAppStore.getState().messageMap.get(currentAssistantId);
+      currentToolResults = node?.toolResults ?? [];
+    }
+
+    while (
+      agentEnabled &&
+      !wasAborted &&
+      stepBudget-- > 0 &&
+      currentToolCalls.length > 0 &&
+      (currentToolResults?.length ?? 0) > 0
+    ) {
+      // Build a synthetic user-side message containing the tool outputs.
+      const toolSummary = (currentToolResults ?? []).map((r) => {
+        const out = typeof r.output === 'string' ? r.output : JSON.stringify(r.output, null, 2);
+        return `<tool_result id="${r.toolCallId}" error="${r.isError ?? false}">\n${out.slice(0, 6000)}\n</tool_result>`;
+      }).join('\n\n');
+
+      const followupMessages: StreamMessage[] = [
+        ...contextMessages,
+        { role: 'assistant', content: [{ type: 'text', text: accumulatedText }] },
+        { role: 'user', content: [{ type: 'text', text: `Tool execution results:\n\n${toolSummary}\n\nContinue working on the task. If complete, give the final answer; otherwise call more tools.` }] },
+      ];
+
+      const nextAssistantId = uuidv7();
+      const nextNode = createMessageNode({
+        id: nextAssistantId,
+        conversationId,
+        parentId: currentAssistantId,
+        role: 'assistant',
+        content: [{ type: 'text', text: '' }],
+        model: model.id,
+        provider: model.providerId,
+        parameters: params,
+        status: 'streaming',
+        timestamp: Date.now(),
+        metadata: { pinned: false, bookmarked: false, agentStep: MAX_AGENT_STEPS - stepBudget } as MessageNode['metadata'],
+      });
+      useAppStore.setState((state) => {
+        const prev = state.messageMap.get(currentAssistantId);
+        if (prev) { prev.childIds.push(nextAssistantId); prev.activeChildIndex = prev.childIds.length - 1; prev._clock += 1; }
+        state.messageMap.set(nextAssistantId, nextNode);
+      });
+
+      let stepText = '';
+      const stepToolCalls: ToolCall[] = [];
+      try {
+        const gen = adapter.stream(apiKey, {
+          model: model.id,
+          messages: followupMessages,
+          parameters: params,
+          signal: abortController.signal,
+          webSearchEnabled: false,
+        });
+        for await (const event of gen) {
+          if (abortController.signal.aborted) break;
+          if (event.type === 'delta_text') {
+            stepText += event.content ?? '';
+            useAppStore.setState((state) => {
+              const n = state.messageMap.get(nextAssistantId);
+              if (n) { n.content = [{ type: 'text', text: stepText }]; n._clock += 1; }
+            });
+          } else if (event.type === 'tool_call' && event.toolCall) {
+            const tc: ToolCall = {
+              id: event.toolCall.id ?? uuidv7(),
+              toolName: event.toolCall.toolName ?? 'unknown',
+              arguments: event.toolCall.arguments ?? {},
+              status: event.toolCall.status ?? 'pending_approval',
+            };
+            stepToolCalls.push(tc);
+            useAppStore.setState((state) => {
+              const n = state.messageMap.get(nextAssistantId);
+              if (n) { n.toolCalls = [...stepToolCalls]; n._clock += 1; }
+            });
+            const { executeTool } = await import('../engine/tool-executor');
+            const { isSandboxTool } = await import('../sandbox/tools');
+            if (isSandboxTool(tc.toolName)) {
+              tc.status = 'executing';
+              const result = await executeTool(tc, conversationId);
+              tc.status = result.isError ? 'failed' : 'completed';
+              useAppStore.setState((state) => {
+                const n = state.messageMap.get(nextAssistantId);
+                if (n) { n.toolResults = [...n.toolResults, result]; n._clock += 1; }
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[agent-loop] step failed', err);
+        break;
+      }
+
+      useAppStore.setState((state) => {
+        const n = state.messageMap.get(nextAssistantId);
+        if (n) { n.status = 'complete'; n._clock += 1; }
+      });
+
+      // Advance loop state for next iteration.
+      accumulatedText = stepText;
+      currentAssistantId = nextAssistantId;
+      currentToolCalls = stepToolCalls;
+      currentToolResults = useAppStore.getState().messageMap.get(nextAssistantId)?.toolResults ?? [];
+    }
+    // ── /AGENT LOOP ───────────────────────────────────────────────
+
+    // Persist all nodes (including any agent-step children)
     const finalState = useAppStore.getState();
     const parentNode = finalState.messageMap.get(actualParentId);
     const finalUser = finalState.messageMap.get(userNodeId);
@@ -485,6 +602,15 @@ export function useStream(): UseStreamReturn {
     if (parentNode) nodesToPersist.push(parentNode);
     if (finalUser) nodesToPersist.push(finalUser);
     if (finalAssistant) nodesToPersist.push(finalAssistant);
+    // Walk forward through agent-step children of the original assistant.
+    let cursor = finalAssistant;
+    while (cursor && cursor.childIds.length > 0) {
+      const childId = cursor.childIds[cursor.activeChildIndex] ?? cursor.childIds[cursor.childIds.length - 1];
+      const child = finalState.messageMap.get(childId);
+      if (!child || child.role !== 'assistant') break;
+      nodesToPersist.push(child);
+      cursor = child;
+    }
     await putMessages(nodesToPersist);
 
     streamingRef.current = false;
