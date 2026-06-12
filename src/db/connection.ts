@@ -58,6 +58,32 @@ export async function getDB(): Promise<IDBPDatabase<ByokChatDB>> {
           artStore.createIndex('by-conversationId', 'conversationId');
           artStore.createIndex('by-messageNodeId', 'messageNodeId');
         }
+
+        // ─── Swarm (v2) — additive, idempotent ───────────────
+        if (!db.objectStoreNames.contains('swarm_runs')) {
+          const s = db.createObjectStore('swarm_runs', { keyPath: 'id' });
+          s.createIndex('by-status', 'status');
+          s.createIndex('by-createdAt', 'createdAt');
+        }
+        if (!db.objectStoreNames.contains('swarm_graphs')) {
+          const s = db.createObjectStore('swarm_graphs', { keyPath: 'id' });
+          s.createIndex('by-runId', 'runId');
+        }
+        if (!db.objectStoreNames.contains('blackboard_entries')) {
+          const s = db.createObjectStore('blackboard_entries', { keyPath: ['runId', 'key'] });
+          s.createIndex('by-runId', 'runId');
+        }
+        if (!db.objectStoreNames.contains('agent_messages')) {
+          const s = db.createObjectStore('agent_messages', { keyPath: 'id' });
+          s.createIndex('by-runId', 'runId');
+          s.createIndex('by-timestamp', 'timestamp');
+        }
+        if (!db.objectStoreNames.contains('memory_records')) {
+          const s = db.createObjectStore('memory_records', { keyPath: 'id' });
+          s.createIndex('by-scope', 'scope');
+          s.createIndex('by-runId', 'runId');
+          s.createIndex('by-tags', 'tags', { multiEntry: true });
+        }
       },
       blocked() {
         console.warn('[IDB] Database upgrade blocked by another tab');
