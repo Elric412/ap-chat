@@ -63,11 +63,7 @@ export interface IAgentPool {
 }
 
 export const EMPTY_COST: CostRollup = {
-  tokenCounts: {
-    input: 0, output: 0, thinking: 0, cached: 0, total: 0,
-  } as TokenCounts,
-  costEstimate: {
-    inputUSD: 0, outputUSD: 0, thinkingUSD: 0, totalUSD: 0,
-  } as CostEstimate,
+  tokenCounts: { input: 0, output: 0, thinking: 0, cached: 0 },
+  costEstimate: { inputCost: 0, outputCost: 0, thinkingCost: 0, cachedDiscount: 0, totalCost: 0 },
   perAgent: {},
 };
