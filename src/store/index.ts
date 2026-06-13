@@ -21,8 +21,10 @@ import type { SkillsSlice } from './skills-slice';
 import { createSkillsSlice } from './skills-slice';
 import type { SandboxSlice } from './sandbox-slice';
 import { createSandboxSlice } from './sandbox-slice';
+import type { SwarmSlice } from './swarm-slice';
+import { createSwarmSlice } from './swarm-slice';
 
-export interface AppState extends UISlice, VaultSlice, ToastSlice, SessionsSlice, MessagesSlice, ArtifactsSlice, ComparisonSlice, SystemPromptsSlice, SkillsSlice, SandboxSlice {}
+export interface AppState extends UISlice, VaultSlice, ToastSlice, SessionsSlice, MessagesSlice, ArtifactsSlice, ComparisonSlice, SystemPromptsSlice, SkillsSlice, SandboxSlice, SwarmSlice {}
 
 export const useAppStore = create<AppState>()(
   devtools(
@@ -37,6 +39,7 @@ export const useAppStore = create<AppState>()(
       ...createSystemPromptsSlice(...args),
       ...createSkillsSlice(...args),
       ...createSandboxSlice(...args),
+      ...createSwarmSlice(...args),
     })),
     { name: 'byok-chat-store', enabled: import.meta.env.DEV }
   )
