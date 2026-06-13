@@ -44,8 +44,11 @@ export const asMemoryId = (s: string): MemoryId => s as MemoryId;
 export const asCorrelationId = (s: string): CorrelationId => s as CorrelationId;
 
 // ─── Result ────────────────────────────────────────────────────
-export interface OkResult<T> { ok: true; value: T }
-export interface ErrResult<E> { ok: false; error: E }
+// `value` / `error` are present on both variants (typed `undefined` on the
+// non-matching side) so callers can read either property without depending on
+// cross-module discriminated-union narrowing, which is fragile under strict mode.
+export interface OkResult<T> { ok: true; value: T; error?: undefined }
+export interface ErrResult<E> { ok: false; error: E; value?: undefined }
 export type Result<T, E> = OkResult<T> | ErrResult<E>;
 
 export const Ok = <T>(value: T): OkResult<T> => ({ ok: true, value });

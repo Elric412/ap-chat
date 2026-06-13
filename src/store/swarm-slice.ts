@@ -102,7 +102,7 @@ export const createSwarmSlice: StateCreator<
       while (true) {
         const next = await gen.next();
         if (next.done) break;
-        const ev = next.value;
+        const ev = next.value as import('../types/swarm/run').RunEvent;
         set((s) => {
           switch (ev.type) {
             case 'run_status': s.status = ev.status; break;
