@@ -171,8 +171,8 @@ export class Orchestrator implements IOrchestrator {
   }
 
   /** IOrchestrator-compatible alias. */
-  run(task: string, _signal: AbortSignal): AsyncGenerator<RunEvent, Result<SwarmRun, SwarmError>> {
-    if (_signal) _signal.addEventListener('abort', () => this.abort(), { once: true });
+  run(task: string, signal: AbortSignal): AsyncGenerator<RunEvent, Result<SwarmRun, SwarmError>> {
+    signal.addEventListener('abort', () => this.abort(), { once: true });
     return this.run_(task);
   }
 

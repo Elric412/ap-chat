@@ -44,12 +44,12 @@ export const asMemoryId = (s: string): MemoryId => s as MemoryId;
 export const asCorrelationId = (s: string): CorrelationId => s as CorrelationId;
 
 // ─── Result ────────────────────────────────────────────────────
-export type Result<T, E> =
-  | { readonly ok: true; readonly value: T }
-  | { readonly ok: false; readonly error: E };
+export interface OkResult<T> { ok: true; value: T }
+export interface ErrResult<E> { ok: false; error: E }
+export type Result<T, E> = OkResult<T> | ErrResult<E>;
 
-export const Ok = <T>(value: T): Result<T, never> => ({ ok: true, value });
-export const Err = <E>(error: E): Result<never, E> => ({ ok: false, error });
+export const Ok = <T>(value: T): OkResult<T> => ({ ok: true, value });
+export const Err = <E>(error: E): ErrResult<E> => ({ ok: false, error });
 
 export function assertNever(x: never): never {
   throw new Error(`Unreachable: ${JSON.stringify(x)}`);
