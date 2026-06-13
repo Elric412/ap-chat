@@ -44,14 +44,14 @@ export const asMemoryId = (s: string): MemoryId => s as MemoryId;
 export const asCorrelationId = (s: string): CorrelationId => s as CorrelationId;
 
 // ─── Result ────────────────────────────────────────────────────
-// `error?: never` / `value?: never` make narrowing-via-access work even when
-// strict union discrimination is fragile across module boundaries.
-export interface OkResult<T> { ok: true; value: T; error?: never }
-export interface ErrResult<E> { ok: false; error: E; value?: never }
+export interface OkResult<T> { ok: true; value: T }
+export interface ErrResult<E> { ok: false; error: E }
 export type Result<T, E> = OkResult<T> | ErrResult<E>;
 
 export const Ok = <T>(value: T): OkResult<T> => ({ ok: true, value });
 export const Err = <E>(error: E): ErrResult<E> => ({ ok: false, error });
+export const isOk = <T, E>(r: Result<T, E>): r is OkResult<T> => r.ok;
+export const isErr = <T, E>(r: Result<T, E>): r is ErrResult<E> => !r.ok;
 
 export function assertNever(x: never): never {
   throw new Error(`Unreachable: ${JSON.stringify(x)}`);

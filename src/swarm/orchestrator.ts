@@ -70,11 +70,11 @@ export class Orchestrator implements IOrchestrator {
   getMessages(): AgentMessage[] { return this.bus.snapshot(); }
 
   async *run_(task: string): AsyncGenerator<RunEvent, Result<SwarmRun, SwarmError>> {
-    this.run.rootTask = task;
+    this.swarmRun.rootTask = task;
     const signal = this.aborter.signal;
 
     // ── 1. Planning ──────────────────────────────────────────
-    this.run.status = 'planning';
+    this.swarmRun.status = 'planning';
     yield { type: 'run_status', status: 'planning' };
 
     let graph: TaskGraph;
@@ -97,11 +97,11 @@ export class Orchestrator implements IOrchestrator {
     }
 
     this.graph = graph;
-    this.run = { ...this.run, graphId: graph.id };
+    this.swarmRun = { ...this.swarmRun, graphId: graph.id };
     yield { type: 'graph_built', graph: graph.toJSON() };
 
     // ── 2. Execute (parallel, dependency-aware) ──────────────
-    this.run.status = 'running';
+    this.swarmRun.status = 'running';
     yield { type: 'run_status', status: 'running' };
 
     const events: RunEvent[] = [];
@@ -143,7 +143,7 @@ export class Orchestrator implements IOrchestrator {
     }
 
     // ── 3. Synthesize ────────────────────────────────────────
-    this.run.status = 'synthesizing';
+    this.swarmRun.status = 'synthesizing';
     yield { type: 'run_status', status: 'synthesizing' };
 
     const synth = await synthesize({
@@ -162,12 +162,12 @@ export class Orchestrator implements IOrchestrator {
     }
 
     this.addUsage('__synthesizer__' as AgentId, synth.value.tokenUsage);
-    this.run.finalAnswer = synth.value.finalAnswer;
-    this.run.status = 'done';
-    this.run.finishedAt = Date.now();
-    yield { type: 'final', answer: synth.value.finalAnswer, cost: this.run.cost };
+    this.swarmRun.finalAnswer = synth.value.finalAnswer;
+    this.swarmRun.status = 'done';
+    this.swarmRun.finishedAt = Date.now();
+    yield { type: 'final', answer: synth.value.finalAnswer, cost: this.swarmRun.cost };
     yield { type: 'run_status', status: 'done' };
-    return Ok(this.run);
+    return Ok(this.swarmRun);
   }
 
   /** IOrchestrator-compatible alias. */
@@ -280,23 +280,23 @@ export class Orchestrator implements IOrchestrator {
   }
 
   private addUsage(agentId: AgentId, usage: TokenUsage): void {
-    const tc = this.run.cost.tokenCounts;
+    const tc = this.swarmRun.cost.tokenCounts;
     tc.input += usage.inputTokens;
     tc.output += usage.outputTokens;
     tc.thinking += usage.thinkingTokens;
     tc.cached += usage.cachedTokens;
-    const per = this.run.cost.perAgent[agentId] ?? { input: 0, output: 0, thinking: 0, cached: 0 };
+    const per = this.swarmRun.cost.perAgent[agentId] ?? { input: 0, output: 0, thinking: 0, cached: 0 };
     per.input += usage.inputTokens;
     per.output += usage.outputTokens;
     per.thinking += usage.thinkingTokens;
     per.cached += usage.cachedTokens;
-    this.run.cost.perAgent[agentId] = per;
+    this.swarmRun.cost.perAgent[agentId] = per;
   }
 
   private fail(error: SwarmError): void {
-    this.run.status = error.kind === 'aborted' ? 'aborted' : 'failed';
-    this.run.error = error;
-    this.run.finishedAt = Date.now();
+    this.swarmRun.status = error.kind === 'aborted' ? 'aborted' : 'failed';
+    this.swarmRun.error = error;
+    this.swarmRun.finishedAt = Date.now();
   }
 
   private publishMsg(from: Endpoint, to: Endpoint, payload: AgentMessage['payload']): void {
