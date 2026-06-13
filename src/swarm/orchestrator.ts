@@ -45,14 +45,14 @@ export class Orchestrator implements IOrchestrator {
   private graph: TaskGraph | null = null;
   private blackboard: Blackboard;
   private agents = new Map<AgentId, SubAgent>();
-  private run: SwarmRun;
+  private swarmRun: SwarmRun;
 
   constructor(init: OrchestratorInit) {
     this.cfg = init.config;
     this.pool = new AgentPool(init.config.maxConcurrency);
     this.runId = newRunId();
     this.blackboard = new Blackboard(this.runId);
-    this.run = {
+    this.swarmRun = {
       id: this.runId,
       graphId: '' as never,
       rootTask: '',
@@ -65,7 +65,7 @@ export class Orchestrator implements IOrchestrator {
     };
   }
 
-  getRun(): SwarmRun { return this.run; }
+  getRun(): SwarmRun { return this.swarmRun; }
   abort(): void { this.aborter.abort(); this.pool.abortAll(); }
   getMessages(): AgentMessage[] { return this.bus.snapshot(); }
 

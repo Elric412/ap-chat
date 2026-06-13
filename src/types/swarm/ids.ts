@@ -44,8 +44,10 @@ export const asMemoryId = (s: string): MemoryId => s as MemoryId;
 export const asCorrelationId = (s: string): CorrelationId => s as CorrelationId;
 
 // ─── Result ────────────────────────────────────────────────────
-export interface OkResult<T> { ok: true; value: T }
-export interface ErrResult<E> { ok: false; error: E }
+// `error?: never` / `value?: never` make narrowing-via-access work even when
+// strict union discrimination is fragile across module boundaries.
+export interface OkResult<T> { ok: true; value: T; error?: never }
+export interface ErrResult<E> { ok: false; error: E; value?: never }
 export type Result<T, E> = OkResult<T> | ErrResult<E>;
 
 export const Ok = <T>(value: T): OkResult<T> => ({ ok: true, value });
