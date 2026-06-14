@@ -41,10 +41,11 @@ export class TaskGraph implements ITaskGraph {
     this.forward.get(edge.from)!.add(edge.to);
     this.reverse.get(edge.to)!.add(edge.from);
     this.edges.push(edge);
-    // Maintain dependsOn array on the target node.
-    const target = this.nodes.get(edge.to)!;
-    if (!target.dependsOn.includes(edge.from)) {
-      target.dependsOn = [...target.dependsOn, edge.from];
+    if (edge.kind === 'depends_on') {
+      const target = this.nodes.get(edge.to)!;
+      if (!target.dependsOn.includes(edge.from)) {
+        target.dependsOn = [...target.dependsOn, edge.from];
+      }
     }
     return Ok(undefined);
   }
@@ -76,11 +77,10 @@ export class TaskGraph implements ITaskGraph {
     const out: TaskNode[] = [];
     for (const node of this.nodes.values()) {
       if (node.status !== 'pending') continue;
-      const parents = this.reverse.get(node.id) ?? new Set();
       let allDone = true;
-      for (const p of parents) {
-        const pn = this.nodes.get(p);
-        if (!pn || pn.status !== 'done') { allDone = false; break; }
+      for (const parentId of node.dependsOn) {
+        const parent = this.nodes.get(parentId);
+        if (!parent || parent.status !== 'done') { allDone = false; break; }
       }
       if (allDone) out.push(node);
     }
@@ -88,11 +88,19 @@ export class TaskGraph implements ITaskGraph {
   }
 
   topologicalOrder(): Result<TaskId[], SwarmError> {
-    // Kahn's algorithm
+    const dependencyChildren = new Map<TaskId, TaskId[]>();
     const inDegree = new Map<TaskId, number>();
-    for (const id of this.nodes.keys()) {
-      inDegree.set(id, (this.reverse.get(id)?.size ?? 0));
+
+    for (const node of this.nodes.values()) {
+      inDegree.set(node.id, node.dependsOn.length);
+      dependencyChildren.set(node.id, []);
     }
+
+    for (const edge of this.edges) {
+      if (edge.kind !== 'depends_on') continue;
+      dependencyChildren.get(edge.from)?.push(edge.to);
+    }
+
     const queue: TaskId[] = [];
     for (const [id, deg] of inDegree) if (deg === 0) queue.push(id);
 
@@ -100,18 +108,19 @@ export class TaskGraph implements ITaskGraph {
     while (queue.length > 0) {
       const cur = queue.shift()!;
       out.push(cur);
-      for (const child of this.forward.get(cur) ?? []) {
+      for (const child of dependencyChildren.get(cur) ?? []) {
         const d = (inDegree.get(child) ?? 0) - 1;
         inDegree.set(child, d);
         if (d === 0) queue.push(child);
       }
     }
+
     if (out.length !== this.nodes.size) {
-      // Should be unreachable thanks to addEdge guard, but be defensive.
-      const offending = Array.from(this.nodes.keys()).find((id) => (inDegree.get(id) ?? 0) > 0)!;
-      const parent = this.reverse.get(offending)?.values().next().value as TaskId;
-      return Err({ kind: 'cycle_detected', from: parent, to: offending });
+      const offending = Array.from(this.nodes.values()).find((node) => (inDegree.get(node.id) ?? 0) > 0);
+      const parent = offending?.dependsOn[0] ?? offending?.id;
+      return Err({ kind: 'cycle_detected', from: parent as TaskId, to: offending!.id });
     }
+
     return Ok(out);
   }
 

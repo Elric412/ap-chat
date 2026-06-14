@@ -6,7 +6,13 @@
  * inter-agent communication routes through the orchestrator/message-bus.
  */
 import type { StreamMessage } from '../adapters/types';
-import type { ISubAgent, AgentRuntime, AgentOutput, AgentSpec } from '../types/swarm/agent';
+import type {
+  ISubAgent,
+  AgentRuntime,
+  AgentOutput,
+  AgentSpec,
+  SpawnedChild,
+} from '../types/swarm/agent';
 import { MAX_AGENT_DEPTH, EMPTY_TOKEN_USAGE } from '../types/swarm/agent';
 import type { TaskId, AgentId, Result } from '../types/swarm/ids';
 import { Ok, Err } from '../types/swarm/ids';
@@ -15,8 +21,8 @@ import type { TokenUsage } from '../types/adapters';
 import { runAgentLLM } from './agent-llm';
 
 export interface SpawnHook {
-  /** Orchestrator-provided callback. Returns the new child's AgentId or an error. */
-  (parentAgentId: AgentId, parentTaskId: TaskId, instruction: string): Promise<Result<AgentId, SwarmError>>;
+  /** Orchestrator-provided callback. Returns the spawned child metadata or an error. */
+  (parentAgentId: AgentId, parentTaskId: TaskId, instruction: string): Promise<Result<SpawnedChild, SwarmError>>;
 }
 
 export interface SubAgentInit {
@@ -32,6 +38,10 @@ export interface SubAgentInit {
   dependencyContext?: string;
   /** Orchestrator callback for spawn requests. */
   spawnHook: SpawnHook;
+}
+
+interface SpawnDirective {
+  spawnInstruction: string;
 }
 
 export class SubAgent implements ISubAgent {
@@ -68,7 +78,6 @@ export class SubAgent implements ISubAgent {
 
   async run(signal: AbortSignal): Promise<Result<AgentOutput, SwarmError>> {
     this.linkedSignal = signal;
-    // Combine external + internal aborter.
     const combo = new AbortController();
     const onAbort = () => combo.abort();
     signal.addEventListener('abort', onAbort, { once: true });
@@ -77,43 +86,80 @@ export class SubAgent implements ISubAgent {
     this.runtime.status = 'thinking';
     this.runtime.startedAt = Date.now();
 
-    const llm = await runAgentLLM({
-      provider: this.runtime.spec.provider,
-      model: this.runtime.spec.model,
-      parameters: this.runtime.spec.parameters,
-      messages: this.runtime.contextMessages,
-      signal: combo.signal,
-    });
+    try {
+      const firstPass = await this.invokeLLM(combo.signal);
+      if (!firstPass.ok) {
+        this.runtime.status = firstPass.error.kind === 'aborted' ? 'cancelled' : 'failed';
+        return Err(firstPass.error);
+      }
 
-    this.runtime.finishedAt = Date.now();
-    signal.removeEventListener('abort', onAbort);
+      let usage = mergeUsage(this.runtime.tokenUsage, firstPass.value.tokenUsage);
+      let finalText = firstPass.value.text;
 
-    if (!llm.ok) {
-      this.runtime.status = llm.error.kind === 'aborted' ? 'cancelled' : 'failed';
-      return Err(llm.error);
+      const spawnDirective = parseSpawnDirective(firstPass.value.text);
+      if (spawnDirective) {
+        const child = await this.spawnChild(spawnDirective.spawnInstruction);
+        if (!child.ok) {
+          this.runtime.finishedAt = Date.now();
+          this.runtime.status = child.error.kind === 'aborted' ? 'cancelled' : 'failed';
+          return Err(child.error);
+        }
+
+        this.runtime.contextMessages.push({
+          role: 'assistant',
+          content: [{ type: 'text', text: `I delegated a child sub-task: ${spawnDirective.spawnInstruction}` }],
+        });
+        this.runtime.contextMessages.push({
+          role: 'system',
+          content: [{
+            type: 'text',
+            text: `Child sub-agent result for shared swarm context:\n${child.value.output}\n\nUse it if helpful, then answer the original instruction directly. Do not emit another spawn directive unless it is absolutely necessary.`,
+          }],
+        });
+        this.runtime.contextMessages.push({
+          role: 'user',
+          content: [{
+            type: 'text',
+            text: `Incorporate the child result above and now answer your original instruction directly for the orchestrator.`,
+          }],
+        });
+
+        const secondPass = await this.invokeLLM(combo.signal);
+        if (!secondPass.ok) {
+          this.runtime.finishedAt = Date.now();
+          this.runtime.status = secondPass.error.kind === 'aborted' ? 'cancelled' : 'failed';
+          return Err(secondPass.error);
+        }
+
+        usage = mergeUsage(usage, secondPass.value.tokenUsage);
+        finalText = secondPass.value.text;
+      }
+
+      this.runtime.tokenUsage = usage;
+      this.runtime.finishedAt = Date.now();
+      this.runtime.status = 'done';
+
+      const output: AgentOutput = {
+        taskId: this.runtime.taskId,
+        agentId: this.runtime.spec.id,
+        text: finalText,
+        tokenUsage: usage,
+        toolResults: [],
+        citations: [],
+      };
+      return Ok(output);
+    } finally {
+      signal.removeEventListener('abort', onAbort);
     }
-
-    this.runtime.tokenUsage = mergeUsage(this.runtime.tokenUsage, llm.value.tokenUsage);
-    this.runtime.status = 'done';
-
-    const output: AgentOutput = {
-      taskId: this.runtime.taskId,
-      agentId: this.runtime.spec.id,
-      text: llm.value.text,
-      tokenUsage: llm.value.tokenUsage,
-      toolResults: [],
-      citations: [],
-    };
-    return Ok(output);
   }
 
-  async spawnChild(instruction: string): Promise<Result<AgentId, SwarmError>> {
+  async spawnChild(instruction: string): Promise<Result<SpawnedChild, SwarmError>> {
     if (this.runtime.depth + 1 > MAX_AGENT_DEPTH) {
       return Err({ kind: 'max_depth', depth: this.runtime.depth + 1, limit: 3 });
     }
     this.runtime.status = 'awaiting_child';
     const result = await this.spawnHook(this.runtime.spec.id, this.runtime.taskId, instruction);
-    if (result.ok) this.runtime.childAgentIds.push(result.value);
+    if (result.ok) this.runtime.childAgentIds.push(result.value.agentId);
     this.runtime.status = 'thinking';
     return result;
   }
@@ -122,6 +168,21 @@ export class SubAgent implements ISubAgent {
     this.aborter.abort();
     this.runtime.status = 'cancelled';
   }
+
+  private invokeLLM(signal: AbortSignal): Promise<Result<AgentOutputLike, SwarmError>> {
+    return runAgentLLM({
+      provider: this.runtime.spec.provider,
+      model: this.runtime.spec.model,
+      parameters: this.runtime.spec.parameters,
+      messages: this.runtime.contextMessages,
+      signal,
+    });
+  }
+}
+
+interface AgentOutputLike {
+  text: string;
+  tokenUsage: TokenUsage;
 }
 
 function mergeUsage(a: TokenUsage, b: TokenUsage): TokenUsage {
@@ -132,4 +193,26 @@ function mergeUsage(a: TokenUsage, b: TokenUsage): TokenUsage {
     cachedTokens: a.cachedTokens + b.cachedTokens,
     totalTokens: a.totalTokens + b.totalTokens,
   };
+}
+
+function parseSpawnDirective(text: string): SpawnDirective | null {
+  const trimmed = text.trim();
+  if (!trimmed.startsWith('{')) return null;
+
+  try {
+    const parsed = JSON.parse(trimmed) as unknown;
+    if (
+      parsed
+      && typeof parsed === 'object'
+      && 'spawnInstruction' in parsed
+      && typeof parsed.spawnInstruction === 'string'
+      && parsed.spawnInstruction.trim().length > 0
+    ) {
+      return { spawnInstruction: parsed.spawnInstruction.trim() };
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
 }

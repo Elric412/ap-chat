@@ -44,10 +44,16 @@ export interface AgentOutput {
   citations: WebSearchResult[];
 }
 
+export interface SpawnedChild {
+  readonly agentId: AgentId;
+  readonly taskId: TaskId;
+  readonly output: string;
+}
+
 export interface ISubAgent {
   readonly runtime: AgentRuntime;
   run(signal: AbortSignal): Promise<Result<AgentOutput, SwarmError>>;
-  spawnChild(instruction: string): Promise<Result<AgentId, SwarmError>>;
+  spawnChild(instruction: string): Promise<Result<SpawnedChild, SwarmError>>;
   cancel(): void;
 }
 
