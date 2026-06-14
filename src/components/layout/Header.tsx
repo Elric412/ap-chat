@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Settings, SlidersHorizontal, PanelRight, Columns2, Globe, Menu } from 'lucide-react';
+import { ChevronDown, Settings, SlidersHorizontal, PanelRight, Columns2, Globe, Menu, Network } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../../store';
 import { MODEL_REGISTRY } from '../../constants/model-registry';
@@ -33,6 +33,8 @@ export function Header(): JSX.Element {
   const toggleWebSearch = useAppStore((s) => s.toggleWebSearch);
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
+  const swarmPanelOpen = useAppStore((s) => s.panelOpen);
+  const setSwarmPanelOpen = useAppStore((s) => s.setSwarmPanelOpen);
   const navigate = useNavigate();
 
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -168,6 +170,18 @@ export function Header(): JSX.Element {
             </motion.button>
           </>
         )}
+        <motion.button
+          className={styles.headerAction}
+          type="button"
+          aria-label="Toggle agent swarm"
+          data-active={swarmPanelOpen}
+          onClick={() => setSwarmPanelOpen(!swarmPanelOpen)}
+          title="Agent Swarm"
+          whileHover={springHover}
+          whileTap={springTap}
+        >
+          <Network size={16} aria-hidden="true" />
+        </motion.button>
         <motion.button
           className={styles.headerAction}
           type="button"
