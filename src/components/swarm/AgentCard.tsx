@@ -55,7 +55,7 @@ function AgentCard({ agent }: { agent: DerivedAgent }): JSX.Element {
     <li className={styles.agentCard} style={{ marginLeft: agent.depth > 0 ? `${agent.depth * 12}px` : undefined }}>
       <div className={styles.agentTop}>
         {agent.depth > 0 && <span className={styles.depthIndent} />}
-        <Bot size={15} aria-hidden="true" />
+        <Bot size={15} className={styles.agentIcon} aria-hidden="true" />
         <div className={styles.agentName}>{agent.title}</div>
         {active && <Loader2 size={13} className={styles.spin} aria-hidden="true" />}
       </div>

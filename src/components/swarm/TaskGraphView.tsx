@@ -8,12 +8,12 @@ import type { TaskStatus } from '../../types/swarm/task-graph';
 import styles from './SwarmPanel.module.css';
 
 const STATUS_COLOR: Record<string, string> = {
-  pending: 'var(--color-muted-foreground)',
-  ready: 'var(--color-primary)',
-  running: 'var(--color-primary)',
-  done: 'rgb(74 222 128)',
-  failed: 'rgb(248 113 113)',
-  skipped: 'var(--color-muted-foreground)',
+  pending: 'var(--color-text-3)',
+  ready: 'var(--color-info-text)',
+  running: 'var(--color-info-text)',
+  done: 'var(--color-success-text)',
+  failed: 'var(--color-error-text)',
+  skipped: 'var(--color-text-3)',
 };
 
 export function TaskGraphView(): JSX.Element {
@@ -26,7 +26,7 @@ export function TaskGraphView(): JSX.Element {
   }
 
   return (
-    <section className={styles.section} style={{ borderBottom: 'none' }}>
+    <section className={styles.section}>
       <h3 className={styles.sectionTitle}>
         <GitBranch size={13} /> Task graph · {graph.nodes.length} nodes · {graph.edges.length} edges
       </h3>

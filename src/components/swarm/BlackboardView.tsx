@@ -30,6 +30,7 @@ export function BlackboardView(): JSX.Element {
   }
 
   return (
+    <div className={styles.bbWrap}>
     <table className={styles.bbTable}>
       <thead>
         <tr>
@@ -50,5 +51,6 @@ export function BlackboardView(): JSX.Element {
         ))}
       </tbody>
     </table>
+    </div>
   );
 }
