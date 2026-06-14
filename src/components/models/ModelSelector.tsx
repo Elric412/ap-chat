@@ -11,6 +11,7 @@ import { useAppStore } from '../../store';
 import { MODEL_REGISTRY } from '../../constants/model-registry';
 import { PROVIDER_META } from '../../constants/provider-meta';
 import type { ModelEntry, ProviderId } from '../../types/models';
+import { ProviderIcon } from './ProviderIcon';
 import styles from './ModelSelector.module.css';
 
 interface ModelSelectorProps {
