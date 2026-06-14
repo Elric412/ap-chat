@@ -31,11 +31,13 @@ function AppInner(): JSX.Element {
 
   const initVault = useAppStore((s) => s.initVault);
   const initSkills = useAppStore((s) => s.initSkills);
+  const rehydrateSwarm = useAppStore((s) => s.rehydrateSwarm);
 
   useEffect(() => {
     initVault();
     initSkills();
-  }, [initVault, initSkills]);
+    void rehydrateSwarm();
+  }, [initVault, initSkills, rehydrateSwarm]);
 
   // Listen for export events dispatched from command palette
   useEffect(() => {
