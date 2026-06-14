@@ -660,7 +660,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsJsonMode: true,
       supportsFrequencyPenalty: true, supportsPresencePenalty: true, supportsRepetitionPenalty: true,
     },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2025-02-01', defaultSafeParams: { temperature: 0.7 },
   },
   {
