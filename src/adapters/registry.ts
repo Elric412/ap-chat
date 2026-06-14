@@ -16,6 +16,7 @@ import { cohereAdapter } from './cohere/adapter';
 import { togetherAdapter } from './together/adapter';
 import { ollamaAdapter } from './ollama/adapter';
 import { kimiAdapter } from './kimi/adapter';
+import { openrouterAdapter } from './openrouter/adapter';
 
 const ADAPTER_MAP: Record<ProviderId, ProviderAdapter> = {
   openai: openaiAdapter,
@@ -27,6 +28,7 @@ const ADAPTER_MAP: Record<ProviderId, ProviderAdapter> = {
   together: togetherAdapter,
   ollama: ollamaAdapter,
   kimi: kimiAdapter,
+  openrouter: openrouterAdapter,
 };
 
 export function getAdapter(providerId: ProviderId): ProviderAdapter {

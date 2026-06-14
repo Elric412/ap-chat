@@ -170,6 +170,7 @@ body {
   --color-provider-together:  hsl(220, 52%, 52%);
   --color-provider-ollama:    hsl(240, 4%, 54%);
   --color-provider-kimi:      hsl(280, 60%, 58%);
+  --color-provider-openrouter: hsl(192, 70%, 50%);
 
   /* ── Interactive State Layering ── */
   --state-hover-overlay:    hsl(0, 0%, 100%, 0.035);

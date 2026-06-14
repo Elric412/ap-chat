@@ -9,6 +9,7 @@ export const PROVIDER_IDS = {
   together: 'together',
   ollama: 'ollama',
   kimi: 'kimi',
+  openrouter: 'openrouter',
 } as const;
 
 export type ProviderId = typeof PROVIDER_IDS[keyof typeof PROVIDER_IDS];
