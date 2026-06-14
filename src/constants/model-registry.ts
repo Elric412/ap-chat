@@ -299,7 +299,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsCaching: true, supportsTopK: true, supportsPresencePenalty: true,
     },
     thinkingConfig: { parameterName: 'thinkingBudget', levels: { low: 1024, medium: 4096, high: 16384 } },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2026-01-15', defaultSafeParams: { temperature: 1 },
   },
   {
