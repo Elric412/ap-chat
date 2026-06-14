@@ -74,7 +74,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsVision: true, supportsJsonMode: true, supportsStructuredOutput: true,
       supportsSeed: true, supportsFrequencyPenalty: true, supportsPresencePenalty: true,
     },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2026-02-10', defaultSafeParams: { temperature: 1, topP: 1 },
   },
   {
