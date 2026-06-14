@@ -21,6 +21,7 @@ const VaultUnlockModal = lazy(() => import('./components/vault/VaultUnlockModal'
 const ParameterDrawer = lazy(() => import('./components/parameters/ParameterDrawer').then((module) => ({ default: module.ParameterDrawer })));
 const CommandPalette = lazy(() => import('./components/command/CommandPalette').then((module) => ({ default: module.CommandPalette })));
 const SkillLibraryPanel = lazy(() => import('./components/skills/SkillLibraryPanel').then((module) => ({ default: module.SkillLibraryPanel })));
+const SwarmPanel = lazy(() => import('./components/swarm/SwarmPanel').then((module) => ({ default: module.SwarmPanel })));
 
 function AppInner(): JSX.Element {
   useTheme();
