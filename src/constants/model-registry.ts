@@ -643,7 +643,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsThinking: true, supportsJsonMode: true,
       supportsFrequencyPenalty: true, supportsPresencePenalty: true, supportsRepetitionPenalty: true,
     },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2025-01-20', defaultSafeParams: { temperature: 0.6 },
   },
   {
