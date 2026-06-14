@@ -57,7 +57,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
       supportsSeed: true, supportsFrequencyPenalty: true, supportsPresencePenalty: true,
     },
     thinkingConfig: { parameterName: 'reasoning_effort', levels: { low: 'low', medium: 'medium', high: 'high', 'x-high': 'x-high' } },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2026-02-15', defaultSafeParams: { temperature: 0.3, topP: 1 },
   },
   {
