@@ -279,6 +279,7 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
                           return (
                             <div key={providerId} className={styles.providerGroup}>
                               <div className={styles.providerLabel}>
+                                <ProviderIcon providerId={providerId} size={14} />
                                 <span
                                   className={styles.providerDot}
                                   style={{ background: `var(${meta.colorVar})` }}
@@ -298,7 +299,10 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
                                   type="button"
                                 >
                                   <div className={styles.modelInfo}>
-                                    <div className={styles.modelName}>{model.displayName}</div>
+                                    <div className={styles.modelName}>
+                                      <ProviderIcon providerId={model.providerId} family={model.family} size={14} />
+                                      <span>{model.displayName}</span>
+                                    </div>
                                     <div className={styles.modelMeta}>
                                       <span>{Math.round(model.contextWindow / 1000)}K ctx</span>
                                       <span>${model.pricing.inputPerMillionTokens}/M in</span>
