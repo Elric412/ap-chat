@@ -1,45 +1,43 @@
 /**
- * SwarmPanel — minimal but production-grade view of an in-flight swarm run.
- * Shows: task input + start/abort, DAG nodes with status, final answer.
+ * SwarmPanel — container for an in-flight (or rehydrated) swarm run.
+ * Hosts RunControls + a tabbed surface: Graph · Agents · Blackboard · Messages,
+ * plus the synthesized final answer.
  */
 import { useState } from 'react';
-import { X, Play, Square, GitBranch, Loader2, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { X, GitBranch, Bot, Table2, MessagesSquare, Sparkles } from 'lucide-react';
 import { useAppStore } from '../../store';
+import { RunControls } from './RunControls';
+import { TaskGraphView } from './TaskGraphView';
+import { AgentListView } from './AgentCard';
+import { BlackboardView } from './BlackboardView';
+import { MessageLogView } from './MessageLogView';
 import styles from './SwarmPanel.module.css';
 
-const STATUS_COLOR: Record<string, string> = {
-  pending: 'var(--color-muted-foreground)',
-  ready: 'var(--color-primary)',
-  running: 'var(--color-primary)',
-  done: 'rgb(74 222 128)',
-  failed: 'rgb(248 113 113)',
-  skipped: 'var(--color-muted-foreground)',
-};
+type Tab = 'graph' | 'agents' | 'blackboard' | 'messages';
 
 export function SwarmPanel(): JSX.Element | null {
   const open = useAppStore((s) => s.panelOpen);
   const setOpen = useAppStore((s) => s.setSwarmPanelOpen);
-  const start = useAppStore((s) => s.startSwarmRun);
-  const abort = useAppStore((s) => s.abortSwarmRun);
-  const reset = useAppStore((s) => s.resetSwarmRun);
   const status = useAppStore((s) => s.status);
   const graph = useAppStore((s) => s.graph);
-  const nodeStatus = useAppStore((s) => s.nodeStatus);
-  const nodeResults = useAppStore((s) => s.nodeResults);
+  const blackboard = useAppStore((s) => s.blackboard);
+  const messages = useAppStore((s) => s.messages);
   const finalAnswer = useAppStore((s) => s.finalAnswer);
-  const errorMessage = useAppStore((s) => s.errorMessage);
-  const running = useAppStore((s) => s.running);
-  const cost = useAppStore((s) => s.cost);
 
-  const [task, setTask] = useState('');
+  const [tab, setTab] = useState<Tab>('graph');
 
   if (!open) return null;
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!task.trim() || running) return;
-    await start(task.trim());
-  };
+  const agentCount = (graph?.nodes ?? []).filter((n) => n.assignedAgentId).length;
+  const bbCount = Object.keys(blackboard).length;
+
+  const tabs: { id: Tab; label: string; icon: JSX.Element; count?: number }[] = [
+    { id: 'graph', label: 'Graph', icon: <GitBranch size={13} />, count: graph?.nodes.length },
+    { id: 'agents', label: 'Agents', icon: <Bot size={13} />, count: agentCount || undefined },
+    { id: 'blackboard', label: 'Board', icon: <Table2 size={13} />, count: bbCount || undefined },
+    { id: 'messages', label: 'Messages', icon: <MessagesSquare size={13} />, count: messages.length || undefined },
+  ];
 
   return (
     <aside className={styles.panel} aria-label="Agent swarm">
@@ -54,81 +52,39 @@ export function SwarmPanel(): JSX.Element | null {
         </button>
       </header>
 
-      <form className={styles.composer} onSubmit={submit}>
-        <textarea
-          className={styles.textarea}
-          placeholder="Describe a complex task. The swarm will decompose it into sub-tasks and synthesize one answer."
-          value={task}
-          onChange={(e) => setTask(e.target.value)}
-          rows={3}
-          disabled={running}
-        />
-        <div className={styles.actions}>
-          {!running ? (
-            <button className={styles.primaryBtn} type="submit" disabled={!task.trim()}>
-              <Play size={14} /> Run
-            </button>
-          ) : (
-            <button className={styles.dangerBtn} type="button" onClick={abort}>
-              <Square size={14} /> Abort
-            </button>
-          )}
-          <button className={styles.ghostBtn} type="button" onClick={reset} disabled={running}>
-            Reset
+      <RunControls />
+
+      <nav className={styles.tabs} role="tablist">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            className={styles.tab}
+            data-active={tab === t.id}
+            role="tab"
+            aria-selected={tab === t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+          >
+            {t.icon}
+            {t.label}
+            {t.count != null && <span className={styles.tabCount}>{t.count}</span>}
+            {tab === t.id && <motion.span layoutId="swarm-tab-underline" className={styles.tabUnderline} />}
           </button>
-        </div>
-      </form>
+        ))}
+      </nav>
 
-      {errorMessage && (
-        <div className={styles.errorBanner}>
-          <AlertCircle size={14} /> {errorMessage}
-        </div>
-      )}
-
-      {graph && (
-        <section className={styles.section}>
-          <h3 className={styles.sectionTitle}>
-            <GitBranch size={13} /> Task graph · {graph.nodes.length} nodes
-          </h3>
-          <ul className={styles.nodeList}>
-            {graph.nodes.map((n) => {
-              const st = nodeStatus[n.id] ?? n.status;
-              return (
-                <li key={n.id} className={styles.node} data-status={st}>
-                  <span className={styles.dot} style={{ background: STATUS_COLOR[st] }} />
-                  <div className={styles.nodeBody}>
-                    <div className={styles.nodeTitle}>
-                      {n.title}
-                      {st === 'running' && <Loader2 size={12} className={styles.spin} />}
-                      {st === 'done' && <CheckCircle2 size={12} />}
-                    </div>
-                    <div className={styles.nodeInstruction}>{n.instruction}</div>
-                    {nodeResults[n.id] && (
-                      <details className={styles.nodeResult}>
-                        <summary>Result</summary>
-                        <pre>{nodeResults[n.id]}</pre>
-                      </details>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      )}
+      <div className={styles.scroll}>
+        {tab === 'graph' && <TaskGraphView />}
+        {tab === 'agents' && <AgentListView />}
+        {tab === 'blackboard' && <BlackboardView />}
+        {tab === 'messages' && <MessageLogView />}
+      </div>
 
       {finalAnswer && (
         <section className={styles.section}>
           <h3 className={styles.sectionTitle}>Final answer</h3>
           <div className={styles.finalAnswer}>{finalAnswer}</div>
         </section>
-      )}
-
-      {cost && (
-        <footer className={styles.footer}>
-          {cost.tokenCounts.input + cost.tokenCounts.output} tokens
-          {Object.keys(cost.perAgent).length > 0 && ` · ${Object.keys(cost.perAgent).length} agents`}
-        </footer>
       )}
     </aside>
   );
