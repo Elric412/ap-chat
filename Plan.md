@@ -935,3 +935,41 @@ REPLAN TRIGGERS: bad decompositions >30%, slice 3× over size, outcome change.
 ```
 
 > **Next action after approval:** execute **S01** (types only) under `incremental-implementation`, run the Phase-5 verification loop, commit, and open the PR. No application code is written until S01 begins.
+
+---
+
+## 13. Implementation Status (audit — 2026-06-14)
+
+**Answer: NO — the full swarm is _not_ completely implemented.** The core execution engine (decompose → DAG → parallel run → synthesize) is real, type-safe, and tested, but three planned subsystems (**memory**, **smart skill routing**, **persistence**) are scaffolded yet **not wired into the orchestrator**, recursive spawning is stubbed, and the UI is a single panel with **no entry point**.
+
+### Slice-by-slice status
+
+| ID | Slice | Status | Notes |
+|----|-------|--------|-------|
+| S01 | Type foundation | ✅ Done | `src/types/swarm/*` + `__type-tests__.ts`; `tsc --noEmit` green. |
+| S02 | Dumb wire (orchestrator → RunEvents → store) | ✅ Done | `orchestrator.ts` + `swarm-slice.ts` + `SwarmPanel`. |
+| S03 | TaskGraph DAG (cycle reject, topo, ready set) | ✅ Done | Covered by `swarm-core.test.ts`. |
+| S04 | Blackboard optimistic CAS | ✅ Done | CAS + retry tests pass. |
+| S05 | SubAgent (isolated context, abort) | ✅ Done | Real LLM via adapter registry; fresh context per agent. |
+| S06 | AgentPool (bounded concurrency) | ✅ Done | Concurrency + `abortAll` tests pass. |
+| S07 | LLM Decomposer (Zod-validated → graph) | ✅ Done | Malformed JSON → `invalid_llm_output`; cycle-safe; node cap. |
+| S08 | Synthesizer | ✅ Done | Collects blackboard outputs → final answer; cost rollup. |
+| S09 | Recursive spawning w/ depth cap | ⚠️ Partial | `SubAgent.spawnChild` enforces `MAX_AGENT_DEPTH`, **but** the orchestrator's `spawnHook` is hardwired to return `max_depth`, so children are never actually created through the orchestrator. Depth cap proven; real recursion not delivered. |
+| S10 | Message bus + append-only log (no A↔A) | ⚠️ Partial | Bus + immutable log exist and are populated; **but** the store only syncs `messages` once at run **end** (no live timeline), and the `madge --circular` gate has not been run/recorded. |
+| S11 | Memory (working/episodic, recall injection) | ❌ Not wired | `MemoryStore`, `retriever`, `memory-repo` exist, **but** the orchestrator never calls `recall`/`remember` and nothing is injected into sub-agent context. No round-trip in use. |
+| S12 | Smart skill router (heuristic→LLM hybrid) | ❌ Not wired | `SkillRouter` + `scorer` implemented, **but** the orchestrator assigns a fixed generic persona and never invokes routing. `suggestedSkillId` from the decomposer is stored but unused for persona assembly. |
+| S13 | Persistence (DB v2 + repos, reload after refresh) | ❌ Not wired | `DB_VERSION = 2` and the four object stores + `swarm-repo.ts` exist, **but** no run / blackboard / message / memory is ever persisted or rehydrated. A refresh loses the run. (`blackboard-repo.ts` from the plan was folded into `swarm-repo`/not created.) |
+| S14 | UI (Graph/Agent/Blackboard/Message/Controls) | ⚠️ Partial | `SwarmPanel` renders the graph, node results, final answer, and a token total. **Missing:** dedicated `TaskGraphView`, `AgentCard`, `BlackboardView`, `MessageLogView`, `RunControls`, and — critically — **any UI affordance to open the panel** (`panelOpen` is never toggled from the chat composer/header). The feature is effectively unreachable by an end user today. |
+| S15 | Verification & hardening | ⚠️ Partial | `tsc --noEmit` and `vitest run` are green (48 tests). **Missing:** the chaos tests (abort mid-fan-out, provider 429, IDB quota, depth-3 spawn), plus recorded `eslint --max-warnings=0` and `madge --circular` runs. |
+
+### What remains (ordered by user impact)
+
+1. **S14 entry point (blocker).** Add a "Swarm" toggle/button in the chat composer or header that calls `setSwarmPanelOpen(true)` (and ideally routes a composer message to `startSwarmRun`). Without this the swarm cannot be launched from the UI.
+2. **S12 routing wiring.** Have the orchestrator call `SkillRouter.route()` per node and merge the chosen `Skill.instructions` into each `AgentSpec.systemPrompt` (use `node.suggestedSkillId` as the hint).
+3. **S11 memory wiring.** Call `memoryStore.recall()` before each sub-agent runs and prepend results to its context; `remember()` notable outputs; `evictWorking()` at run end.
+4. **S13 persistence wiring.** Persist run/graph/blackboard/messages via `swarm-repo`/`memory-repo` and rehydrate on load so a refresh restores an in-flight or finished run.
+5. **S09 real recursion.** Replace the stub `spawnHook` with one that creates a child node/agent through the orchestrator (respecting depth ≤ 3) and bubbles results to the blackboard.
+6. **S10 live messages + S14 sub-views.** Stream `message` RunEvents live and build `MessageLogView`/`BlackboardView`/`AgentCard`/`TaskGraphView`/`RunControls`.
+7. **S15 hardening.** Add chaos tests and wire `eslint --max-warnings=0` + `madge --circular` into the verification loop.
+
+**One-line verdict:** the swarm's *brain* (planning, parallel execution, synthesis) works end-to-end and is well-tested; its *senses and memory* (routing, memory, persistence), its *recursion*, and most of its *face* (UI surfaces + an entry point) are still to be connected.
