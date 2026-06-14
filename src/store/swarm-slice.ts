@@ -85,7 +85,10 @@ export const createSwarmSlice: StateCreator<
     const modelId = model?.id ?? 'gemini-3-flash-preview';
 
     const cfg = defaultSwarmConfig(provider, modelId);
-    const orch = new Orchestrator({ config: cfg });
+    const orch = new Orchestrator({
+      config: cfg,
+      availableSkills: get().getAvailableSkills(),
+    });
     activeOrchestrator = orch;
 
     set((s) => {
@@ -98,7 +101,6 @@ export const createSwarmSlice: StateCreator<
     const controller = new AbortController();
     try {
       const gen = orch.run(task, controller.signal);
-      // eslint-disable-next-line no-constant-condition
       while (true) {
         const next = await gen.next();
         if (next.done) break;
