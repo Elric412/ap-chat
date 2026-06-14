@@ -772,6 +772,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
     browserDirectSupported: true,
     transportMode: 'sse',
     deprecated: false,
+    isLegacy: true,
     releaseDate: '2026-04-01',
     defaultSafeParams: { temperature: 0.2, topP: 0.95 },
   },
