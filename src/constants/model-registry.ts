@@ -916,7 +916,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   {
     id: 'nex-agi/nex-n2-pro:free',
     providerId: 'openrouter',
-    displayName: 'Nex N2 Pro',
+    displayName: 'Nex N2 Pro (Free)',
     family: 'Nex',
     contextWindow: 200000,
     maxOutputTokens: 32768,
@@ -924,7 +924,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
     modalities: { input: ['text', 'image'], output: ['text'] },
     capabilities: {
       ...BASE_CAPS,
-      supportsVision: true, supportsJsonMode: true,
+      supportsThinking: true, supportsVision: true, supportsJsonMode: true,
       supportsFrequencyPenalty: true, supportsPresencePenalty: true,
     },
     browserDirectSupported: true, transportMode: 'sse', deprecated: false,

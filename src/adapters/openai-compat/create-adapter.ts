@@ -163,8 +163,12 @@ export function createOpenAICompatAdapter(config: OpenAICompatConfig): ProviderA
                 yield { type: 'delta_text', content: delta.content };
               }
 
+              // DeepSeek-style providers use `reasoning_content`; OpenRouter
+              // (and routed models like Nex N2 Pro) stream reasoning under `reasoning`.
               if (delta?.reasoning_content && typeof delta.reasoning_content === 'string') {
                 yield { type: 'delta_thinking', content: delta.reasoning_content };
+              } else if (delta?.reasoning && typeof delta.reasoning === 'string') {
+                yield { type: 'delta_thinking', content: delta.reasoning };
               }
 
               const toolCalls = delta?.tool_calls as Array<Record<string, unknown>> | undefined;

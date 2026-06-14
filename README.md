@@ -1,73 +1,103 @@
-# Welcome to your Lovable project
+# BYOK Chat — The Multi-Model AI Workspace You Own
 
-## Project info
+> **Bring your own keys. Run every frontier model in one place. Keep your data on your device.**
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+BYOK Chat is a privacy-first, browser-native chat workspace that connects directly to the AI providers you already pay for — **OpenAI, Anthropic, Google, Mistral, Groq, Cohere, Together AI, Kimi, OpenRouter, and local Ollama** — with **no middleman server, no markup, and no data leaving your machine.** Your API keys are encrypted in your browser; your conversations live in local storage. It's the power of a commercial AI platform with the control of self-hosting.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## Why teams choose BYOK Chat
 
-**Use Lovable**
+| | |
+|---|---|
+| 🔐 **You own your keys & data** | Keys are encrypted client-side in an in-browser vault. Requests go **straight from your browser to the provider** — we never see your traffic, prompts, or keys. |
+| 🌐 **Every major model, one interface** | 10 providers and 40+ models behind a single, consistent UI. Switch from GPT-5.5 to Claude Opus to Gemini to a free OpenRouter model without changing tools. |
+| ⚖️ **Compare models side-by-side** | Fire one prompt at multiple models at once and judge speed, quality, and cost in real time. |
+| 💸 **Zero platform fees** | You pay providers their list price — nothing more. Free models (like Nex N2 Pro on OpenRouter) cost you exactly $0. |
+| 🧩 **Reusable Skills & system prompts** | Package expertise into Skills and prompt templates you can apply to any model on demand. |
+| 🧠 **Agent Swarm (preview)** | Decompose a complex task into a graph of specialist sub-agents that run in parallel and synthesize one answer — entirely client-side. |
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## Key capabilities
 
-**Use your preferred IDE**
+- **Streaming chat** with live token-by-token output, reasoning/thinking blocks, tool calls, and web-search citations.
+- **Side-by-side comparison** of multiple models on the same prompt, with per-model cost and latency.
+- **Encrypted BYOK vault** — add, validate, and manage keys for each provider locally.
+- **Skills library** — author and reuse specialist personas and instruction sets.
+- **System-prompt templates**, parameter controls (temperature, top-p, penalties, seed, reasoning effort), and a fast **command palette**.
+- **Canvas & sandbox** surfaces for working with generated artifacts.
+- **Cost transparency** — real-time token and spend tracking per message and per model.
+- **Local-first persistence** via IndexedDB — your history survives refreshes without a backend.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Supported providers & models
 
-Follow these steps:
+OpenAI · Anthropic · Google · Mistral · Groq · Cohere · Together AI · Kimi (Moonshot) · OpenRouter · Ollama (local)
+
+> Includes flagship models (GPT-5.5, Claude Opus 4.8, Gemini 3.1 Pro), fast/cheap workhorses, and **free** routed models. New models are added by a single registry entry — no architectural changes required.
+
+### Adding an OpenAI-compatible / OpenRouter model
+
+OpenRouter exposes an OpenAI-compatible API, so any OpenRouter model "just works":
+
+1. Open the **Vault** and paste your OpenRouter key (`sk-or-...`).
+2. Pick the model from the model selector (e.g. **Nex N2 Pro (Free)** → `nex-agi/nex-n2-pro:free`).
+3. Start chatting — requests route to `https://openrouter.ai/api/v1` automatically.
+
+---
+
+## Tech stack
+
+**React 18 · TypeScript (strict) · Vite · Zustand (Immer) · Tailwind CSS · shadcn-ui · Framer Motion · IndexedDB (idb) · Zod · Vitest**
+
+The architecture is **types-first and provider-agnostic**: a single adapter registry normalizes every provider behind one streaming interface, so capabilities, pricing, and routing are declared as data — not hard-coded logic.
+
+---
+
+## Quick start
+
+Requires Node.js & npm ([install via nvm](https://github.com/nvm-sh/nvm#installing-and-updating)).
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# 1. Clone
+git clone <YOUR_GIT_URL> && cd <YOUR_PROJECT_NAME>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 2. Install
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 3. Run (hot-reload dev server)
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Then open the app, go to the **Vault**, paste a provider key, and start chatting.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Scripts
 
-**Use GitHub Codespaces**
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build |
+| `npm run preview` | Preview the production build |
+| `npm run lint` | Lint the codebase |
+| `npm test` | Run the test suite (Vitest) |
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## Security & privacy
 
-This project is built with:
+- API keys are **encrypted in the browser** and never transmitted to any BYOK Chat server.
+- All model traffic is **direct browser → provider**.
+- Conversations and settings persist **locally** in IndexedDB.
+- See [`SECURITY_AUDIT_REPORT.md`](./SECURITY_AUDIT_REPORT.md) and [`security_best_practices_report.md`](./security_best_practices_report.md) for details.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+---
 
-## How can I deploy this project?
+## Roadmap
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+The **Agent Swarm** system (multi-agent decomposition, smart skill routing, shared memory, and persistence) is under active development. See [`Plan.md`](./Plan.md) for the full architecture and the live implementation status.
 
-## Can I connect a custom domain to my Lovable project?
+---
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+**BYOK Chat — your models, your keys, your data.**
