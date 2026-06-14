@@ -195,6 +195,7 @@ export function ModelSelector({ open, onClose }: ModelSelectorProps): JSX.Elemen
                     className={styles.providerGroup}
                   >
                     <div className={styles.providerLabel}>
+                      <ProviderIcon providerId={providerId} size={14} />
                       <span
                         className={styles.providerDot}
                         style={{ background: `var(${meta.colorVar})` }}
