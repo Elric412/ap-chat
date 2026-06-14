@@ -202,7 +202,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
     },
     thinkingConfig: { parameterName: 'budget_tokens', levels: { low: 4096, medium: 16384, high: 65536, 'x-high': 131072 }, minBudgetTokens: 1024, maxBudgetTokens: 131072 },
     cachingConfig: { headerKey: 'cache_control', strategy: 'ephemeral' },
-    browserDirectSupported: true, transportMode: 'sse', deprecated: false,
+    browserDirectSupported: true, transportMode: 'sse', deprecated: false, isLegacy: true,
     releaseDate: '2026-03-01', defaultSafeParams: { temperature: 1 },
   },
   {
