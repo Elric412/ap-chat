@@ -96,6 +96,7 @@ function AppInner(): JSX.Element {
         <VaultUnlockModal />
         <ParameterDrawer />
         <SkillLibraryPanel />
+        <SwarmPanel />
       </Suspense>
       <ToastStack />
       <Suspense fallback={null}>
