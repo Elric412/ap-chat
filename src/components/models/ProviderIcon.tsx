@@ -5,6 +5,7 @@
  * All glyphs are inline SVG to keep parity with theming (currentColor) and
  * avoid extra network requests. Sizes scale via the `size` prop.
  */
+import { useId } from 'react';
 import type { ProviderId } from '../../types/models';
 import type { ModelEntry } from '../../types/models';
 
@@ -25,12 +26,16 @@ export function ProviderIcon({ providerId, family, size = 16, className }: Provi
   if (family === 'DeepSeek') return <DeepSeekGlyph {...dim} />;
   if (family === 'Qwen')     return <QwenGlyph {...dim} />;
   if (family === 'Kimi')     return <KimiGlyph {...dim} />;
+  if (family === 'Gemini' || family === 'Gemma') return <GeminiGlyph {...dim} />;
+  if (family === 'Llama')    return <LlamaGlyph {...dim} />;
 
   switch (providerId) {
     case 'anthropic': return <ClaudeGlyph {...dim} />;
     case 'openai':    return <OpenAIGlyph {...dim} />;
     case 'kimi':      return <KimiGlyph {...dim} />;
     case 'mistral':   return <MistralGlyph {...dim} />;
+    case 'google':    return <GeminiGlyph {...dim} />;
+    case 'groq':      return <GroqGlyph {...dim} />;
     case 'openrouter': return <OpenRouterGlyph {...dim} />;
     default:          return <DotGlyph {...dim} providerId={providerId} />;
   }
@@ -108,6 +113,72 @@ function OpenRouterGlyph(p: { width: number; height: number; className?: string 
       <path d="M3 16h6l3 3 3-3h6" />
       <circle cx="20" cy="8" r="1.6" fill="currentColor" stroke="none" />
       <circle cx="20" cy="16" r="1.6" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function GroqGlyph(p: { width: number; height: number; className?: string }) {
+  return (
+    <svg {...BASE_PROPS} {...p} viewBox="0 0 201 201">
+      <path fill="#F54F35" d="M0 0h201v201H0V0Z" />
+      <path fill="#FEFBFB" d="m128 49 1.895 1.52C136.336 56.288 140.602 64.49 142 73c.097 1.823.148 3.648.161 5.474l.03 3.247.012 3.482.017 3.613c.01 2.522.016 5.044.02 7.565.01 3.84.041 7.68.072 11.521.007 2.455.012 4.91.016 7.364l.038 3.457c-.033 11.717-3.373 21.83-11.475 30.547-4.552 4.23-9.148 7.372-14.891 9.73l-2.387 1.055c-9.275 3.355-20.3 2.397-29.379-1.13-5.016-2.38-9.156-5.17-13.234-8.925 3.678-4.526 7.41-8.394 12-12l3.063 2.375c5.572 3.958 11.135 5.211 17.937 4.625 6.96-1.384 12.455-4.502 17-10 4.174-6.784 4.59-12.222 4.531-20.094l.012-3.473c.003-2.414-.005-4.827-.022-7.241-.02-3.68 0-7.36.026-11.04-.003-2.353-.008-4.705-.016-7.058l.025-3.312c-.098-7.996-1.732-13.21-6.681-19.47-6.786-5.458-13.105-8.211-21.914-7.792-7.327 1.188-13.278 4.7-17.777 10.601C75.472 72.012 73.86 78.07 75 85c2.191 7.547 5.019 13.948 12 18 5.848 3.061 10.892 3.523 17.438 3.688l2.794.103c2.256.082 4.512.147 6.768.209v16c-16.682.673-29.615.654-42.852-10.848-8.28-8.296-13.338-19.55-13.71-31.277.394-9.87 3.93-17.894 9.562-25.875l1.688-2.563C84.698 35.563 110.05 34.436 128 49Z" />
+    </svg>
+  );
+}
+
+function LlamaGlyph(p: { width: number; height: number; className?: string }) {
+  // Unique gradient ids per instance so multiple Llama icons don't bleed paint.
+  const uid = useId().replace(/[:]/g, '');
+  const a = `meta_a_${uid}`;
+  const b = `meta_b_${uid}`;
+  return (
+    <svg {...BASE_PROPS} {...p} viewBox="0 0 256 171" preserveAspectRatio="xMidYMid">
+      <defs>
+        <linearGradient id={a} x1="13.878%" x2="89.144%" y1="55.934%" y2="58.694%">
+          <stop offset="0%" stopColor="#0064E1" />
+          <stop offset="40%" stopColor="#0064E1" />
+          <stop offset="83%" stopColor="#0073EE" />
+          <stop offset="100%" stopColor="#0082FB" />
+        </linearGradient>
+        <linearGradient id={b} x1="54.315%" x2="54.315%" y1="82.782%" y2="39.307%">
+          <stop offset="0%" stopColor="#0082FB" />
+          <stop offset="100%" stopColor="#0064E0" />
+        </linearGradient>
+      </defs>
+      <path fill="#0081FB" d="M27.651 112.136c0 9.775 2.146 17.28 4.95 21.82 3.677 5.947 9.16 8.466 14.751 8.466 7.211 0 13.808-1.79 26.52-19.372 10.185-14.092 22.186-33.874 30.26-46.275l13.675-21.01c9.499-14.591 20.493-30.811 33.1-41.806C161.196 4.985 172.298 0 183.47 0c18.758 0 36.625 10.87 50.3 31.257C248.735 53.584 256 81.707 256 110.729c0 17.253-3.4 29.93-9.187 39.946-5.591 9.686-16.488 19.363-34.818 19.363v-27.616c15.695 0 19.612-14.422 19.612-30.927 0-23.52-5.484-49.623-17.564-68.273-8.574-13.23-19.684-21.313-31.907-21.313-13.22 0-23.859 9.97-35.815 27.75-6.356 9.445-12.882 20.956-20.208 33.944l-8.066 14.289c-16.203 28.728-20.307 35.271-28.408 46.07-14.2 18.91-26.324 26.076-42.287 26.076-18.935 0-30.91-8.2-38.325-20.556C2.973 139.413 0 126.202 0 111.148l27.651.988Z" />
+      <path fill={`url(#${a})`} d="M21.802 33.206C34.48 13.666 52.774 0 73.757 0 85.91 0 97.99 3.597 110.605 13.897c13.798 11.261 28.505 29.805 46.853 60.368l6.58 10.967c15.881 26.459 24.917 40.07 30.205 46.49 6.802 8.243 11.565 10.7 17.752 10.7 15.695 0 19.612-14.422 19.612-30.927l24.393-.766c0 17.253-3.4 29.93-9.187 39.946-5.591 9.686-16.488 19.363-34.818 19.363-11.395 0-21.49-2.475-32.654-13.007-8.582-8.083-18.615-22.443-26.334-35.352l-22.96-38.352C118.528 64.08 107.96 49.73 101.845 43.23c-6.578-6.988-15.036-15.428-28.532-15.428-10.923 0-20.2 7.666-27.963 19.39L21.802 33.206Z" />
+      <path fill={`url(#${b})`} d="M73.312 27.802c-10.923 0-20.2 7.666-27.963 19.39-10.976 16.568-17.698 41.245-17.698 64.944 0 9.775 2.146 17.28 4.95 21.82L9.027 149.482C2.973 139.413 0 126.202 0 111.148 0 83.772 7.514 55.24 21.802 33.206 34.48 13.666 52.774 0 73.757 0l-.445 27.802Z" />
+    </svg>
+  );
+}
+
+function GeminiGlyph(p: { width: number; height: number; className?: string }) {
+  // Unique mask/filter ids per instance so SVG filter refs don't collide.
+  const uid = useId().replace(/[:]/g, '');
+  const id = (suffix: string) => `gem_${suffix}_${uid}`;
+  return (
+    <svg {...BASE_PROPS} {...p} viewBox="0 0 296 298" fill="none">
+      <mask id={id('a')} width="296" height="298" x="0" y="0" maskUnits="userSpaceOnUse" style={{ maskType: 'alpha' }}>
+        <path fill="#3186FF" d="M141.201 4.886c2.282-6.17 11.042-6.071 13.184.148l5.985 17.37a184.004 184.004 0 0 0 111.257 113.049l19.304 6.997c6.143 2.227 6.156 10.91.02 13.155l-19.35 7.082a184.001 184.001 0 0 0-109.495 109.385l-7.573 20.629c-2.241 6.105-10.869 6.121-13.133.025l-7.908-21.296a184 184 0 0 0-109.02-108.658l-19.698-7.239c-6.102-2.243-6.118-10.867-.025-13.132l20.083-7.467A183.998 183.998 0 0 0 133.291 26.28l7.91-21.394Z" />
+      </mask>
+      <g mask={`url(#${id('a')})`}>
+        <g filter={`url(#${id('b')})`}><ellipse cx="163" cy="149" fill="#3689FF" rx="196" ry="159" /></g>
+        <g filter={`url(#${id('c')})`}><ellipse cx="33.5" cy="142.5" fill="#F6C013" rx="68.5" ry="72.5" /></g>
+        <g filter={`url(#${id('d')})`}><ellipse cx="19.5" cy="148.5" fill="#F6C013" rx="68.5" ry="72.5" /></g>
+        <g filter={`url(#${id('e')})`}><path fill="#FA4340" d="M194 10.5C172 82.5 65.5 134.333 22.5 135L144-66l50 76.5Z" /></g>
+        <g filter={`url(#${id('f')})`}><path fill="#FA4340" d="M190.5-12.5C168.5 59.5 62 111.333 19 112L140.5-89l50 76.5Z" /></g>
+        <g filter={`url(#${id('g')})`}><path fill="#14BB69" d="M194.5 279.5C172.5 207.5 66 155.667 23 155l121.5 201 50-76.5Z" /></g>
+        <g filter={`url(#${id('h')})`}><path fill="#14BB69" d="M196.5 320.5C174.5 248.5 68 196.667 25 196l121.5 201 50-76.5Z" /></g>
+      </g>
+      <defs>
+        <filter id={id('b')} width="464" height="390" x="-69" y="-46" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix" /><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" /><feGaussianBlur result="effect1_foregroundBlur" stdDeviation="18" /></filter>
+        <filter id={id('c')} width="265" height="273" x="-99" y="6" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix" /><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" /><feGaussianBlur result="effect1_foregroundBlur" stdDeviation="32" /></filter>
+        <filter id={id('d')} width="265" height="273" x="-113" y="12" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix" /><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" /><feGaussianBlur result="effect1_foregroundBlur" stdDeviation="32" /></filter>
+        <filter id={id('e')} width="299.5" height="329" x="-41.5" y="-130" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix" /><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" /><feGaussianBlur result="effect1_foregroundBlur" stdDeviation="32" /></filter>
+        <filter id={id('f')} width="299.5" height="329" x="-45" y="-153" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix" /><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" /><feGaussianBlur result="effect1_foregroundBlur" stdDeviation="32" /></filter>
+        <filter id={id('g')} width="299.5" height="329" x="-41" y="91" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix" /><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" /><feGaussianBlur result="effect1_foregroundBlur" stdDeviation="32" /></filter>
+        <filter id={id('h')} width="299.5" height="329" x="-39" y="132" colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse"><feFlood floodOpacity="0" result="BackgroundImageFix" /><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" /><feGaussianBlur result="effect1_foregroundBlur" stdDeviation="32" /></filter>
+      </defs>
     </svg>
   );
 }
