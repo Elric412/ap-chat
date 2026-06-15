@@ -16,6 +16,10 @@ export interface TaskNode {
   dependsOn: TaskId[];
   assignedAgentId: AgentId | null;
   suggestedSkillId: string | null;
+  /** Specialist role label produced by the roster planner (e.g. "Researcher"). */
+  agentRole: string | null;
+  /** Custom system prompt the orchestrator should hand to this sub-agent. */
+  agentSystemPrompt: string | null;
   result: string | null;
   error: SwarmError | null;
   tokenUsage: TokenUsage | null;
@@ -61,6 +65,10 @@ export const DecomposedNodeSchema = z.object({
   instruction: z.string().min(1).max(4000),
   dependsOn: z.array(z.string()).default([]),
   suggestedSkillId: z.string().nullable().default(null),
+  /** Specialist role label (e.g. "Researcher", "Code Critic"). */
+  agentRole: z.string().min(1).max(80).nullable().default(null),
+  /** Custom system prompt for this specialist agent. */
+  agentSystemPrompt: z.string().min(1).max(2000).nullable().default(null),
 });
 
 export const DecomposedPlanSchema = z.object({

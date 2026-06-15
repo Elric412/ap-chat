@@ -69,7 +69,8 @@ interface ExecuteNodeOptions {
   signal: AbortSignal;
 }
 
-const SINGLE_NODE_THRESHOLD = 60;
+/** Tasks shorter than this skip the planner LLM call and run as one generalist node. */
+const SINGLE_NODE_THRESHOLD = 24;
 const GENERALIST_SYSTEM_PROMPT = [
   'You are a specialist sub-agent inside a client-side swarm.',
   'Complete the assigned sub-task concisely and accurately.',
@@ -267,11 +268,13 @@ export class Orchestrator implements IOrchestrator {
       ? this.availableSkills.find((skill) => skill.id === routeDecision.chosenSkillId) ?? null
       : null;
 
+    const roleLabel = node.agentRole ?? routeDecision.chosenRole;
+    const systemPrompt = buildSystemPrompt(chosenSkill, node.agentRole, node.agentSystemPrompt);
     const spec: AgentSpec = {
       id: agentId,
-      name: node.title,
-      role: routeDecision.chosenRole,
-      systemPrompt: buildSystemPrompt(chosenSkill),
+      name: node.agentRole ? `${node.agentRole}: ${node.title}` : node.title,
+      role: roleLabel,
+      systemPrompt,
       skillId: chosenSkill?.id ?? null,
       toolNames: [],
       model: this.cfg.synthesizeModel.model,
@@ -401,6 +404,8 @@ export class Orchestrator implements IOrchestrator {
         dependsOn: [],
         assignedAgentId: null,
         suggestedSkillId: null,
+        agentRole: null,
+        agentSystemPrompt: null,
         result: null,
         error: null,
         tokenUsage: null,
@@ -603,6 +608,8 @@ export class Orchestrator implements IOrchestrator {
       dependsOn: [],
       assignedAgentId: null,
       suggestedSkillId: null,
+      agentRole: null,
+      agentSystemPrompt: null,
       result: null,
       error: null,
       tokenUsage: null,
@@ -672,9 +679,13 @@ function endpointForWriter(writer: AgentId | 'orchestrator'): Endpoint {
   return writer === 'orchestrator' ? { kind: 'orchestrator' } : { kind: 'agent', agentId: writer };
 }
 
-function buildSystemPrompt(skill: Skill | null): string {
-  if (!skill) return GENERALIST_SYSTEM_PROMPT;
-  return `${GENERALIST_SYSTEM_PROMPT}\n\nSelected specialist skill: ${skill.name}\n${skill.instructions}`;
+function buildSystemPrompt(skill: Skill | null, agentRole: string | null, agentSystemPrompt: string | null): string {
+  const base = agentSystemPrompt
+    ? `${agentSystemPrompt}\n\n${GENERALIST_SYSTEM_PROMPT}`
+    : GENERALIST_SYSTEM_PROMPT;
+  const roleLine = agentRole ? `\n\nYour role: ${agentRole}.` : '';
+  if (!skill) return `${base}${roleLine}`;
+  return `${base}${roleLine}\n\nSelected specialist skill: ${skill.name}\n${skill.instructions}`;
 }
 
 function buildMemoryTags(text: string, chosenSkillId: string | null): string[] {

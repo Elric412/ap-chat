@@ -157,9 +157,11 @@ export const createSwarmSlice: StateCreator<
     const modelId = model?.id ?? 'gemini-3-flash-preview';
 
     const cfg = defaultSwarmConfig(provider, modelId);
+    const skillsGetter = (get() as unknown as { getAvailableSkills?: () => unknown[] }).getAvailableSkills;
+    const availableSkills = (typeof skillsGetter === 'function' ? skillsGetter() : []) as never;
     const orch = new Orchestrator({
       config: cfg,
-      availableSkills: get().getAvailableSkills(),
+      availableSkills,
     });
     activeOrchestrator = orch;
 

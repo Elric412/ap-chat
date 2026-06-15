@@ -43,6 +43,8 @@ function mkNode(runId = newRunId()): TaskNode {
     dependsOn: [],
     assignedAgentId: null,
     suggestedSkillId: null,
+    agentRole: null,
+    agentSystemPrompt: null,
     result: null,
     error: null,
     tokenUsage: null,
@@ -81,7 +83,7 @@ async function collectRun(orchestrator: Orchestrator, task: string) {
     if (next.done) {
       return { events, result: next.value };
     }
-    events.push(next.value);
+    events.push(next.value as RunEvent);
   }
 }
 
