@@ -16,6 +16,10 @@ export interface TaskNode {
   dependsOn: TaskId[];
   assignedAgentId: AgentId | null;
   suggestedSkillId: string | null;
+  /** Specialist role label produced by the roster planner (e.g. "Researcher"). */
+  agentRole: string | null;
+  /** Custom system prompt the orchestrator should hand to this sub-agent. */
+  agentSystemPrompt: string | null;
   result: string | null;
   error: SwarmError | null;
   tokenUsage: TokenUsage | null;
