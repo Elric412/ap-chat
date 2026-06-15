@@ -83,7 +83,7 @@ async function collectRun(orchestrator: Orchestrator, task: string) {
     if (next.done) {
       return { events, result: next.value };
     }
-    events.push(next.value);
+    events.push(next.value as RunEvent);
   }
 }
 
