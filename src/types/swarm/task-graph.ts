@@ -65,6 +65,10 @@ export const DecomposedNodeSchema = z.object({
   instruction: z.string().min(1).max(4000),
   dependsOn: z.array(z.string()).default([]),
   suggestedSkillId: z.string().nullable().default(null),
+  /** Specialist role label (e.g. "Researcher", "Code Critic"). */
+  agentRole: z.string().min(1).max(80).nullable().default(null),
+  /** Custom system prompt for this specialist agent. */
+  agentSystemPrompt: z.string().min(1).max(2000).nullable().default(null),
 });
 
 export const DecomposedPlanSchema = z.object({
