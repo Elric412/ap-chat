@@ -1,10 +1,13 @@
 /**
- * S07 — LLM-driven task decomposition.
+ * S07 — Kimi-style roster planner.
  *
- * Builds a prompt that includes the DecomposedPlanSchema shape inline so the
- * model knows the exact JSON structure to emit. Output is validated with
- * Zod.safeParse — malformed JSON or schema violations return `invalid_llm_output`
- * (never a throw).
+ * Replaces the old plain-DAG decomposer with a planner that produces a
+ * **roster of specialist agents** (role + system prompt) plus their tasks
+ * and dependencies. This is the practical, no-RL version of Moonshot's
+ * `create_subagent` / `assign_task` model: the orchestrator gets to spawn
+ * named specialists dynamically instead of a flat list of "step N" nodes.
+ *
+ * Output is validated with Zod. Malformed JSON returns `invalid_llm_output`.
  */
 import { z } from 'zod';
 import type { ProviderId } from '../types/models';
@@ -18,27 +21,33 @@ import { TaskGraph } from './task-graph';
 import { runAgentLLM, buildSimpleMessages } from './agent-llm';
 import { DEFAULT_PARAMETERS } from '../constants/default-parameters';
 
-const DECOMPOSER_SYSTEM = `You are a planning agent inside an autonomous swarm. Decompose the user's task into a small DAG of sub-tasks (1–20 nodes).
+const ROSTER_SYSTEM = `You are the ORCHESTRATOR of an autonomous agent swarm. Your job is to assemble a small roster of specialist sub-agents and assign each one a focused sub-task. You do NOT solve the task yourself.
+
+Think like a manager: decide what kinds of specialists this work needs (Researcher, Code Writer, Critic, Data Analyst, Synthesizer, etc.), give each a tight role and system prompt, and wire their dependencies into a DAG.
 
 Output STRICTLY valid JSON matching this schema (no markdown, no commentary):
 {
   "nodes": [
     {
-      "tempId": "string (unique per plan, e.g. 't1','t2'...)",
-      "title": "short title",
-      "instruction": "self-contained instruction for one sub-agent",
-      "dependsOn": ["tempId of other nodes that must complete first"],
-      "suggestedSkillId": "string id of a skill or null"
+      "tempId": "t1",
+      "title": "Short human label for this sub-task",
+      "agentRole": "Researcher | Code Writer | Critic | Data Analyst | Synthesizer | ...",
+      "agentSystemPrompt": "Persona + responsibilities + output contract for this specialist. 1-3 sentences.",
+      "instruction": "Self-contained instruction this agent must execute. Reference dependency outputs by tempId if needed.",
+      "dependsOn": ["t0"],
+      "suggestedSkillId": null
     }
   ]
 }
 
-Rules:
-- Prefer 3–8 nodes for typical tasks; never exceed 20.
-- "dependsOn" must reference tempIds defined in the same plan; never a cycle.
-- Each instruction must be runnable independently given its dependencies' outputs.
-- If the task is trivial, return a single node.
-- Output ONLY the JSON object. No explanations.`;
+Hard rules:
+- 2 to 8 nodes for almost every task; never more than 12. Prefer FEWER specialists doing focused work.
+- Every node MUST have a meaningful "agentRole" and "agentSystemPrompt". Do not leave them blank.
+- "instruction" is what the specialist actually executes — runnable independently given its dependencies' outputs.
+- "dependsOn" only references tempIds defined in this plan; never a cycle.
+- The LAST node should typically be a Synthesizer/Writer that depends on the others and produces the final user-facing answer.
+- For trivial / single-fact queries, return ONE node with a Generalist role.
+- Output ONLY the JSON object. No prose, no fences.`;
 
 export interface DecomposeArgs {
   task: string;
@@ -58,7 +67,6 @@ function extractJson(raw: string): string {
   const trimmed = raw.trim();
   const fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
   if (fence) return fence[1].trim();
-  // Find first `{` and last `}` — handles models that prepend a sentence.
   const first = trimmed.indexOf('{');
   const last = trimmed.lastIndexOf('}');
   if (first !== -1 && last !== -1 && last > first) {
@@ -68,12 +76,12 @@ function extractJson(raw: string): string {
 }
 
 export async function decompose(args: DecomposeArgs): Promise<Result<DecomposeResult, SwarmError>> {
-  const messages = buildSimpleMessages(DECOMPOSER_SYSTEM, args.task);
+  const messages = buildSimpleMessages(ROSTER_SYSTEM, args.task);
 
   const llmResult = await runAgentLLM({
     provider: args.provider,
     model: args.model,
-    parameters: { ...DEFAULT_PARAMETERS, temperature: 0.2, responseFormat: 'json' },
+    parameters: { ...DEFAULT_PARAMETERS, temperature: 0.3, responseFormat: 'json' },
     messages,
     signal: args.signal,
   });
@@ -87,7 +95,7 @@ export async function decompose(args: DecomposeArgs): Promise<Result<DecomposeRe
   } catch (e) {
     return Err({
       kind: 'invalid_llm_output',
-      message: `Decomposer JSON.parse failed: ${e instanceof Error ? e.message : String(e)}`,
+      message: `Planner JSON.parse failed: ${e instanceof Error ? e.message : String(e)}`,
       zodIssues: { raw: raw.slice(0, 500) },
     });
   }
@@ -96,14 +104,13 @@ export async function decompose(args: DecomposeArgs): Promise<Result<DecomposeRe
   if (!safe.success) {
     return Err({
       kind: 'invalid_llm_output',
-      message: 'Decomposer output failed schema validation',
+      message: 'Planner output failed schema validation',
       zodIssues: safe.error.issues,
     });
   }
 
   const plan = safe.data;
 
-  // Map tempId → real branded TaskId.
   const idMap = new Map<string, TaskId>();
   for (const n of plan.nodes) idMap.set(n.tempId, newTaskId());
 
@@ -119,6 +126,8 @@ export async function decompose(args: DecomposeArgs): Promise<Result<DecomposeRe
       dependsOn: [],
       assignedAgentId: null,
       suggestedSkillId: n.suggestedSkillId,
+      agentRole: n.agentRole,
+      agentSystemPrompt: n.agentSystemPrompt,
       result: null,
       error: null,
       tokenUsage: null,
@@ -134,7 +143,7 @@ export async function decompose(args: DecomposeArgs): Promise<Result<DecomposeRe
       if (!from) {
         return Err({
           kind: 'invalid_llm_output',
-          message: `Decomposer referenced unknown tempId "${dep}"`,
+          message: `Planner referenced unknown tempId "${dep}"`,
           zodIssues: null,
         });
       }
@@ -143,14 +152,13 @@ export async function decompose(args: DecomposeArgs): Promise<Result<DecomposeRe
     }
   }
 
-  // Verify acyclicity (defense in depth — addEdge already rejects cycles).
   const topo = graph.topologicalOrder();
   if (!topo.ok) return Err(topo.error);
 
   return Ok({ plan, graph });
 }
 
-/** Used by chaos test — expose the schema for sanity checks. */
+/** Exposed for chaos / schema tests. */
 export const __decomposerSchema = DecomposedPlanSchema;
 void z;
 void asTaskId;
