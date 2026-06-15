@@ -69,7 +69,8 @@ interface ExecuteNodeOptions {
   signal: AbortSignal;
 }
 
-const SINGLE_NODE_THRESHOLD = 60;
+/** Tasks shorter than this skip the planner LLM call and run as one generalist node. */
+const SINGLE_NODE_THRESHOLD = 24;
 const GENERALIST_SYSTEM_PROMPT = [
   'You are a specialist sub-agent inside a client-side swarm.',
   'Complete the assigned sub-task concisely and accurately.',
