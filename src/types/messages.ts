@@ -76,6 +76,8 @@ export interface MessageMetadata {
   bookmarked: boolean;
   /** When set, this assistant node was produced by an autonomous agent step. */
   agentStep?: number;
+  /** When set, this message turn is backed by a swarm run; trace UI is shown inline. */
+  swarmRunId?: string;
 }
 
 export interface MessageNode {
