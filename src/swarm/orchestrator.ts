@@ -268,11 +268,13 @@ export class Orchestrator implements IOrchestrator {
       ? this.availableSkills.find((skill) => skill.id === routeDecision.chosenSkillId) ?? null
       : null;
 
+    const roleLabel = node.agentRole ?? routeDecision.chosenRole;
+    const systemPrompt = buildSystemPrompt(chosenSkill, node.agentRole, node.agentSystemPrompt);
     const spec: AgentSpec = {
       id: agentId,
-      name: node.title,
-      role: routeDecision.chosenRole,
-      systemPrompt: buildSystemPrompt(chosenSkill),
+      name: node.agentRole ? `${node.agentRole}: ${node.title}` : node.title,
+      role: roleLabel,
+      systemPrompt,
       skillId: chosenSkill?.id ?? null,
       toolNames: [],
       model: this.cfg.synthesizeModel.model,
