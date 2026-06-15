@@ -675,9 +675,13 @@ function endpointForWriter(writer: AgentId | 'orchestrator'): Endpoint {
   return writer === 'orchestrator' ? { kind: 'orchestrator' } : { kind: 'agent', agentId: writer };
 }
 
-function buildSystemPrompt(skill: Skill | null): string {
-  if (!skill) return GENERALIST_SYSTEM_PROMPT;
-  return `${GENERALIST_SYSTEM_PROMPT}\n\nSelected specialist skill: ${skill.name}\n${skill.instructions}`;
+function buildSystemPrompt(skill: Skill | null, agentRole: string | null, agentSystemPrompt: string | null): string {
+  const base = agentSystemPrompt
+    ? `${agentSystemPrompt}\n\n${GENERALIST_SYSTEM_PROMPT}`
+    : GENERALIST_SYSTEM_PROMPT;
+  const roleLine = agentRole ? `\n\nYour role: ${agentRole}.` : '';
+  if (!skill) return `${base}${roleLine}`;
+  return `${base}${roleLine}\n\nSelected specialist skill: ${skill.name}\n${skill.instructions}`;
 }
 
 function buildMemoryTags(text: string, chosenSkillId: string | null): string[] {
