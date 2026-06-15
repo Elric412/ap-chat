@@ -404,6 +404,8 @@ export class Orchestrator implements IOrchestrator {
         dependsOn: [],
         assignedAgentId: null,
         suggestedSkillId: null,
+        agentRole: null,
+        agentSystemPrompt: null,
         result: null,
         error: null,
         tokenUsage: null,
