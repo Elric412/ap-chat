@@ -47,6 +47,7 @@ export function getToolDefinition(name: string): ToolDefinition | null {
 export async function executeTool(
   toolCall: ToolCall,
   conversationId?: string,
+  messageNodeId?: string,
 ): Promise<ToolResult> {
   if (isSandboxTool(toolCall.toolName)) {
     if (!conversationId) {
@@ -71,6 +72,14 @@ export async function executeTool(
       }
       useAppStore.getState().recordExecution(result);
       useAppStore.setState((s) => { s.canvasOpen = true; });
+      // Surface any files the model wrote into the Canvas as previewable /
+      // downloadable artifacts, so the user sees the actual output instead of
+      // a useless "/sandbox/...path" reference.
+      let promoted: string[] = [];
+      if (result.changedFiles.length > 0) {
+        const { promoteSandboxFiles } = await import('../sandbox/artifact-promotion');
+        promoted = promoteSandboxFiles(conversationId, messageNodeId ?? '', result.changedFiles);
+      }
       return {
         toolCallId: toolCall.id,
         output: {
@@ -79,6 +88,8 @@ export async function executeTool(
           stdout: result.stdout.slice(0, 4000),
           stderr: result.stderr.slice(0, 4000),
           changedFiles: result.changedFiles,
+          // Tell the model these files are now visible to the user in the Canvas.
+          surfacedToUser: promoted.length > 0 ? result.changedFiles : [],
           richOutputs: result.outputs
             .filter((o) => o.kind === 'image' || o.kind === 'table' || o.kind === 'html')
             .map((o) => ({ kind: o.kind })),
@@ -87,7 +98,7 @@ export async function executeTool(
         isError: result.status !== 'success',
       };
     }
-    return dispatchSandboxTool(toolCall, conversationId);
+    return dispatchSandboxTool(toolCall, conversationId, messageNodeId);
   }
 
   switch (toolCall.toolName) {
