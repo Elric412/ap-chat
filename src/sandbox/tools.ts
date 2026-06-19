@@ -109,6 +109,7 @@ export function isSandboxTool(name: string): name is SandboxToolName {
 export async function dispatchSandboxTool(
   call: ToolCall,
   conversationId: string,
+  messageNodeId?: string,
 ): Promise<ToolResult> {
   try {
     switch (call.toolName) {
@@ -153,7 +154,19 @@ export async function dispatchSandboxTool(
         const content = String(call.arguments.content ?? '');
         const mimeType = typeof call.arguments.mimeType === 'string' ? (call.arguments.mimeType as string) : 'text/plain';
         const f = sandboxManager.writeFile(conversationId, path, content, mimeType);
-        return { toolCallId: call.id, output: { path: f.path, bytes: f.bytes }, isError: false };
+        // Surface the written file in the Canvas (preview/copy/download) so the
+        // user actually sees what was created — not just a path string.
+        const { promoteSandboxFiles } = await import('./artifact-promotion');
+        const promoted = promoteSandboxFiles(conversationId, messageNodeId ?? '', [f.path]);
+        if (promoted.length > 0) {
+          const { useAppStore } = await import('../store');
+          useAppStore.setState((s) => { s.canvasOpen = true; });
+        }
+        return {
+          toolCallId: call.id,
+          output: { path: f.path, bytes: f.bytes, surfacedToUser: promoted.length > 0 },
+          isError: false,
+        };
       }
       case 'list_files': {
         const files = sandboxManager.listFiles(conversationId)
