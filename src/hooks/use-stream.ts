@@ -231,7 +231,27 @@ export function useStream(): UseStreamReturn {
     const sandboxEnabled = store.sandboxEnabled;
     const agentMode = store.agentModeEnabled;
     const sandboxBlock = sandboxEnabled
-      ? `\n\n=== CODE EXECUTION SANDBOX (per-chat, isolated) ===\nYou have a real execution environment with persistent VFS at /sandbox.\nTools available: run_code (python | javascript | typescript), run_shell (ls, cat, mkdir, mv, cp, rm, grep, find, wc, head, tail, env, "python -c"), install_package (micropip), read_file, write_file, list_files, reset_sandbox.\n\nPolicy:\n  • Whenever the user asks you to compute, transform, fetch, plot, analyze data, or verify code — CALL the tools instead of guessing.\n  • Prefer run_code for anything multi-line; use run_shell for quick fs inspection.\n  • You may chain multiple tool calls in a single turn. After tools run, you'll receive their stdout/stderr/files and may decide to call more tools or answer.\n  • Files you create in /sandbox persist across calls in the same chat.\n  • If you need a package, call install_package first.\n${agentMode ? '  • AGENT MODE IS ON: keep working autonomously until the task is fully done. Do not ask the user for confirmation between steps.' : ''}\n\nYou may also emit a fenced block tagged \`python run\` or \`javascript run\` for a one-shot run that surfaces in the Canvas terminal — but prefer tool calls when you need the result back.`
+      ? `\n\n=== CODE EXECUTION SANDBOX (per-chat, isolated) ===
+You have a REAL execution environment with a persistent virtual filesystem rooted at /sandbox.
+Tools: run_code (python | javascript | typescript), run_shell (ls, cat, mkdir, mv, cp, rm, grep, find, wc, head, tail, env, "python -c"), install_package (micropip), read_file, write_file, list_files, reset_sandbox.
+
+WHEN TO USE IT:
+  • For computation, data transforms, fetching, plotting, analysis, or verifying code — CALL the tools instead of guessing.
+  • Use the sandbox as scratch space and as the place to BUILD deliverables (a webpage, a script, a chart, a report file).
+
+HOW RESULTS REACH THE USER (read carefully):
+  • Every file you create or change in /sandbox is AUTOMATICALLY surfaced to the user in the Canvas panel — they can preview it live (HTML/SVG render), read the source, copy it, and download it. You do NOT need to paste the whole file back, and you do NOT need to tell them a /sandbox path.
+  • A tool result includes "surfacedToUser": [...] listing the files now visible in the Canvas. Trust it.
+  • THEREFORE: NEVER end your turn with only a sentence like "I created the file at /sandbox/site/index.html". That path is meaningless to the user. Instead, after building something, give a short, useful final answer: say what you built, summarize the key parts, and point them to the live preview in the Canvas. If they asked a question, answer the question directly in chat.
+  • For small/quick outputs (a number, a short snippet, an answer), just put the answer in your chat reply — don't hide it in a file.
+
+WORKFLOW:
+  • Prefer run_code for multi-line logic; use write_file to author standalone deliverable files (e.g. index.html). Use run_shell for quick fs inspection.
+  • You may chain multiple tool calls in one turn. After tools run you'll get stdout/stderr/files back and can call more tools or answer.
+  • Files persist across calls in the same chat. If you need a package, call install_package first.
+${agentMode ? '  • AGENT MODE IS ON: keep working autonomously until the task is fully done. Do not ask the user for confirmation between steps, then deliver a clear final summary.' : ''}
+
+You may also emit a fenced block tagged \`python run\` or \`javascript run\` for a one-shot run that surfaces in the Canvas terminal — but prefer tool calls when you need the result back.`
       : '';
     const systemPrompt = (baseSystemPrompt || '') + skillDirective + skillBlock + sandboxBlock;
     const systemPromptTokens = systemPrompt ? Math.ceil(systemPrompt.length / 4) : 0;
@@ -330,7 +350,7 @@ export function useStream(): UseStreamReturn {
               const { isSandboxTool } = await import('../sandbox/tools');
               if (isSandboxTool(tc.toolName)) {
                 tc.status = 'executing';
-                const result = await executeTool(tc, conversationId);
+                const result = await executeTool(tc, conversationId, assistantNodeId);
                 tc.status = result.isError ? 'failed' : 'completed';
                 useAppStore.setState((state) => {
                   const node = state.messageMap.get(assistantNodeId);
@@ -450,10 +470,14 @@ export function useStream(): UseStreamReturn {
       }
       if (matches.length > 0) {
         const { sandboxManager } = await import('../sandbox/manager');
+        const { promoteSandboxFiles } = await import('../sandbox/artifact-promotion');
         for (const { lang, code } of matches) {
           try {
             const result = await sandboxManager.execute({ sessionId: conversationId, language: lang, code });
             useAppStore.getState().recordExecution(result);
+            if (result.changedFiles.length > 0) {
+              promoteSandboxFiles(conversationId, assistantNodeId, result.changedFiles);
+            }
             useAppStore.setState((state) => { state.canvasOpen = true; });
           } catch (err) {
             console.error('[sandbox] execution failed', err);
@@ -566,7 +590,7 @@ export function useStream(): UseStreamReturn {
             const { isSandboxTool } = await import('../sandbox/tools');
             if (isSandboxTool(tc.toolName)) {
               tc.status = 'executing';
-              const result = await executeTool(tc, conversationId);
+              const result = await executeTool(tc, conversationId, nextAssistantId);
               tc.status = result.isError ? 'failed' : 'completed';
               useAppStore.setState((state) => {
                 const n = state.messageMap.get(nextAssistantId);
