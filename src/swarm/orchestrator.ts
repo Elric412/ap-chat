@@ -38,6 +38,7 @@ import {
 } from '../types/swarm/ids';
 import { Blackboard } from './blackboard';
 import { decompose } from './decomposer';
+import { routeTask } from './route-task';
 import { MessageBus } from './message-bus';
 import { memoryStore as defaultMemoryStore } from './memory/memory-store';
 import { AgentPool } from './agent-pool';
@@ -69,15 +70,15 @@ interface ExecuteNodeOptions {
   signal: AbortSignal;
 }
 
-/** Tasks shorter than this skip the planner LLM call and run as one generalist node. */
-const SINGLE_NODE_THRESHOLD = 24;
+import { SPAWN_TAG_OPEN, SPAWN_TAG_CLOSE } from './sub-agent';
+
 const GENERALIST_SYSTEM_PROMPT = [
   'You are a specialist sub-agent inside a client-side swarm.',
   'Complete the assigned sub-task concisely and accurately.',
   'If you can answer directly, output only the result with no preamble or meta-commentary.',
-  'If you truly need delegated help from one deeper specialist, respond with STRICT JSON only:',
-  '{"spawnInstruction":"<the exact child sub-task to delegate>"}.',
-  'Use spawning sparingly and only when a distinct child task will materially improve the answer.',
+  'If — and only if — you genuinely need one deeper specialist to handle a distinct piece first,',
+  `emit a delegation block on its own line: ${SPAWN_TAG_OPEN}the exact child sub-task to delegate${SPAWN_TAG_CLOSE}`,
+  'then stop. Do not wrap it in code fences. Use spawning sparingly and only when it materially improves the answer.',
 ].join(' ');
 
 export class Orchestrator implements IOrchestrator {
@@ -165,8 +166,17 @@ export class Orchestrator implements IOrchestrator {
       this.swarmRun.status = 'planning';
       push({ type: 'run_status', status: 'planning' });
 
+      // Routing layer ("Ultracode trigger"): cheaply decide single-agent vs swarm
+      // before spending a planner LLM call.
+      const route = routeTask(task);
+      this.publishMsg({ kind: 'orchestrator' }, { kind: 'orchestrator' }, {
+        type: 'log',
+        level: 'info',
+        text: `Routing: ${route.reason} (score ${route.score}).`,
+      });
+
       let graph: TaskGraph;
-      if (task.length < SINGLE_NODE_THRESHOLD) {
+      if (!route.swarm) {
         graph = this.singleNodeGraph(task);
       } else {
         const dec = await decompose({
@@ -177,11 +187,19 @@ export class Orchestrator implements IOrchestrator {
           signal,
         });
         if (!dec.ok) {
-          this.fail(dec.error);
-          push({ type: 'error', error: dec.error });
-          return Err(dec.error);
+          // Planner failed (bad JSON, auth, etc.) — degrade gracefully to a
+          // single generalist node instead of failing the whole run.
+          this.publishMsg({ kind: 'orchestrator' }, { kind: 'orchestrator' }, {
+            type: 'log',
+            level: 'warn',
+            text: `Planner failed (${formatError(dec.error)}); falling back to a single generalist agent.`,
+          });
+          graph = this.singleNodeGraph(task);
+        } else if (dec.value.graph.getAllNodes().length === 0) {
+          graph = this.singleNodeGraph(task);
+        } else {
+          graph = dec.value.graph;
         }
-        graph = dec.value.graph;
       }
 
       this.graph = graph;

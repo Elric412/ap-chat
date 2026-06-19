@@ -25,6 +25,17 @@ export interface SpawnHook {
   (parentAgentId: AgentId, parentTaskId: TaskId, instruction: string): Promise<Result<SpawnedChild, SwarmError>>;
 }
 
+/**
+ * Delegation contract. A sub-agent requests one child by emitting a sentinel
+ * block on its own line:  <<<SPAWN>>> child sub-task <<<END_SPAWN>>>
+ *
+ * This is far more reliable than asking the model to emit a bare top-level JSON
+ * object (which fights the "answer directly" instruction). We still tolerate the
+ * legacy `{"spawnInstruction":"..."}` JSON form for backward compatibility.
+ */
+export const SPAWN_TAG_OPEN = '<<<SPAWN>>>';
+export const SPAWN_TAG_CLOSE = '<<<END_SPAWN>>>';
+
 export interface SubAgentInit {
   spec: AgentSpec;
   taskId: TaskId;
@@ -142,7 +153,7 @@ export class SubAgent implements ISubAgent {
       const output: AgentOutput = {
         taskId: this.runtime.taskId,
         agentId: this.runtime.spec.id,
-        text: finalText,
+        text: stripSpawnDirective(finalText),
         tokenUsage: usage,
         toolResults: [],
         citations: [],
@@ -195,24 +206,58 @@ function mergeUsage(a: TokenUsage, b: TokenUsage): TokenUsage {
   };
 }
 
-function parseSpawnDirective(text: string): SpawnDirective | null {
-  const trimmed = text.trim();
-  if (!trimmed.startsWith('{')) return null;
+const SPAWN_TAG_RE = new RegExp(
+  `${escapeRegExp(SPAWN_TAG_OPEN)}([\\s\\S]*?)${escapeRegExp(SPAWN_TAG_CLOSE)}`,
+  'i',
+);
 
-  try {
-    const parsed = JSON.parse(trimmed) as unknown;
-    if (
-      parsed
-      && typeof parsed === 'object'
-      && 'spawnInstruction' in parsed
-      && typeof parsed.spawnInstruction === 'string'
-      && parsed.spawnInstruction.trim().length > 0
-    ) {
-      return { spawnInstruction: parsed.spawnInstruction.trim() };
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Tolerant spawn-directive parser. Supports two forms:
+ *  1. Sentinel block:  <<<SPAWN>>> instruction <<<END_SPAWN>>>  (preferred)
+ *  2. Legacy bare JSON: {"spawnInstruction":"..."}              (backward compat)
+ *
+ * Exported for unit testing.
+ */
+export function parseSpawnDirective(text: string): SpawnDirective | null {
+  // Form 1: sentinel tags anywhere in the output.
+  const tagMatch = text.match(SPAWN_TAG_RE);
+  if (tagMatch) {
+    const instruction = tagMatch[1].trim();
+    if (instruction.length > 0) return { spawnInstruction: instruction };
+  }
+
+  // Form 2: legacy top-level JSON (optionally inside a ```json fence).
+  const trimmed = stripFence(text).trim();
+  if (trimmed.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(trimmed) as unknown;
+      if (
+        parsed
+        && typeof parsed === 'object'
+        && 'spawnInstruction' in parsed
+        && typeof (parsed as { spawnInstruction: unknown }).spawnInstruction === 'string'
+        && (parsed as { spawnInstruction: string }).spawnInstruction.trim().length > 0
+      ) {
+        return { spawnInstruction: (parsed as { spawnInstruction: string }).spawnInstruction.trim() };
+      }
+    } catch {
+      /* fall through */
     }
-  } catch {
-    return null;
   }
 
   return null;
+}
+
+function stripFence(text: string): string {
+  const fence = text.trim().match(/```(?:json)?\s*([\s\S]*?)```/i);
+  return fence ? fence[1] : text;
+}
+
+/** Remove any residual spawn directive from a final answer before returning it. */
+function stripSpawnDirective(text: string): string {
+  return text.replace(SPAWN_TAG_RE, '').trim();
 }
