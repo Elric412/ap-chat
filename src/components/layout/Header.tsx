@@ -33,8 +33,8 @@ export function Header(): JSX.Element {
   const toggleWebSearch = useAppStore((s) => s.toggleWebSearch);
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
   const setSidebarOpen = useAppStore((s) => s.setSidebarOpen);
-  const swarmPanelOpen = useAppStore((s) => s.panelOpen);
-  const setSwarmPanelOpen = useAppStore((s) => s.setSwarmPanelOpen);
+  const swarmMode = useAppStore((s) => s.swarmMode);
+  const setSwarmMode = useAppStore((s) => s.setSwarmMode);
   const navigate = useNavigate();
 
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -50,6 +50,12 @@ export function Header(): JSX.Element {
   const handleToggleComparison = useCallback(() => {
     setComparisonMode(!comparisonMode);
   }, [comparisonMode, setComparisonMode]);
+
+  const handleToggleSwarm = useCallback(() => {
+    // Swarm and comparison are mutually exclusive routing modes.
+    if (!swarmMode && comparisonMode) setComparisonMode(false);
+    setSwarmMode(!swarmMode);
+  }, [swarmMode, comparisonMode, setSwarmMode, setComparisonMode]);
 
   return (
     <>
@@ -173,10 +179,11 @@ export function Header(): JSX.Element {
         <motion.button
           className={styles.headerAction}
           type="button"
-          aria-label="Toggle agent swarm"
-          data-active={swarmPanelOpen}
-          onClick={() => setSwarmPanelOpen(!swarmPanelOpen)}
-          title="Agent Swarm"
+          aria-label="Toggle agent swarm mode"
+          aria-pressed={swarmMode}
+          data-active={swarmMode}
+          onClick={handleToggleSwarm}
+          title={swarmMode ? 'Agent Swarm mode ON — your next prompt runs as a swarm' : 'Enable Agent Swarm mode'}
           whileHover={springHover}
           whileTap={springTap}
         >

@@ -8,7 +8,7 @@
 
 import { useState, useRef, useCallback, useEffect, forwardRef, type KeyboardEvent, type ChangeEvent, type DragEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUp, Square, Paperclip, Upload, Zap, Search } from 'lucide-react';
+import { ArrowUp, Square, Paperclip, Upload, Zap, Search, Network } from 'lucide-react';
 import type { ProcessedAttachment } from '../../engine/attachment-processor';
 import { SkillIndicator } from '../skills/SkillIndicator';
 import { AttachmentPreviewCard } from './AttachmentPreviewCard';
@@ -61,6 +61,8 @@ export function ChatInput({
   const webSearchEnabled = useAppStore((s) => s.webSearchEnabled);
   const setWebSearchEnabled = useAppStore((s) => s.setWebSearchEnabled);
   const selectedModelId = useAppStore((s) => s.selectedModelId);
+  const swarmMode = useAppStore((s) => s.swarmMode);
+  const setSwarmMode = useAppStore((s) => s.setSwarmMode);
 
   const selectedModel = MODEL_REGISTRY.find((model) => model.id === selectedModelId);
   const supportsWebSearch = selectedModel?.capabilities.supportsWebSearch ?? false;
@@ -273,7 +275,11 @@ export function ChatInput({
         onKeyDown={handleKeyDown}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        placeholder={attachments.length > 0 ? 'Add a message…' : 'Type a message… (/ for commands)'}
+        placeholder={
+          swarmMode
+            ? 'Describe a complex task — the Agent Swarm will plan, split, and synthesize it…'
+            : attachments.length > 0 ? 'Add a message…' : 'Type a message… (/ for commands)'
+        }
         rows={1}
         disabled={disabled}
         aria-label="Message input"
@@ -316,6 +322,19 @@ export function ChatInput({
           disabled={disabled || !supportsWebSearch}
         >
           <Search size={16} aria-hidden="true" />
+        </button>
+
+        {/* Agent Swarm mode toggle */}
+        <button
+          className={styles.searchBtn}
+          data-active={swarmMode}
+          onClick={() => setSwarmMode(!swarmMode)}
+          type="button"
+          aria-label="Toggle Agent Swarm mode"
+          aria-pressed={swarmMode}
+          title={swarmMode ? 'Agent Swarm mode ON' : 'Enable Agent Swarm mode'}
+        >
+          <Network size={16} aria-hidden="true" />
         </button>
 
         {/* Skill indicator */}

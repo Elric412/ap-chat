@@ -57,6 +57,9 @@ export function ChatPage(): JSX.Element {
   const comparisonMode = useAppStore((s) => s.comparisonMode);
   const activeComparison = useAppStore((s) => s.activeComparison);
   const comparisonModelIds = useAppStore((s) => s.comparisonModelIds);
+  const swarmMode = useAppStore((s) => s.swarmMode);
+  const runSwarmInChat = useAppStore((s) => s.runSwarmInChat);
+  const abortSwarmRun = useAppStore((s) => s.abortSwarmRun);
   const { sendWithStream, abort, approveToolCall, denyToolCall } = useStream();
   const { startParallelStreams, abortAll } = useComparisonStream();
   const [streaming, setStreaming] = useState(false);
@@ -88,7 +91,18 @@ export function ChatPage(): JSX.Element {
     setStreaming(true);
     await persistAttachments(attachments);
 
-    if (comparisonMode && comparisonModelIds.length >= 2) {
+    if (swarmMode) {
+      // Agent Swarm mode — decompose into agents and synthesize one inline reply.
+      const store = useAppStore.getState();
+      const branchMessages = store.getActiveBranchMessages();
+      const lastMsg = branchMessages[branchMessages.length - 1];
+      const parentId = lastMsg?.id ?? null;
+      await runSwarmInChat(conversation.id, text, parentId, conversation.rootNodeId);
+      if (branchMessages.length <= 1) {
+        const title = text.length > 50 ? text.slice(0, 47) + '…' : text;
+        updateConversation(conversation.id, { title });
+      }
+    } else if (comparisonMode && comparisonModelIds.length >= 2) {
       // Parallel inference mode
       await startParallelStreams(conversation.id, text);
     } else {
@@ -105,7 +119,7 @@ export function ChatPage(): JSX.Element {
       }
     }
     setStreaming(false);
-  }, [conversation, sendWithStream, updateConversation, persistAttachments, comparisonMode, comparisonModelIds, startParallelStreams]);
+  }, [conversation, sendWithStream, updateConversation, persistAttachments, comparisonMode, comparisonModelIds, startParallelStreams, swarmMode, runSwarmInChat]);
 
   const handleFirstMessage = useCallback(async (text: string, attachments?: ProcessedAttachment[]) => {
     const conv = createConversation();
@@ -118,7 +132,9 @@ export function ChatPage(): JSX.Element {
       const store = useAppStore.getState();
       await store.loadMessages(conv.id);
 
-      if (comparisonMode && comparisonModelIds.length >= 2) {
+      if (swarmMode) {
+        await store.runSwarmInChat(conv.id, text, conv.rootNodeId, conv.rootNodeId);
+      } else if (comparisonMode && comparisonModelIds.length >= 2) {
         await startParallelStreams(conv.id, text);
       } else {
         await sendWithStream(conv.id, text, conv.rootNodeId, conv.rootNodeId, attachments);
@@ -128,13 +144,14 @@ export function ChatPage(): JSX.Element {
       store.updateConversation(conv.id, { title });
       setStreaming(false);
     }, 50);
-  }, [createConversation, navigate, sendWithStream, persistAttachments, comparisonMode, comparisonModelIds, startParallelStreams]);
+  }, [createConversation, navigate, sendWithStream, persistAttachments, comparisonMode, comparisonModelIds, startParallelStreams, swarmMode]);
 
   const handleAbort = useCallback(() => {
     abort();
     abortAll();
+    abortSwarmRun();
     setStreaming(false);
-  }, [abort, abortAll]);
+  }, [abort, abortAll, abortSwarmRun]);
 
   const handleComparisonStart = useCallback(() => {
     setSetupOpen(false);

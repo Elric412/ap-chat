@@ -16,6 +16,7 @@ import { StreamCursor } from './StreamCursor';
 import { ThinkingBlock } from './ThinkingBlock';
 import { ToolCallCard } from './ToolCallCard';
 import { WebSearchCitations } from './WebSearchCitation';
+import { SwarmTrace } from '../swarm/SwarmTrace';
 import { formatTime, formatTokenCount, formatCost } from '../../lib/format';
 import { sanitizeErrorMessage } from '../../engine/input-sanitizer';
 import { Code2, Pin, Copy, Check } from 'lucide-react';
@@ -77,6 +78,7 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall, styl
   const hasCitations = message.webSearchResults.length > 0;
   const hasArtifacts = message.artifactRefs.length > 0;
   const isPinned = message.metadata.pinned;
+  const swarmRunId = message.metadata.swarmRunId;
 
   const handleViewArtifact = (artifactId: string) => {
     useAppStore.getState().setActiveArtifact(artifactId);
@@ -202,6 +204,11 @@ export function MessageBubble({ message, onApproveToolCall, onDenyToolCall, styl
       {/* Web search citations */}
       {hasCitations && (
         <WebSearchCitations results={message.webSearchResults} />
+      )}
+
+      {/* Inline Agent Swarm trace */}
+      {isAssistant && swarmRunId && (
+        <SwarmTrace runId={swarmRunId} />
       )}
 
       {/* Artifact chips */}
