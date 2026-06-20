@@ -14,6 +14,20 @@ export interface ArtifactsSlice {
   activeArtifactId: string | null;
 
   addArtifact: (artifact: Omit<Artifact, 'id' | 'createdAt' | 'updatedAt' | 'versions' | 'activeVersionIndex'> & { content: string }) => string;
+  /**
+   * Create or version a sandbox-sourced artifact, deduped by VFS path within
+   * a conversation. Re-writing the same file appends a new version instead of
+   * spawning a duplicate. Returns the artifact id (or null if not promotable).
+   */
+  upsertSandboxArtifact: (params: {
+    conversationId: string;
+    messageNodeId: string;
+    path: string;
+    content: string;
+    type: Artifact['type'];
+    language?: string;
+    activate?: boolean;
+  }) => string | null;
   updateArtifactContent: (artifactId: string, content: string, messageNodeId: string) => void;
   setActiveArtifact: (id: string | null) => void;
   removeArtifact: (id: string) => void;
@@ -54,6 +68,59 @@ export const createArtifactsSlice: StateCreator<
     set((state) => {
       state.artifacts.set(id, artifact);
       state.activeArtifactId = id;
+    });
+    return id;
+  },
+
+  upsertSandboxArtifact: (params) => {
+    const { conversationId, messageNodeId, path, content, type, language, activate = false } = params;
+    // Find an existing sandbox artifact for this path in this conversation.
+    let existingId: string | null = null;
+    for (const a of get().artifacts.values()) {
+      if (a.source === 'sandbox' && a.conversationId === conversationId && a.sandboxPath === path) {
+        existingId = a.id;
+        break;
+      }
+    }
+
+    if (existingId) {
+      const existing = get().artifacts.get(existingId)!;
+      const current = existing.versions[existing.versions.length - 1]?.content;
+      // Skip no-op writes so we don't pile up identical versions.
+      if (current === content) {
+        if (activate) set((state) => { state.activeArtifactId = existingId; });
+        return existingId;
+      }
+      set((state) => {
+        const artifact = state.artifacts.get(existingId!);
+        if (!artifact) return;
+        artifact.versions.push({ id: uuidv7(), content, createdAt: Date.now(), messageNodeId });
+        artifact.activeVersionIndex = artifact.versions.length - 1;
+        artifact.updatedAt = Date.now();
+        if (activate) state.activeArtifactId = existingId;
+      });
+      return existingId;
+    }
+
+    const id = uuidv7();
+    const now = Date.now();
+    const artifact: Artifact = {
+      id,
+      conversationId,
+      messageNodeId,
+      type,
+      title: path,
+      language,
+      versions: [{ id: uuidv7(), content, createdAt: now, messageNodeId }],
+      activeVersionIndex: 0,
+      createdAt: now,
+      updatedAt: now,
+      source: 'sandbox',
+      sandboxPath: path,
+    };
+    set((state) => {
+      state.artifacts.set(id, artifact);
+      if (activate) state.activeArtifactId = id;
     });
     return id;
   },

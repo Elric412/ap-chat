@@ -6,10 +6,10 @@
  * copy/preview capabilities.
  */
 
-import { useState, useCallback, useMemo, useRef } from 'react';
+import { useState } from 'react';
 import {
   X, Copy, Check, Code2, FileText, Image,
-  ChevronLeft, ChevronRight, Layers, Eye, PenLine, Terminal,
+  Layers, Eye, PenLine, Terminal, Download,
 } from 'lucide-react';
 import { useAppStore } from '../../store';
 import type { Artifact, ArtifactType } from '../../types/artifacts';
@@ -73,6 +73,33 @@ export function CanvasPanel(): JSX.Element | null {
 
   const handleClose = () => setCanvasOpen(false);
 
+  const handleDownload = () => {
+    if (!activeArtifact || !activeContent) return;
+    const name = downloadName(activeArtifact);
+    const mime = downloadMime(activeArtifact);
+    const blob = new Blob([activeContent], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
+  // Open a sandbox VFS file (by path) as an artifact in the Canvas.
+  const handleOpenSandboxFile = (path: string) => {
+    if (!activeConversationId) return;
+    for (const a of artifacts.values() as Iterable<Artifact>) {
+      if (a.source === 'sandbox' && a.conversationId === activeConversationId && a.sandboxPath === path) {
+        setActiveArtifact(a.id);
+        setView('artifacts');
+        return;
+      }
+    }
+  };
+
   const canPreview = activeArtifact?.type === 'html' || activeArtifact?.type === 'svg';
 
   return (
@@ -84,7 +111,7 @@ export function CanvasPanel(): JSX.Element | null {
             <div className={styles.titleGroup}>
               <div className={styles.title}>{activeArtifact.title}</div>
               <div className={styles.subtitle}>
-                {TYPE_LABELS[activeArtifact.type]}
+                {activeArtifact.source === 'sandbox' ? 'Sandbox file' : TYPE_LABELS[activeArtifact.type]}
                 {activeArtifact.language ? ` · ${activeArtifact.language}` : ''}
                 {activeArtifact.versions.length > 1 ? ` · v${activeArtifact.activeVersionIndex + 1}` : ''}
               </div>
@@ -119,6 +146,11 @@ export function CanvasPanel(): JSX.Element | null {
               {previewMode ? <Code2 size={14} /> : <Eye size={14} />}
             </button>
           )}
+          {effectiveView === 'artifacts' && activeArtifact && (
+            <button className={styles.headerBtn} onClick={handleDownload} aria-label="Download" type="button" title="Download file">
+              <Download size={14} />
+            </button>
+          )}
           {effectiveView === 'artifacts' && (
             <button className={styles.headerBtn} onClick={handleCopy} aria-label="Copy" type="button">
               {copied ? <Check size={14} /> : <Copy size={14} />}
@@ -132,7 +164,7 @@ export function CanvasPanel(): JSX.Element | null {
 
       {effectiveView === 'sandbox' && activeConversationId ? (
         <div className={styles.contentArea}>
-          <SandboxOutputView conversationId={activeConversationId} />
+          <SandboxOutputView conversationId={activeConversationId} onOpenFile={handleOpenSandboxFile} />
         </div>
       ) : (
         <>
@@ -183,6 +215,31 @@ export function CanvasPanel(): JSX.Element | null {
       )}
     </div>
   );
+}
+
+const EXT_MIME: Record<string, string> = {
+  html: 'text/html', htm: 'text/html', svg: 'image/svg+xml', css: 'text/css',
+  js: 'text/javascript', mjs: 'text/javascript', ts: 'text/typescript',
+  json: 'application/json', md: 'text/markdown', csv: 'text/csv',
+  py: 'text/x-python', xml: 'application/xml', txt: 'text/plain',
+};
+
+function downloadName(a: Artifact): string {
+  // Sandbox artifacts carry their real path; fall back to a sensible default.
+  if (a.sandboxPath) return a.sandboxPath.split('/').pop() || 'file.txt';
+  const extByType: Record<ArtifactType, string> = {
+    code: a.language === 'python' ? 'py' : a.language === 'typescript' ? 'ts' : a.language === 'json' ? 'json' : a.language === 'css' ? 'css' : 'txt',
+    html: 'html', svg: 'svg', markdown: 'md', table: 'csv', mermaid: 'mmd', latex: 'tex',
+  };
+  const ext = extByType[a.type] ?? 'txt';
+  const base = (a.title || 'artifact').replace(/[^\w.-]+/g, '_').replace(/\.[^.]+$/, '');
+  return `${base}.${ext}`;
+}
+
+function downloadMime(a: Artifact): string {
+  const name = downloadName(a);
+  const ext = name.includes('.') ? name.split('.').pop()!.toLowerCase() : '';
+  return EXT_MIME[ext] ?? 'text/plain';
 }
 
 function TypeIcon({ type }: { type: ArtifactType }) {

@@ -18,4 +18,12 @@ export interface Artifact {
   activeVersionIndex: number;
   createdAt: number;
   updatedAt: number;
+  /**
+   * Source of this artifact. 'message' = detected in assistant text;
+   * 'sandbox' = promoted from a sandbox VFS file (so the user can see,
+   * preview, and download what the model actually built).
+   */
+  source?: 'message' | 'sandbox';
+  /** For sandbox-sourced artifacts: the VFS path (used to dedupe → versions). */
+  sandboxPath?: string;
 }

@@ -9,9 +9,13 @@ import { useAppStore } from '../../store';
 import type { SandboxExecutionResult, SandboxOutputChunk } from '../../sandbox/types';
 import styles from './SandboxOutputView.module.css';
 
-interface Props { conversationId: string; }
+interface Props {
+  conversationId: string;
+  /** Open a sandbox file (by VFS path) as an artifact in the Canvas. */
+  onOpenFile?: (path: string) => void;
+}
 
-export function SandboxOutputView({ conversationId }: Props): JSX.Element {
+export function SandboxOutputView({ conversationId, onOpenFile }: Props): JSX.Element {
   const executions = useAppStore((s) => s.executions.get(conversationId) ?? []);
 
   if (executions.length === 0) {
@@ -27,12 +31,12 @@ export function SandboxOutputView({ conversationId }: Props): JSX.Element {
 
   return (
     <div className={styles.root}>
-      {executions.map((ex) => <ExecutionCard key={ex.executionId} execution={ex} />)}
+      {executions.map((ex) => <ExecutionCard key={ex.executionId} execution={ex} onOpenFile={onOpenFile} />)}
     </div>
   );
 }
 
-function ExecutionCard({ execution }: { execution: SandboxExecutionResult }): JSX.Element {
+function ExecutionCard({ execution, onOpenFile }: { execution: SandboxExecutionResult; onOpenFile?: (path: string) => void }): JSX.Element {
   return (
     <div className={styles.execution}>
       <div className={styles.execHeader}>
@@ -53,9 +57,22 @@ function ExecutionCard({ execution }: { execution: SandboxExecutionResult }): JS
       {execution.changedFiles.length > 0 && (
         <div className={styles.files}>
           <span>Files:</span>
-          {execution.changedFiles.map((p) => (
-            <span key={p} className={styles.fileChip}>{p}</span>
-          ))}
+          {execution.changedFiles.map((p) =>
+            onOpenFile ? (
+              <button
+                key={p}
+                type="button"
+                className={styles.fileChip}
+                data-clickable="true"
+                onClick={() => onOpenFile(p)}
+                title={`Open ${p} in Canvas`}
+              >
+                {p}
+              </button>
+            ) : (
+              <span key={p} className={styles.fileChip}>{p}</span>
+            ),
+          )}
         </div>
       )}
     </div>
