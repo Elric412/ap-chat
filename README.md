@@ -90,13 +90,12 @@ Then open the app, go to the **Vault**, paste a provider key, and start chatting
 - API keys are **encrypted in the browser** and never transmitted to any BYOK Chat server.
 - All model traffic is **direct browser → provider**.
 - Conversations and settings persist **locally** in IndexedDB.
-- See [`SECURITY_AUDIT_REPORT.md`](./SECURITY_AUDIT_REPORT.md) and [`security_best_practices_report.md`](./security_best_practices_report.md) for details.
 
 ---
 
 ## Roadmap
 
-The **Agent Swarm** system (multi-agent decomposition, smart skill routing, shared memory, and persistence) is under active development. See [`Plan.md`](./Plan.md) for the full architecture and the live implementation status.
+The **Agent Swarm** system (multi-agent decomposition, smart skill routing, shared memory, and persistence) is under active development.
 
 ---
 
